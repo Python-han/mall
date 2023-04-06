@@ -81,6 +81,7 @@ class BaykeShopSPU(AbstractModel):
     
     @classmethod
     def get_hots(cls):
+        # 热销商品
         return cls.objects.order_by('-baykeshopsku__sales')[:bayke_settings.HOT_SPUS_LEN]
     
     def get_absolute_url(self):
