@@ -1,0 +1,1 @@
+from baykeshop.views.home import HomeTemplateView
