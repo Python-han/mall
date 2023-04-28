@@ -1,0 +1,63 @@
+{% extends 'baykeshop/base_site.html' %}
+
+{% load static bayketags %}
+
+{% block title %}
+    {% if cate %}
+        {{ cate }}
+    {% else %}
+        全部商品
+    {% endif %}
+{% endblock %}
+
+{% block breadcrumb %}
+<div class="container">
+	<nav class="breadcrumb is-marginless mt-3 mb-3 is-small" aria-label="breadcrumbs">
+		<ul>
+			<li><a href="{% url 'baykeshop:home' %}">首页</a></li>
+            {% if cate.parent %}
+                <li><a href="{% url 'baykeshop:cate-detail' cate.parent.id %}">{{ cate.parent.name }}</a></li>
+            {% endif %}
+			<li class="is-active"><a href="#" aria-current="page">{% if cate %}{{ cate.name }}{% else %}全部商品{% endif %}</a></li>
+		</ul>
+	</nav>
+</div>
+{% endblock %}
+
+{% block container %}
+
+{% filtercates cate as category %}
+<div class="box is-marginless is-radiusless">
+    <a href="{% url 'baykeshop:goods' %}" class="mr-2 {% if request.path == '/goods/' %} has-text-danger-dark {% else %} has-text-black {% endif %}">全部分类</a>
+    {% for item in category.cates %}
+        <a class="mr-2 {% if item.id == cate.id or item.id == cate.parent.id %} has-text-danger-dark {% else %} has-text-black {% endif %}" 
+            href="{% url 'baykeshop:cate-detail' item.id %}">{{ item.name }}</a>
+    {% endfor %}
+</div>
+
+<div class="box is-radiusless">
+    <div>
+        <span class=" has-text-grey-light">分类：</span>
+        {% for item in category.sub_cates %}
+            <a class="mr-2 {% if item.id == cate.id %} has-text-danger-dark {% else %} has-text-black {% endif %}" 
+                href="{% url 'baykeshop:cate-detail' item.id %}">{{ item.name }}</a>
+        {% endfor %}
+    </div>
+    <div class="mt-2">
+        <span class=" has-text-grey-light">排序：</span>
+            <a class="mr-2 has-text-black" href="">价格</a>
+    </div>
+</div>
+
+<div class="box1 is-radiusless is-shadowless">
+    <div class="columns is-multiline">
+        {% for spu in page_obj %}
+            <div class="column is-3">
+                <div class="has-background-white is-flex is-flex-direction-column" style="min-height: 430px;">
+                    {% spubox spu %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

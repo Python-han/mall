@@ -18,5 +18,8 @@ app_name = "baykeshop"
 
 urlpatterns = [
     path("", views.HomeTemplateView.as_view(), name="home"),
+    path('goods/', views.BaykeProductSPUListView.as_view(), name='goods'),
+    path('cates/<int:pk>/', views.BaykeProductCategoryListView.as_view(), name='cate-detail'),
+    
     path('api/', include('baykeshop.api.urls')),
 ]

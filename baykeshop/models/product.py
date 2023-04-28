@@ -41,7 +41,7 @@ class BaykeProductCategory(base.CategoryMixin):
     
     @classmethod
     def get_cates(cls):
-        cates = cls.objects.filter(is_nav=True, parent__isnull=True)
+        cates = cls.objects.filter(parent__isnull=True, is_nav=True)
         for cate in cates:
             cate.sub_cates = cate.baykeproductcategory_set.filter(is_nav=True)
         return cates
