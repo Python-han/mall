@@ -1,4 +1,7 @@
 from django.template import Library
+from django.urls import reverse
+
+from baykeshop.forms import SearchForm
 from baykeshop.models import BaykeProductCategory
 
 register = Library()
@@ -10,9 +13,8 @@ def spubox(spu):
     if sku:
         spu.price = sku.price
         spu.sales = sku.sales
-    return {
-        'spu': spu
-    }
+    return {'spu': spu}
+
 
 @register.simple_tag
 def navbar():
@@ -33,3 +35,4 @@ def filtercates(cate=None):
         'cates': cates,
         'sub_cates': sub_cates
     }
+    

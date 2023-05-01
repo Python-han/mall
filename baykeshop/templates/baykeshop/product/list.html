@@ -3,11 +3,7 @@
 {% load static bayketags %}
 
 {% block title %}
-    {% if cate %}
-        {{ cate }}
-    {% else %}
-        全部商品
-    {% endif %}
+    {% if cate %}{{ cate }}{% elif word %}{{ word }}{% else %}全部商品{% endif %}
 {% endblock %}
 
 {% block breadcrumb %}
@@ -18,7 +14,7 @@
             {% if cate.parent %}
                 <li><a href="{% url 'baykeshop:cate-detail' cate.parent.id %}">{{ cate.parent.name }}</a></li>
             {% endif %}
-			<li class="is-active"><a href="#" aria-current="page">{% if cate %}{{ cate.name }}{% else %}全部商品{% endif %}</a></li>
+			<li class="is-active"><a href="#" aria-current="page">{% if cate %}{{ cate.name }}{% elif word %}{{ word }}{% else %}全部商品{% endif %}</a></li>
 		</ul>
 	</nav>
 </div>

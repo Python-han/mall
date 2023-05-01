@@ -35,6 +35,8 @@ DEFAULTS_CONF = {
     
     "PC_LOGO": "baykeshop",
     
+    "SEARCH_VALUE": "请输入搜索关键字",
+    
     # 首页楼层数量及分类显示数量
     "HOME_NAV_COUNT": 5,
     

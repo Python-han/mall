@@ -9,10 +9,13 @@
 @微信    :baywanyun
 '''
 
-from typing import Any
-from django.db import models
+
+from django.db.models import Q
 from django.views.generic import ListView
 from django.views.generic.detail import SingleObjectMixin
+from django.contrib import messages
+from baykeshop.forms import SearchForm
+
 
 from baykeshop.models import BaykeProductCategory, BaykeProductSPU
 
@@ -45,3 +48,21 @@ class BaykeProductCategoryListView(SingleObjectMixin, BaykeProductSPUListView):
             queryset = BaykeProductSPU.objects.filter(cates__in=self.object.baykeproductcategory_set.all()).distinct()
         return queryset
     
+
+class BaykeSearchView(BaykeProductSPUListView):
+    """ 搜索视图 """
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['word'] = self.request.GET.get('search')
+        return context
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        form = SearchForm(self.request.GET)
+        if form.is_valid():
+            word = form.cleaned_data['search']
+            queryset = queryset.filter(
+                Q(title__icontains=word)|Q(desc__icontains=word)|Q(keywords__icontains=word)
+            )
+            messages.add_message(self.request, messages.SUCCESS, f'共搜索到{queryset.count()}条数据')
+        return queryset

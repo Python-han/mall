@@ -20,6 +20,7 @@ urlpatterns = [
     path("", views.HomeTemplateView.as_view(), name="home"),
     path('goods/', views.BaykeProductSPUListView.as_view(), name='goods'),
     path('cates/<int:pk>/', views.BaykeProductCategoryListView.as_view(), name='cate-detail'),
+    path('search/', views.BaykeSearchView.as_view(), name='search'),
     
     path('api/', include('baykeshop.api.urls')),
 ]
