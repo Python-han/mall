@@ -47,15 +47,6 @@
 <script>
     var navbar = new Vue({
         el: '#navbar',
-        delimiters: ['{$', '$}'],
-        data: {},
-        methods: {
-            toastMessage(type, message){
-                return this.$buefy.toast.open({
-                    message: message,
-                    type: type
-                })
-            },
-        }
+        delimiters: ['{$', '$}']
     })
 </script>

@@ -22,6 +22,8 @@ DEFAULTS_CONF = {
     # 站点URL，最后不带斜杠
     "SITE_URL": "http://127.0.0.1:3000",
     
+    "API_BASE": "api/",
+    
     "SITE_HEADER": "Bayke",
     "SITE_TITLE": "Bayke",
     

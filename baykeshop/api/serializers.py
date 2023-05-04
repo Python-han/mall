@@ -15,7 +15,7 @@ from rest_framework.validators import UniqueValidator
 
 from baykeshop.conf import bayke_settings
 from baykeshop.models import BaykeUser, BaykeVerifyCode
-from baykeshop.models import BaykeBanner
+from baykeshop.models import BaykeBanner, BaykeProductSpec
 
 
 class BaykeUserSerializer(serializers.ModelSerializer):
@@ -152,6 +152,8 @@ class BaykeProductSpecOptionSerializer(serializers.ModelSerializer):
 class BaykeProductSPecSerializer(serializers.ModelSerializer):
     """ 商品spec """
     
+    baykeproductspecoption_set = BaykeProductSpecOptionSerializer(many=True)
+    
     class Meta:
         from baykeshop.models import BaykeProductSpec
         model = BaykeProductSpec
@@ -166,7 +168,7 @@ class BaykeProductSKUSerializer(serializers.ModelSerializer):
     class Meta:
         from baykeshop.models import BaykeProductSKU
         model = BaykeProductSKU
-        fields = "__all__"
+        exclude = ("site", "add_date", "pub_date", "is_del")
 
 
 class BaykeProductCategorySerializer(serializers.ModelSerializer):
@@ -196,19 +198,12 @@ class BaykeProductSPUSerializer(serializers.ModelSerializer):
         from baykeshop.models import BaykeProductSPU
         model = BaykeProductSPU
         fields = "__all__"
-        
-    def get_specs(self, obj):
-        """ 整理specs规格列表 """
-        specs = obj.baykeproductsku_set.values("options__spec__name", "options__name")
-        specs_items = {}
-        for spec in specs:
-            if spec["options__spec__name"] not in specs_items:
-                specs_items[spec["options__spec__name"]] = []
-            for k in specs_items.keys():
-                if k == spec["options__spec__name"]:
-                    specs_items[spec["options__spec__name"]].append(spec["options__name"])
-        return specs_items
 
+    def get_specs(self, obj):
+        spec_ids = obj.baykeproductsku_set.filter(is_release=True).values_list('options__spec__id', flat=True)
+        specs = BaykeProductSPecSerializer(BaykeProductSpec.objects.filter(id__in=list(set(spec_ids))), many=True)
+        return specs.data
+    
 
 ###################################################################
 # cart start 购物车序列化
@@ -233,15 +228,18 @@ class BaykeCartSerializer(serializers.ModelSerializer):
             instance = super().create(validated_data)
             return instance   
         except IntegrityError:
-            from django.db.models import F
-            from baykeshop.models import BaykeCart
-            carts = BaykeCart.objects.filter(
-                owner=self.context['request'].user, 
-                sku=validated_data['sku']
-            )
-            carts.update(count=F("count")+validated_data["count"])
-            return carts.first()
-    
+            print(validated_data)
+            try:
+                from django.db.models import F
+                from baykeshop.models import BaykeCart
+                carts = BaykeCart.objects.filter(
+                    owner=self.context['request'].user, 
+                    sku=validated_data['sku']
+                )
+                carts.update(count=F("count")+validated_data["count"])
+                return carts.first()
+            except KeyError:
+                raise serializers.ValidationError("sku不能为空！")
     
 class BaykeCartUpdateCountSerializer(serializers.ModelSerializer):
     """ 购物车数量修改序列化 """ 

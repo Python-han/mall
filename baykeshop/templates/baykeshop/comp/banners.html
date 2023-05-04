@@ -24,7 +24,7 @@
         },
         methods: {
             getBanners(){
-                fetch("{% url 'baykeshop:banners' %}").then(res => res.json()).then(data => {
+                fetch("{% url 'baykeshop:banners-list' %}").then(res => res.json()).then(data => {
                     this.carousels = data
                 })
             }

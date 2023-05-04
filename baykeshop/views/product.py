@@ -14,10 +14,12 @@ from django.db.models import Q
 from django.views.generic import ListView
 from django.views.generic.detail import SingleObjectMixin
 from django.contrib import messages
+
+from rest_framework import renderers
+
 from baykeshop.forms import SearchForm
-
-
 from baykeshop.models import BaykeProductCategory, BaykeProductSPU
+from baykeshop.api.product import BaykeProductSPUViewSet
 
 
 class BaykeProductSPUListView(ListView):
@@ -66,3 +68,17 @@ class BaykeSearchView(BaykeProductSPUListView):
             )
             messages.add_message(self.request, messages.SUCCESS, f'共搜索到{queryset.count()}条数据')
         return queryset
+
+
+class BaykeProductSPUDetailView(BaykeProductSPUViewSet):
+    """ 商品详情页，继承api接口视图 """
+    
+    renderer_classes = (renderers.TemplateHTMLRenderer, )
+    
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        response.template_name = "baykeshop/product/detail.html"
+        return response
+
+    
+    

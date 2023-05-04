@@ -21,6 +21,8 @@ from baykeshop.models.article import (
     BaykeArticle, BaykeArticleCategory, BaykeArticleTag
 )
 from baykeshop.models.order import BaykeOrder, BaykeOrderSKU
-from baykeshop.models.user import BaykeUser, BaykeUserBalanceLog, BaykeVerifyCode
+from baykeshop.models.user import (
+    BaykeUser, BaykeUserBalanceLog, BaykeVerifyCode, BaykeAddress
+)
 from baykeshop.models.cart import BaykeCart
 

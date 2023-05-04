@@ -46,7 +46,7 @@
                 注册
             </a>
             {% endif %}
-            <a class="cart" @click="getCarts" id="cartNum">
+            <a class="cart" href="{% url 'baykeshop:carts' %}" id="cart">
                 <span class="icon"><i class="mdi mdi-cart-check"></i></span>
                 购物车({$ cartcount $})
             </a>
@@ -55,14 +55,19 @@
     </div>
 </div>
 <script>
-    var cartNum = new Vue({
-        el: '#cartNum',
+    var bayke = new Vue({
+        el: '#cart',
         delimiters: ['{$', '$}'],
         data: {
            cartcount: '0'
         },
         methods: {
-            
+            toastMessage(type, message){
+                return this.$buefy.toast.open({
+                    message: message,
+                    type: type
+                })
+            },
         },
     })
 </script>
