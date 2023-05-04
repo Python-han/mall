@@ -9,8 +9,10 @@
 @微信    :baywanyun
 '''
 
+from django.urls import path
+
 from rest_framework.routers import DefaultRouter
-from . import cart, product, public, user
+from . import cart, product, public, user, order
 
 
 router = DefaultRouter()
@@ -27,4 +29,7 @@ router.register('cart', cart.BaykeCartViewSet, basename='cart')
 # 商品
 router.register('product', product.BaykeProductSPUViewSet, basename='product')
 
-urlpatterns = router.urls
+urlpatterns = [
+    path('order/confirm/', order.BaykeOrderConfirmAPIView.as_view(), name='order-confirm'),
+        
+] + router.urls

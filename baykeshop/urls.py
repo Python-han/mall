@@ -28,7 +28,7 @@ urlpatterns = [
     path('carts/', views.BaykeCartListView.as_view({'get': 'list'}), name='carts'),
     
     # 订单确认页
-    path('order/confirm/', views.BaykeOrderConfirmView.as_view(), name='order-confirm'),
+    # path('order/confirm/', views.BaykeOrderConfirmView.as_view(), name='order-confirm'),
     
     
     
