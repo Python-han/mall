@@ -1,22 +1,42 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 '''
-@文件    :urls.py
-@说明    :接口url
-@时间    :2023/04/22 20:32:35
+@文件    :api_urls.py
+@说明    :api url
+@时间    :2023/05/04 13:18:53
 @作者    :幸福关中&轻编程
 @版本    :1.0
 @微信    :baywanyun
 '''
 
 from django.urls import path
-from . import generics
-from . import token
-from .order import BaykeCreateOrderAPIView, BaykeCreateOrderSKUAPIView
-from .pay import BaykePayOrderAPIView, AliPayNotifyAPIView
 
+from rest_framework.routers import DefaultRouter
+from . import cart, product, public, user, order, pay, generics, token
+
+
+router = DefaultRouter()
+
+# public
+router.register('banners', public.BaykeBannerViewset, basename='banners')
+
+# address
+router.register('address', user.BaykeAddressViewSet, basename='address')
+
+# 购物车【增删改查】
+router.register('cart', cart.BaykeCartViewSet, basename='cart')
+
+# 商品
+router.register('product', product.BaykeProductSPUViewSet, basename='product')
+
+# order
+router.register('order', order.BaykeOrderGeneratedViewset, basename='order')
 
 urlpatterns = [
+    
+    path('alipay/api/', pay.AliPayNotifyAPIView.as_view(), name='alipay-api'),
+    path('order/confirm/', order.BaykeOrderConfirmAPIView.as_view(), name='order-confirm'),
+    
     # 当前登录用户详情
     path('user/<int:pk>/', generics.BaykeUserRetrieveAPIView.as_view(), name='user-detail'),
     # 获取邮箱验证码 post
@@ -31,30 +51,5 @@ urlpatterns = [
     path("verify/", token.TokenVerifyView.as_view(), name="verify"),
     # 注册接口 post
     path("register/", generics.BaykeUserRegisterAPIView.as_view(), name="register"),
-    
-    # 轮播图 get => list
-    path('banners/', generics.BaykeBannerListAPIView.as_view(), name='banners'),
-    
-    # 商品分类接口
-    path('product/cates/', generics.BaykeProductCategoryListAPIView.as_view(), name='product-cates'),
-    # 商品列表接口 get
-    path("product/list/", generics.BaykeProductSPUListAPIView.as_view(), name="product-list"), 
-    # 商品详情接口 get
-    path("product/<int:pk>/", generics.BaykeProductSPURetrieveAPIView.as_view(), name="product-detail"),
-    
-    # 加入购物车接口 get=>list  post=>create
-    path("carts/", generics.BaykeCartAPIView.as_view(), name="carts"),
-    # 修改购物车数量 put patch
-    path("carts/<int:pk>/count/", generics.BaykeCartUpdateCountAPIView.as_view(), name="carts-update-count"),
-    
-    # 创建订单
-    path('order/create/', BaykeCreateOrderAPIView.as_view(), name='order-create'),
-    # 查看订单基础信息及创建关联商品，计算价格 get->detail put->order
-    path('order/create/<str:order_sn>/', BaykeCreateOrderSKUAPIView.as_view(), name='order-create-sku'),
-    
-    # 支付
-    path('pay/<str:order_sn>/', BaykePayOrderAPIView.as_view(), name='pay-order'),
-    
-    # 支付宝支付回调
-    path('alipay/success/', AliPayNotifyAPIView.as_view(), name="alipay-success")
-]
+        
+] + router.urls

@@ -56,9 +56,9 @@ DEFAULTS_CONF = {
     
     # 支付宝支付相关配置
     "ALIPAY_APPID": "2021000122666025",
-    "ALIPAY_NOTIFY_URL": "bayke:alipay-success",
-    "ALIPAY_RETURN_URL": "bayke:alipay-success",
-    "ALIPAY_PRIVATE_KEY":"bayke/payment/alipay/keys/app_private_key.pem",
-    "ALIPAY_PUBLIC_KEY": "bayke/payment/alipay/keys/alipay_public_key.pem",
+    "ALIPAY_NOTIFY_URL": "baykeshop:alipay-api",
+    "ALIPAY_RETURN_URL": "baykeshop:alipaypc",
+    "ALIPAY_PRIVATE_KEY":"baykeshop/payment/alipay/keys/app_private_key.pem",
+    "ALIPAY_PUBLIC_KEY": "baykeshop/payment/alipay/keys/alipay_public_key.pem",
     "ALIPAY_SIGN_TYPE": "RSA2",  # RSA 或者 RSA2
 }

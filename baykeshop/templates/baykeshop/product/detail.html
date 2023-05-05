@@ -90,7 +90,8 @@
                 </b-button>
                 <b-button 
                     type="is-primary" 
-                    :disabled="stock ? false : true" 
+                    :disabled="stock ? false : true"
+                    @click="nowBuy"
                     outlined>
                     立即购买
                 </b-button>
@@ -200,9 +201,18 @@
                         }
                     }).then(res => {
                         console.log(res)
+                        if (res.status == 201) {
+                            bayke._data.cartcount += this.num
+                            bayke.toastMessage('is-success', '加入购物车成功')
+                        }
                     })
-                }
+                },
 
+                // 立即购买
+                nowBuy(){
+                    console.log(this.num, this.sku.id)
+                    location.href = '{% url "baykeshop:confirm" %}?skuid='+`${this.sku.id}&count=${this.num}`
+                }
             },
             watch:{
                 // 监听点击规格

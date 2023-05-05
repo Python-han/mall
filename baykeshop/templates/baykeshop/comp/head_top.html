@@ -1,3 +1,4 @@
+{% load bayketags %}
 <div id="header-top" class="has-background-black-bis">
     <div class="is-flex is-justify-content-space-between is-align-items-center container" style="height:40px">
         <div class="head-top-left">
@@ -46,6 +47,7 @@
                 注册
             </a>
             {% endif %}
+            {% cartscount request as cartcount %}
             <a class="cart" href="{% url 'baykeshop:carts' %}" id="cart">
                 <span class="icon"><i class="mdi mdi-cart-check"></i></span>
                 购物车({$ cartcount $})
@@ -59,7 +61,7 @@
         el: '#cart',
         delimiters: ['{$', '$}'],
         data: {
-           cartcount: '0'
+           cartcount: Number('{% cartscount request %}')
         },
         methods: {
             toastMessage(type, message){

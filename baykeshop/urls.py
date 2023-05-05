@@ -26,11 +26,13 @@ urlpatterns = [
     path('product/<int:pk>/', views.BaykeProductSPUDetailView.as_view({'get': 'retrieve'}), name='product-retrieve'),
     # 购物车列表页
     path('carts/', views.BaykeCartListView.as_view({'get': 'list'}), name='carts'),
-    
     # 订单确认页
-    # path('order/confirm/', views.BaykeOrderConfirmView.as_view(), name='order-confirm'),
+    path('order/confirm/', views.BaykeOrderConfirmView.as_view(), name='confirm'),
+    # 订单支付方式选择
+    path('order/pay/<int:pk>/', views.BaykeOrderPayMethodView.as_view({'get': 'checkpay'}), name='checkpay'),
+    # 支付宝支付后回调
+    path('alipay/notify/', views.BaykeAlipayNotifyView.as_view(), name='alipaypc'),
     
-    
-    
-    path('api/', include('baykeshop.api.api_urls')),
+    # 接口
+    path('api/', include('baykeshop.api.urls')),
 ]

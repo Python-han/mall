@@ -4,5 +4,7 @@ from baykeshop.views.product import (
     BaykeSearchView, BaykeProductSPUDetailView
 )
 from baykeshop.views.cart import BaykeCartListView
-from baykeshop.views.order import BaykeOrderConfirmView
+from baykeshop.views.order import (
+    BaykeOrderConfirmView, BaykeOrderPayMethodView, BaykeAlipayNotifyView
+)
 

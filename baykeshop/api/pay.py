@@ -19,47 +19,7 @@ from rest_framework.response import Response
 from baykeshop.permissions import IsOwnerAuthenticated
 from baykeshop.models import BaykeOrder
 from .order import BaykeOrderSerializer
-from baykeshop.payment.payMethod import AlipayConcreate, BalanceConcreate, client, AliPayProduct
-
-
-class BaykeOrderPaySerializer(BaykeOrderSerializer):
-    """ 订单支付序列化 """
-    owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    order_sn = serializers.ReadOnlyField()
-    pay_method = serializers.ChoiceField(BaykeOrder.PayMethodChoices.choices)
-    total_amount = serializers.ReadOnlyField()
-    pay_status = serializers.ReadOnlyField()
-    
-    class Meta:
-        model = BaykeOrder
-        fields = ("id", "owner", "order_sn", "total_amount", "pay_method", "pay_status")
-        
-    def validate(self, attrs):
-        super().validate(attrs)
-        if attrs['pay_method'] not in [2, 4]:
-            raise serializers.ValidationError("暂不支持该支付方式...")
-        elif not self.instance.baykeordersku_set.exists():
-            raise serializers.ValidationError("该订单未关联任何商品, 请先调用向订单添加商品接口关联需要购买的商品！")
-        elif self.instance.pay_status in [2,3,4,5]:
-            raise serializers.ValidationError("该订单已支付，无需重复支付！")
-        return attrs
-    
-
-class BaykePayOrderAPIView(RetrieveUpdateAPIView):
-    """ 订单支付接口 """
-    serializer_class = BaykeOrderPaySerializer
-    authentication_classes = [SessionAuthentication, JWTAuthentication]
-    permission_classes = [IsOwnerAuthenticated]
-    queryset = BaykeOrder.objects.all()
-    lookup_field = "order_sn"
-    
-    def update(self, request, *args, **kwargs):
-        response = super().update(request, *args, **kwargs)
-        if response.data['pay_method'] == 2:
-            response.data['pay_url'] = client(AlipayConcreate(self.get_object()))
-        elif response.data['pay_method'] == 4:
-            return client(BalanceConcreate(self.get_object()))
-        return response
+from baykeshop.payment.pay import alipay
 
 
 class NotifyMixin:
@@ -71,7 +31,7 @@ class NotifyMixin:
         trade_no = datas.get('trade_no')
         orders = self.get_queryset().filter(order_sn=order_sn)
         
-        success = AliPayProduct.alipay().verify(datas, signature)
+        success = alipay.verify(datas, signature)
         from django.utils import timezone
         if success:
             orders.update(
@@ -92,7 +52,7 @@ class ReturnMixin:
         order_sn = datas.get('out_trade_no')
         trade_no = datas.get('trade_no')
         orders = self.get_queryset().filter(order_sn=order_sn)
-        success = AliPayProduct.alipay().verify(datas, signature)
+        success = alipay.verify(datas, signature)
         from django.utils import timezone
         if success:
             orders.update(
@@ -111,7 +71,7 @@ class AliPayNotifyAPIView(NotifyMixin, ReturnMixin, GenericAPIView):
     """ 支付宝支付回调 """
     serializer_class = BaykeOrderSerializer
     authentication_classes = [SessionAuthentication, JWTAuthentication]
-    permission_classes = [IsOwnerAuthenticated]
+    # permission_classes = [IsOwnerAuthenticated]
     queryset = BaykeOrder.objects.all()
     
     def get(self, request, *args, **kwargs):

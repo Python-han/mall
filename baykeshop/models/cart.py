@@ -43,7 +43,8 @@ class BaykeCart(base.BaseModelMixin):
     def get_cart_count(cls, user) -> dict: 
         # 当前用户的购物车商品数量
         from django.db.models import Sum
-        return cls.objects.filter(owner=user).aggregate(Sum('count'))
+        counts = cls.objects.filter(owner=user).aggregate(Sum('count'))
+        return counts.get('count__sum') if counts.get('count__sum') else 0
 
     def clean(self) -> None:
         if self.count > self.sku.stock:

@@ -27,6 +27,5 @@ class BaykeBannerSerializer(serializers.ModelSerializer):
 class BaykeBannerViewset(mixins.ListModelMixin, viewsets.GenericViewSet):
     """ 轮播图接口 """
     from baykeshop.models import BaykeBanner
-    from .serializers import BaykeBannerSerializer
     queryset = BaykeBanner.objects.all()
     serializer_class = BaykeBannerSerializer

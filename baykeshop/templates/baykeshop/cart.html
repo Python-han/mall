@@ -94,7 +94,7 @@
                             <button 
                                 class="button is-primary is-radiusless is-large pl-6 pr-6" 
                                 :disabled="checkedRows.length > 0 ? false : true"
-                                click="cartBuy">
+                                @click="cartBuy">
                                 去结算
                             </button>
                         </div>
@@ -187,6 +187,15 @@
                         }
                     })
                 },
+
+                // 购物车结算
+                cartBuy(){
+                    let cartids = []
+                    this.checkedRows.forEach(el => {
+                        cartids.push(el.id)
+                    })
+                    location.href = '{% url "baykeshop:confirm" %}?cartids='+`${cartids.join(',')}`
+                }
             }
         })
 

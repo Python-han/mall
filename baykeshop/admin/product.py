@@ -88,7 +88,7 @@ class BaykeProductSPUAdmin(BaseModelAdmin):
     inlines = (BaykeProductBannerInline, BaykeProductSKUInline, )
     
     class Media:
-        css = {'all': ['bayke/css/ordersku.css']}
+        css = {'all': ['baykeshop/css/ordersku.css']}
     
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         if db_field.name == 'cates':

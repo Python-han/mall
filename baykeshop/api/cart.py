@@ -26,7 +26,7 @@ class BaykeCartSKUTSPUSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = product.BaykeProductSPU
-        fields = ("id", "title", "pic")
+        fields = ("id", "title", "pic", "freight")
 
 
 class BaykeCartSKUSerializer(product.BaykeProductSKUSerializer):

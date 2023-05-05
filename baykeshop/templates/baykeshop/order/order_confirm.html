@@ -1,0 +1,124 @@
+{% extends 'baykeshop/base_site.html' %}
+
+{% load i18n static %}
+
+{% block title %}订单确认{% endblock %}
+
+{% block breadcrumb %}
+<div class="container">
+	<nav class="breadcrumb is-marginless mt-3 mb-3 is-small" aria-label="breadcrumbs">
+		<ul>
+			<li><a href="{% url 'baykeshop:home' %}">首页</a></li>
+			<li class="is-active"><a href="#" aria-current="page">订单确认</a></li>
+		</ul>
+	</nav>
+</div>
+{% endblock %}
+
+{% block container %}
+
+<div class="box">
+	<h1 class="is-size-5">收货地址</h1>
+	<img width="100%"
+		src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABLAAAAAECAYAAACeNca/AAAAAXNSR0IArs4c6QAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAEsKADAAQAAAABAAAABAAAAAAdekyeAAABbUlEQVR4Ae2asW3DMBBFSWqGACkzRHprgyCbZASPEHiRjJC4TlYIkD4zWIyPd8WXzcZKw+KpkSCIBPHw+HWimNP5eHj5nae6vNv1pqPW4/fhfr5sW98e51TK9n5TPeanz6t+Ga+Thq9zwAd8cAL4oBzIB3zAB+qHRH0W04B6soHAB3xYvRj4fnMc5AP5sJoYrD8YjoHfF8XGNy2nvZ23Hqcy7bttS+7f7z7cubnUbnvGG6zg20DgAz4EAXxQEOQDPuCDEsAHpUE+4AM+KAF8UBrkAz7ggxLAB6UxQD4U272Sct7puG66Pq/O/bzefVy2aX//0z/6td1Xz19X/TJeJw1f54AP+OAE8EE5kA/4gA/UD/b3lPrMZgL1ZMsDfIhYxAd8CBUcBN+bxoF8CCnIB58WY9cPhd0r4esAq4kxktWJ3W2Bg914DQQ+4IMGBD7gAz4oAXxQGuQDPuCDEsAHpUE+4AM+KAF8UBqj58MfRyl5tp+pqv4AAAAASUVORK5CYII=">
+	{% include 'baykeshop/user/comp/address.html' with update=True delete=False %}
+</div>
+
+<div class="box">
+	<h1 class="is-size-5">订单商品</h1>
+	<div class=" dropdown-divider"></div>
+
+	{% for sku in skus %}
+		{% include 'baykeshop/comp/sku.html' with sku=sku %}
+	{% endfor %}
+
+	<div class="dropdown-divider"></div>
+
+	<div id="order">
+		<div class="box is-shadowless is-radiusless has-background-light">
+			<div class="field">
+				<label class="label">订单留言</label>
+				<div class="control">
+					<textarea class="textarea" v-model="mark" name="mark" placeholder="请备注说明您的特殊要求..."></textarea>
+				</div>
+			</div>
+		</div>
+
+		<div class="is-flex is-flex-direction-column">
+			<div class="is-flex mb-2">
+				<div class="has-text-right" style="width:85%">{{ count }} 件商品，总商品金额：</div>
+				<div class="has-text-left" style="width:10%; margin-left:5%;">¥{{ total }} </div>
+			</div>
+			<div class="is-flex mb-2">
+				<div class="has-text-right" style="width:85%">运费：</div>
+				<div class="has-text-left" style="width:10%;margin-left:5%;">¥{{ freight }} </div>
+			</div>
+			<div class="is-flex has-text-danger-dark">
+				<div class=" has-text-right is-size-5" style="width:85%">应付总额：</div>
+				<div class=" has-text-left is-size-5" style="width:10%; margin-left:5%;">¥{{ total_amount }} </div>
+			</div>
+		</div>
+		<div class=" dropdown-divider"></div>
+		<div class="has-text-right">
+			<button class="button is-primary mt-2 pl-6 pr-6 is-large" @click="confirmOrder">提交订单</button>
+		</div>
+
+	</div>
+</div>
+{{ skus|json_script:"skus-data" }}
+{% endblock %}
+
+{% block vue %}
+<script>
+	var skusData = JSON.parse(document.getElementById('skus-data').textContent);
+	var order = new Vue({
+		el: "#order",
+		delimiters: ['{$', '$}'],
+		data: {
+			mark: "",
+			skus: skusData
+		},
+		methods: {
+
+			getBaykeorderSKUSet(){
+				let baykeordersku_set = []
+				this.skus.forEach(element => {
+					let item_skus = {}
+					item_skus['sku'] = element.id
+					item_skus['count'] = element.count
+					baykeordersku_set.push(item_skus)
+				});
+				return baykeordersku_set
+			},
+
+			confirmOrder() {
+				let addrs = address._data.formProps
+				console.log(this.getBaykeorderSKUSet())
+
+				request({
+					url: '{% url "baykeshop:order-list" %}',
+					method: 'post',
+					data: {
+						baykeordersku_set:this.getBaykeorderSKUSet(),
+						order_mark: this.mark,
+						name: addrs.name,
+						phone: addrs.phone,
+						email: addrs.email,
+						total_amount: '{{ total_amount }}',
+						address: `${addrs.province}${addrs.city}${addrs.county}${addrs.address}`
+					}
+				}).then(res => {
+					if (res.status == 201) {
+						location.href = res.data.paymethod_url
+						console.log(res)
+
+					} else {
+						bayke.toastMessage('is-danger', `${res.status}${res.statusText}`)
+					}
+				})
+
+			}
+		},
+	})
+</script>
+{% endblock %}

@@ -116,4 +116,4 @@ class BaykeShopOrderInfoModelAdmin(BaseModelAdmin):
         return super().has_delete_permission(request, obj)
     
     class Media:
-        css = {'all': ['bayke/css/ordersku.css']}
+        css = {'all': ['baykeshop/css/ordersku.css']}

@@ -34,24 +34,4 @@ class RegisterUserMixin(mixins.CreateModelMixin):
     pass
     
 
-class BaykeProductSPURetrieveMixin(mixins.RetrieveModelMixin):
-    """ 商品详情页接口 """
-    pass
-    
-    
-class BaykeCartPushMixin(mixins.CreateModelMixin):
-    """ 添加购物车 """
-    
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-    
-    
-class BaykeOrderCreateMixin(mixins.CreateModelMixin):
-    """ 创建订单 """
-    
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-        
-    def perform_create(self, serializer):
-        serializer.save()
         
