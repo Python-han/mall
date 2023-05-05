@@ -48,7 +48,7 @@ class UserAdmin(BaseUserAdmin, BaseModelAdmin):
                 owner=obj,
                 defaults={'owner': obj},
             )
-            cache.set(f'{obj.username}_balance', obj.baykeuserinfo.balance)
+            cache.set(f'{obj.username}_balance', obj.baykeuser.balance)
             # cache_balance = cache.get(f"{obj.username}_balance")
         return super().get_inline_formsets(request, formsets, inline_instances, obj)
 
@@ -158,4 +158,4 @@ class BaykeShopBannerAdmin(BaseModelAdmin):
         return format_html(f'<img src="{obj.img.url}" width="auto" height="100px" />')
 
     class Media:
-        css = {'all': ['bayke/css/ordersku.css']}
+        css = {'all': ['baykeshop/css/ordersku.css']}

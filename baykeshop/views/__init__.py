@@ -7,4 +7,4 @@ from baykeshop.views.cart import BaykeCartListView
 from baykeshop.views.order import (
     BaykeOrderConfirmView, BaykeOrderPayMethodView, BaykeAlipayNotifyView
 )
-
+from baykeshop.views.user import LoginView, LogoutView, BaykeRegisterView

@@ -30,7 +30,7 @@
                         我的订单
                     </a>
                     <div class=" dropdown-divider"></div>
-                    <a class="dropdown-item" href="">
+                    <a class="dropdown-item" href="{% url 'baykeshop:logout' %}">
                         <span class="mdi mdi-logout"></span>
                         退出
                     </a>
@@ -38,11 +38,11 @@
                 </div>
             </div>
             {% else %}
-            <a class="mr-2" href="" target="_top">
+            <a class="mr-2" href="{% url 'baykeshop:login' %}" target="_top">
                 <span class="icon"><i class="mdi mdi-login"></i></span>
                 登录
             </a> <span class="is-size-6">|</span>
-            <a class="mr-3" href="" target="_top">
+            <a class="mr-3" href="{% url 'baykeshop:register' %}" target="_top">
                 <span class="icon"><i class="mdi mdi-cash-register"></i></span>
                 注册
             </a>

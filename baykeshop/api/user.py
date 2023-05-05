@@ -10,6 +10,8 @@
 '''
 
 
+
+
 from rest_framework import serializers
 from rest_framework import viewsets
 from rest_framework.authentication import SessionAuthentication
@@ -18,6 +20,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from baykeshop.permissions import IsOwnerAuthenticated
 from baykeshop.models import BaykeAddress
+
 
 
 
@@ -49,3 +52,5 @@ class BaykeAddressViewSet(viewsets.ModelViewSet):
         # 处理默认收货地址只能有一个
         if serializer.validated_data['is_default']:
             self.get_queryset().filter(is_default=True).update(is_default=False)
+
+

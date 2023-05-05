@@ -58,8 +58,7 @@ class BaykeVerifyCodeCheckAPIView(CheckVerifyCodeMixin, GenericAPIView):
         return self.verify(request, *args, **kwargs)
 
 
-from .mixins import RegisterUserMixin
-class BaykeUserRegisterAPIView(RegisterUserMixin, GenericAPIView):
+class BaykeUserRegisterAPIView(mixins.CreateModelMixin, GenericAPIView):
     
     """ 用户注册接口 
     这个用到了邮箱验证码验证
