@@ -85,6 +85,11 @@
                     }).then(res => {
                         if (res.data.method == 2){
                             location.href = res.data.alipayapi
+                        }else if (payMethod._data.defaultPay.value == 4 && res.data.pay_method == 4){
+                            bayke.toastMessage('is-success', '支付成功，正在跳转...')
+                            setTimeout(() => {
+                                location.href = "{% url 'baykeshop:menmber-orders-retrieve' id %}"
+                            }, 2000);
                         }
                     })
 

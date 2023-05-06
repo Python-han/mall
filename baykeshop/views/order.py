@@ -95,3 +95,8 @@ class BaykeOrderView(BaykeOrderGeneratedViewset):
         response = super().retrieve(request, *args, **kwargs)
         response.template_name = "baykeshop/order/detail.html"
         return response
+    
+    def ordercomment(self, request, pk=None):
+        response = super().ordercomment(request, pk)
+        response.template_name = "baykeshop/order/comment.html"
+        return response

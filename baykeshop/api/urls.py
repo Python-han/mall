@@ -35,6 +35,7 @@ router.register('order', order.BaykeOrderGeneratedViewset, basename='order')
 # 用户
 router.register('user', user.BaykeUserMenmberViewset, basename='user')
 
+
 urlpatterns = [
     # 支付宝支付回调
     path('alipay/api/', pay.AliPayNotifyAPIView.as_view(), name='alipay-api'),

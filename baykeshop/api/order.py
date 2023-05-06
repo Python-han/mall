@@ -14,6 +14,7 @@ from decimal import Decimal
 from django.conf import settings
 from django.urls import reverse
 from django.db.models import F
+from django.contrib.contenttypes.models import ContentType
 
 from rest_framework import serializers
 from rest_framework.response import Response
@@ -31,8 +32,10 @@ from baykeshop.api.filters import BaykeOrderFilter
 from baykeshop.permissions import IsOwnerAuthenticated
 from baykeshop.api.cart import BaykeCartSKUSerializer
 from baykeshop.models import (
-    BaykeProductSKU, BaykeCart, BaykeOrder, BaykeOrderSKU, BaykeUser, BaykeUserBalanceLog
+    BaykeProductSKU, BaykeCart, BaykeOrder, BaykeOrderSKU, BaykeUser, 
+    BaykeUserBalanceLog, BaykeOrderComments
 )
+from baykeshop.api.comment import BaykeOrderCommentsSerializer
 from baykeshop.conf import bayke_settings
 from baykeshop.payment.payMony import OrderPayMony, computed
 
@@ -127,9 +130,8 @@ class BaykeOrderSerializer(serializers.ModelSerializer):
             )
             ordersku.save()
             BaykeCart.objects.filter(owner=self.context['request'].user, sku=osku['sku']).delete()
-            
         return order
-   
+    
     
 class BaykeOrderGeneratedViewset(mixins.ListModelMixin, 
                                  mixins.RetrieveModelMixin, 
@@ -167,6 +169,10 @@ class BaykeOrderGeneratedViewset(mixins.ListModelMixin,
         if not data.get('method'):
             raise serializers.ValidationError("请选择支付方式！")
         
+        # 验证该订单是否已经支付过
+        if order.pay_status != 1:
+            raise serializers.ValidationError("该订单已支付或已取消")
+        
         if data.get('method') == 2:
             from baykeshop.payment.pay import alipay
             params = alipay.client_api(
@@ -195,7 +201,10 @@ class BaykeOrderGeneratedViewset(mixins.ListModelMixin,
                 baykeuser.owner = request.user
                 baykeuser.save()
                 # 修改订单状态
+                from django.utils import timezone
                 order.pay_status = 2
+                order.pay_method = 4
+                order.pay_time = timezone.now()
                 order.save()
                 # 记录余额变动日志
                 BaykeUserBalanceLog.objects.create(
@@ -204,10 +213,10 @@ class BaykeOrderGeneratedViewset(mixins.ListModelMixin,
                     change_status=2,
                     change_way=3
                 )
-                return Response({'code':'ok', 'message':'支付成功', 'method': 4})
+                serializer = self.get_serializer(order)
+                return Response(serializer.data)
             except BaykeUser.DoesNotExist:
                 raise serializers.ValidationError("当前用户余额不足，请充值！")
-            
         else:
             raise serializers.ValidationError("暂不支持该支付方式！")
         
@@ -221,3 +230,45 @@ class BaykeOrderGeneratedViewset(mixins.ListModelMixin,
         order.save()
         return Response({'code': 'ok', 'message': '确认收货成功！'})
 
+    @action(detail=True, methods=['GET', 'POST'])
+    def ordercomment(self, request, pk=None):
+        """ 发表评价 """
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        if request.method == "GET":    
+            return Response(serializer.data)
+        else:
+            serializer_comment = BaykeOrderCommentsSerializer(data=request.data)
+            serializer_comment.is_valid(raise_exception=True)
+            validated_data = serializer_comment.validated_data
+            print(validated_data)
+            baykeordersku = ContentType.objects.get_for_model(BaykeOrderSKU)
+            osku_no_commented = BaykeOrderSKU.objects.filter(
+                    is_commented=False, 
+                    order__owner=request.user, 
+                    order=instance,
+                    id=validated_data['object_id']
+                )
+            if not osku_no_commented.exists():
+                raise serializers.ValidationError("该商品已评价，无需重复评价！")
+            
+            # 保存评价
+            BaykeOrderComments.objects.create(
+                owner=request.user, 
+                content_type=baykeordersku, 
+                **validated_data
+            )
+            # 修改订单商品评价状态
+            osku = osku_no_commented.first()
+            osku.is_commented = True
+            osku.save()
+            
+            # 判断当前订单商品是否已经全部评价，如全部评价则修改订单状态
+            if not BaykeOrderSKU.objects.filter(order__owner=request.user, order=instance, is_commented=False).exists():
+                instance.pay_status = 5
+                instance.save()
+            
+            return Response({'code':'ok'})
+    
+
+        

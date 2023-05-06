@@ -78,7 +78,7 @@
         {% elif pay_status == 3 %}
             <button class="button is-primary is-small" @click="confirmProduct">确认收货</button>
         {% elif pay_status == 4 and not is_commented %}
-            <a class=" button is-primary is-small">立即评价</a>
+            <a class=" button is-primary is-small" href="{% url 'baykeshop:menmber-orders-comment' id %}">立即评价</a>
         {% endif %}
         </div>
     </div>

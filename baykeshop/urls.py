@@ -52,6 +52,8 @@ urlpatterns = [
     path('menmber/orders/', views.BaykeOrderView.as_view({'get':'list'}), name='menmber-orders'),
     # 订单详情
     path('menmber/orders/<int:pk>/', views.BaykeOrderView.as_view({'get':'retrieve'}), name='menmber-orders-retrieve'),
+    # 订单评价
+    path('menmber/orders/<int:pk>/comment/', views.BaykeOrderView.as_view({'get':'ordercomment'}), name='menmber-orders-comment'),
     
     # 接口
     path('api/', include('baykeshop.api.urls')),

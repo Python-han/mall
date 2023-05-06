@@ -36,13 +36,13 @@ class BaykePermissionInline(TabularInline):
     exclude = ('desc', 'keywords')
 
 
-
 @admin.register(User)
 class UserAdmin(BaseUserAdmin, BaseModelAdmin):
     inlines = (BaykeUserInline, )
 
     # 编辑打开之前先缓存旧值，之后保存时读取缓存并比较
     def get_inline_formsets(self, request, formsets, inline_instances, obj=None):
+        print('sadadsa')
         if obj is not None:
             user, created = BaykeUser.objects.get_or_create(
                 owner=obj,
@@ -56,27 +56,19 @@ class UserAdmin(BaseUserAdmin, BaseModelAdmin):
         cache_balance = cache.get(f"{form.cleaned_data['username']}_balance", 0)
         data = formset.cleaned_data[0]
         balance = data.get('balance', 0)
-        
-        if float(balance) > 0 and float(balance) > float(cache_balance):
-            item_balance = float(balance) - float(cache_balance)
+        if balance > cache_balance:
+            item_balance = balance - cache_balance
             BaykeUserBalanceLog.objects.create(
                 owner=data['owner'],
                 amount=item_balance,
                 change_status=1,
                 change_way=2
             )
-        elif float(balance) < float(cache_balance) and float(balance) != 0:
-            item_balance = float(cache_balance) - float(balance)
+        elif balance < cache_balance:
+            item_balance = cache_balance - balance
             BaykeUserBalanceLog.objects.create(
                 owner=data['owner'],
                 amount=item_balance,
-                change_status=2,
-                change_way=2
-            )
-        elif float(balance) == 0 and float(balance) < float(cache_balance):
-            BaykeUserBalanceLog.objects.create(
-                owner=data['owner'],
-                amount=float(cache_balance),
                 change_status=2,
                 change_way=2
             )
