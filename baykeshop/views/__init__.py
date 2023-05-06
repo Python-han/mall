@@ -5,6 +5,10 @@ from baykeshop.views.product import (
 )
 from baykeshop.views.cart import BaykeCartListView
 from baykeshop.views.order import (
-    BaykeOrderConfirmView, BaykeOrderPayMethodView, BaykeAlipayNotifyView
+    BaykeOrderConfirmView, BaykeOrderPayMethodView, BaykeAlipayNotifyView,
+    BaykeOrderView
 )
-from baykeshop.views.user import LoginView, LogoutView, BaykeRegisterView
+from baykeshop.views.user import (
+    LoginView, LogoutView, BaykeRegisterView, BaykeUserMenmberView,
+    BaykeAddressView
+)

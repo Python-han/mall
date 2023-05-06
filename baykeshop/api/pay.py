@@ -68,11 +68,16 @@ class ReturnMixin:
     
 
 class AliPayNotifyAPIView(NotifyMixin, ReturnMixin, GenericAPIView):
-    """ 支付宝支付回调 """
+    """ 支付宝支付回调 
+    这里应该不能用权限去限制，否则支付宝的异步通知没法通知
+    """
     serializer_class = BaykeOrderSerializer
     authentication_classes = [SessionAuthentication, JWTAuthentication]
     # permission_classes = [IsOwnerAuthenticated]
     queryset = BaykeOrder.objects.all()
+    
+    # def get_queryset(self):
+    #     return BaykeOrder.objects.filter(owner=self.request.user)
     
     def get(self, request, *args, **kwargs):
         return self.returner(request, *args, **kwargs)

@@ -12,6 +12,7 @@
 from django_filters.rest_framework import FilterSet
 
 from baykeshop.models.product import BaykeProductSPU, BaykeProductCategory
+from baykeshop.models import BaykeOrder
 
 
 class BaykeProductSPUFilter(FilterSet):
@@ -33,3 +34,9 @@ class BaykeProductSPUFilter(FilterSet):
                 return BaykeProductSPU.objects.filter(cates__in=sub_ids).distinct()
         return super().filter_queryset(queryset)
 
+
+class BaykeOrderFilter(FilterSet):
+    """ 订单筛选 """
+    class Meta:
+        model = BaykeOrder
+        fields = ('pay_status',)

@@ -18,9 +18,13 @@ from . import views
 app_name = "baykeshop"
 
 urlpatterns = [
+    # 首页
     path("", views.HomeTemplateView.as_view(), name="home"),
+    # 全部商品
     path('goods/', views.BaykeProductSPUListView.as_view(), name='goods'),
+    # 分类页
     path('cates/<int:pk>/', views.BaykeProductCategoryListView.as_view(), name='cate-detail'),
+    # 搜索页
     path('search/', views.BaykeSearchView.as_view(), name='search'),
     # 商品详情页
     path('product/<int:pk>/', views.BaykeProductSPUDetailView.as_view({'get': 'retrieve'}), name='product-retrieve'),
@@ -34,8 +38,20 @@ urlpatterns = [
     path('alipay/notify/', views.BaykeAlipayNotifyView.as_view(), name='alipaypc'),
     # 登录
     path('login/', views.LoginView.as_view(), name='login'),
+    # 退出
     path('logout/', views.LogoutView.as_view(), name='logout'),
+    # 注册
     path('register/', views.BaykeRegisterView.as_view(), name='register'),
+    # 用户中心
+    path('menmber/<int:pk>/', views.BaykeUserMenmberView.as_view({'get':'retrieve'}), name='menmber'),
+    # 余额
+    path('menmber/<int:pk>/balance/', views.BaykeUserMenmberView.as_view({'get':'balance'}), name='balance'),
+    # 地址管理
+    path('menmber/address/', views.BaykeAddressView.as_view({'get':'list'}), name='menmber-address'),
+    # 订单列表
+    path('menmber/orders/', views.BaykeOrderView.as_view({'get':'list'}), name='menmber-orders'),
+    # 订单详情
+    path('menmber/orders/<int:pk>/', views.BaykeOrderView.as_view({'get':'retrieve'}), name='menmber-orders-retrieve'),
     
     # 接口
     path('api/', include('baykeshop.api.urls')),

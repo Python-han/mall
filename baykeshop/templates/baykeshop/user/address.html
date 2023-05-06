@@ -1,0 +1,8 @@
+{% extends 'baykeshop/user/menmber.html' %}
+
+
+{% block menmber_title %}我的地址{% endblock %}
+
+{% block menmber %}
+{% include 'baykeshop/user/comp/address.html' with update=True delete=True %}
+{% endblock %}

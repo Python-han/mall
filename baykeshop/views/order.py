@@ -72,11 +72,26 @@ class BaykeOrderPayMethodView(BaykeOrderGeneratedViewset):
     
 
 class BaykeAlipayNotifyView(AliPayNotifyAPIView):
+    """ 支付宝支付回调 """
     
     renderer_classes = [TemplateHTMLRenderer, ]
     
     def returner(self, request, *args, **kwargs):
         response = super().returner(request, *args, **kwargs)
         response.template_name = "baykeshop/payok.html"
-        print(response.data)
+        return response
+    
+
+class BaykeOrderView(BaykeOrderGeneratedViewset):
+    """ 用户中心订单 """
+    renderer_classes = [TemplateHTMLRenderer, ]
+    
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        response.template_name = "baykeshop/order/list.html"
+        return response
+    
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        response.template_name = "baykeshop/order/detail.html"
         return response

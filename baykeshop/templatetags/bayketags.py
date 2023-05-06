@@ -73,7 +73,10 @@ def paystatus(value):
     elif value == 6:
         s = "已取消"
     return s
-    
+
+@register.filter
+def ordercount(baykeordersku_set):
+    return sum([sku.get('count', 0) for sku in baykeordersku_set])
 
 @register.simple_tag
 def breadcrumbs(request, opts=None):

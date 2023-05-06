@@ -76,11 +76,13 @@ class BaykeCartViewSet(viewsets.ModelViewSet):
     destroy:
         删除购物车
     """
-    queryset = BaykeCart.objects.filter(sku__is_release=True)
     serializer_class = BaykeCartSerializer
     authentication_classes = [SessionAuthentication, JWTAuthentication]
     permission_classes = [IsOwnerAuthenticated,]
 
+    def get_queryset(self):
+        return BaykeCart.objects.filter(sku__is_release=True, owner=self.request.user)
+    
     def get_serializer_class(self):
         if self.action == 'list':
             return BaykeCartListSerializer

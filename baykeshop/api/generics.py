@@ -12,15 +12,11 @@
 from django.contrib.auth import get_user_model
 from rest_framework import mixins
 from rest_framework.generics import (
-    RetrieveAPIView, CreateAPIView, GenericAPIView,
-    ListAPIView, RetrieveUpdateAPIView
+    RetrieveAPIView, CreateAPIView, GenericAPIView
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.filters import SearchFilter, OrderingFilter
-
-from baykeshop.permissions import IsOwnerAuthenticated
 
 
 class BaykeUserRetrieveAPIView(RetrieveAPIView):

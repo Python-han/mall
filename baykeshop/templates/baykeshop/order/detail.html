@@ -1,0 +1,145 @@
+{% extends 'baykeshop/user/menmber.html' %}
+
+{% load bayketags %}
+
+{% block title %} 订单详情 {% endblock %}
+
+{% block menmber %}
+
+<div class="box is-radiusless is-marginless pt-6" id="orderStatus">
+    <b-steps v-model="activeStep" :has-navigation="false">
+        <b-step-item label="待付款" icon="account-key" :clickable="false"></b-step-item>
+        <b-step-item label="待发货" icon="car" :clickable="false"></b-step-item>
+        <b-step-item label="待收货" icon="account-plus" :clickable="false"></b-step-item>
+        <b-step-item label="待评价" icon="comment-plus" :clickable="false"></b-step-item>
+        <b-step-item label="已完成" icon="store" :clickable="false"></b-step-item>
+    </b-steps>
+</div>
+
+<div class="box is-radiusless is-marginless is-shadowless">
+    <h1 class=" is-size-5">订单信息</h1>
+    <div class="dropdown-divider"></div>
+    <ul style="line-height: 30px;">
+        <li>订单编号：{{ order_sn }}</li>
+        
+        <li>订单日期：{{ add_date }}</li>
+        
+        <li>支付状态：{{ pay_status|paystatus }}</li>
+
+        {% if pay_status > 1 and pay_status != 6 %}
+        <li>支付方式：{{ pay_method|paymethod }}</li>
+        {% endif %}
+
+        <li>订单金额：¥{{ total_amount }}</li>
+
+        <li>订单留言：{{ order_mark }}</li>
+    </ul>
+</div>
+<div class="box is-radiusless is-marginless1 is-shadowless">
+    <h1 class=" is-size-5">收货信息</h1>
+    <div class="dropdown-divider"></div>
+    <ul style="line-height: 30px;">
+        <li>签收人：{{ name }}</li>
+        <li>手机号：{{ phone }}</li>
+        <li>收货地址：{{ address }}</li>
+    </ul>
+</div>
+
+<div class="box is-radiusless mb-4 is-shadowless">
+    <h1 class=" is-size-5">商品信息</h1>
+    <div class="dropdown-divider"></div>
+    {% for sku in baykeordersku_set %}
+    <div class="is-flex is-justify-content-space-between">
+        <div>
+            <figure class=" image is-96x96">
+                <img src="{{ sku.skus.pic }}" alt="{{ sku.title }}" srcset="">
+            </figure>
+        </div>
+        <div class="has-background-danger1 is-flex is-flex-direction-column is-justify-content-center is-flex-grow-1 pl-3 pr-3">
+            <h1 class="has-text-weight-bold">{{ sku.title }}</h1>
+            <div class="is-flex">
+                {% for op in sku.options %}
+                <span class="mr-3 has-text-grey-light">{{ op.spec__name }}:{{ op.name }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="has-background-danger1 is-flex is-justify-content-center is-align-items-center">
+            <p class="has-text-danger-dark">¥ {{ sku.price }} x {{ sku.count }}</p>
+        </div>
+    </div>
+
+    <div class="dropdown-divider"></div>
+    {% endfor %}
+    <div id="orderAction">
+        <p class=" has-text-weight-bold pt-1 pb-1 has-text-right">共{{ baykeordersku_set|ordercount }}件商品，总金额{{ total_amount }}元（含运费）</p>
+        <div class=" buttons is-justify-content-end">
+        {% if pay_status == 1 %}
+            <a class="button is-primary is-small" href="{% url 'baykeshop:checkpay' id %}">立即支付</a>
+        {% elif pay_status == 3 %}
+            <button class="button is-primary is-small" @click="confirmProduct">确认收货</button>
+        {% elif pay_status == 4 and not is_commented %}
+            <a class=" button is-primary is-small">立即评价</a>
+        {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block vue %}
+<script>
+    var orderStatus = new Vue({
+        el: '#orderStatus',
+        delimiters: ['{$', '$}'],
+        data:{
+            activeStep: 0,
+        },
+        created(){
+            this.orderStatusMethod()
+        },
+        methods:{
+            orderStatusMethod() {
+                switch (Number('{{ pay_status }}')) {
+                    case 1:
+                        this.activeStep = 0;
+                        break;
+                    case 2:
+                        this.activeStep = 1;
+                        break;
+                    case 3:
+                        this.activeStep = 2;
+                        break;
+                    case 4:
+                        this.activeStep = 3;
+                        break;
+                    case 5:
+                        this.activeStep = 4;
+                        break;
+                }
+            },
+        }
+    })
+</script>
+
+<script>
+    var confirmAction = new Vue({
+        el: '#orderAction',
+        delimiters: ['{$', '$}'],
+        methods: {
+            confirmProduct(){
+                request({
+                    url:'{% url "baykeshop:order-confirmproduct" id %}',
+                    method: 'post'
+                }).then(res => {
+                    if (res.data.code=='ok') {
+                        bayke.toastMessage('is-success', res.data.message)
+                        setTimeout(function(){location.reload()}, 2000)
+                    }
+                })
+            }
+        }
+    })
+</script>
+{% endblock %}
+    

@@ -21,13 +21,18 @@ from rest_framework.views import APIView
 from rest_framework import mixins
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.authentication import SessionAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import action
+from django_filters.rest_framework import DjangoFilterBackend
 
+from baykeshop.pagination import PageNumberPagination
+from baykeshop.api.filters import BaykeOrderFilter
 from baykeshop.permissions import IsOwnerAuthenticated
 from baykeshop.api.cart import BaykeCartSKUSerializer
-from baykeshop.models import BaykeProductSKU, BaykeCart, BaykeOrder, BaykeOrderSKU, BaykeUser
+from baykeshop.models import (
+    BaykeProductSKU, BaykeCart, BaykeOrder, BaykeOrderSKU, BaykeUser, BaykeUserBalanceLog
+)
 from baykeshop.conf import bayke_settings
 from baykeshop.payment.payMony import OrderPayMony, computed
 
@@ -124,17 +129,23 @@ class BaykeOrderSerializer(serializers.ModelSerializer):
             BaykeCart.objects.filter(owner=self.context['request'].user, sku=osku['sku']).delete()
             
         return order
+   
     
 class BaykeOrderGeneratedViewset(mixins.ListModelMixin, 
                                  mixins.RetrieveModelMixin, 
-                                 mixins.CreateModelMixin, 
+                                 mixins.CreateModelMixin,
                                  viewsets.GenericViewSet):
     """ 生成订单信息 """
     
     serializer_class = BaykeOrderSerializer
     permission_classes = [IsOwnerAuthenticated, ]
-    authentication_classes = [ BasicAuthentication, SessionAuthentication, JWTAuthentication,]
-    queryset = BaykeOrder.objects.all()
+    authentication_classes = [SessionAuthentication, JWTAuthentication,]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = BaykeOrderFilter
+    pagination_class = PageNumberPagination
+    
+    def get_queryset(self):
+        return BaykeOrder.objects.filter(owner=self.request.user)
     
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
@@ -143,13 +154,14 @@ class BaykeOrderGeneratedViewset(mixins.ListModelMixin,
     
     @action(detail=True, methods=['GET'])
     def checkpay(self, request, pk=None):
+        """ 订单确认 """
         order = self.get_object()
         serializer = self.get_serializer(order)
         return Response(serializer.data)
 
     @action(detail=True, methods=['POST'])
     def pay(self, request, pk=None):
-        """ 支付 """
+        """ 获取支付方式 """
         order = self.get_object()
         data = request.data
         if not data.get('method'):
@@ -185,6 +197,13 @@ class BaykeOrderGeneratedViewset(mixins.ListModelMixin,
                 # 修改订单状态
                 order.pay_status = 2
                 order.save()
+                # 记录余额变动日志
+                BaykeUserBalanceLog.objects.create(
+                    owner=request.user, 
+                    amount=order.total_amount, 
+                    change_status=2,
+                    change_way=3
+                )
                 return Response({'code':'ok', 'message':'支付成功', 'method': 4})
             except BaykeUser.DoesNotExist:
                 raise serializers.ValidationError("当前用户余额不足，请充值！")
@@ -192,5 +211,13 @@ class BaykeOrderGeneratedViewset(mixins.ListModelMixin,
         else:
             raise serializers.ValidationError("暂不支持该支付方式！")
         
-        
+    @action(detail=True, methods=['POST'])
+    def confirmproduct(self, request, pk=None):
+        """ 确认收货接口 """
+        order = self.get_object()
+        if order.pay_status != 3:
+            raise serializers.ValidationError("该订单状态下不支持确认收货！")
+        order.pay_status = 4
+        order.save()
+        return Response({'code': 'ok', 'message': '确认收货成功！'})
 

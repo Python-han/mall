@@ -9,7 +9,6 @@
 @微信    :baywanyun
 '''
 from baykeshop.models.user import BaykeUser
-from django.db.utils import OperationalError
 
 
 class CreateUserInfoMiddleware:

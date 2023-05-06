@@ -25,6 +25,7 @@ class BaykeUser(base.BaseModelMixin):
     email = models.EmailField(_('邮箱'), max_length=254, unique=True, null=True, blank=True, editable=False)
     avatar = models.ImageField(_('头像'), upload_to='avatar/', max_length=200, blank=True, default="avatar/default.png")
     balance = models.DecimalField(_("余额"), max_digits=8, decimal_places=2, blank=True, default=0)
+    desc = models.CharField(_("描述"), max_length=150, blank=True, default="")
     
     # TODO: Define fields here
 

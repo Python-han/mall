@@ -1,12 +1,6 @@
-from django.contrib.auth import get_user_model
-
-# Create your views here.
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.settings import api_settings
-from rest_framework import mixins
-
-from baykeshop.models import BaykeUser
 
 
 class CheckVerifyCodeMixin:
@@ -28,10 +22,6 @@ class CheckVerifyCodeMixin:
         except (TypeError, KeyError):
             return {}
         
-
-class RegisterUserMixin(mixins.CreateModelMixin):
-    """ 用户注册接口 """
-    pass
     
 
         

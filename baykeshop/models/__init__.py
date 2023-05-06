@@ -25,4 +25,6 @@ from baykeshop.models.user import (
     BaykeUser, BaykeUserBalanceLog, BaykeVerifyCode, BaykeAddress
 )
 from baykeshop.models.cart import BaykeCart
+from baykeshop.models.comment import BaykeOrderComments
+
 

@@ -32,13 +32,16 @@ router.register('product', product.BaykeProductSPUViewSet, basename='product')
 # order 订单
 router.register('order', order.BaykeOrderGeneratedViewset, basename='order')
 
+# 用户
+router.register('user', user.BaykeUserMenmberViewset, basename='user')
+
 urlpatterns = [
     # 支付宝支付回调
     path('alipay/api/', pay.AliPayNotifyAPIView.as_view(), name='alipay-api'),
     # 订单确认接口
     path('order/confirm/', order.BaykeOrderConfirmAPIView.as_view(), name='order-confirm'),
     # 当前登录用户详情
-    path('user/<int:pk>/', generics.BaykeUserRetrieveAPIView.as_view(), name='user-detail'),
+    # path('user/<int:pk>/', generics.BaykeUserRetrieveAPIView.as_view(), name='user-detail'),
     # 获取邮箱验证码 post
     path('obtain/code/', generics.BaykeVerifyCodeObtainAPIView.as_view(), name='obtain-code'),
     # 效验邮箱验证码 post
@@ -50,6 +53,6 @@ urlpatterns = [
     # 验证token post 
     path("verify/", token.TokenVerifyView.as_view(), name="verify"),
     # 注册接口 post
-    path("register/", generics.BaykeUserRegisterAPIView.as_view(), name="register-api"),
+    path("register/", generics.BaykeUserRegisterAPIView.as_view(), name="register-api")
         
 ] + router.urls
