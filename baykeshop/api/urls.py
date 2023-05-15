@@ -41,8 +41,6 @@ urlpatterns = [
     path('alipay/api/', pay.AliPayNotifyAPIView.as_view(), name='alipay-api'),
     # 订单确认接口
     path('order/confirm/', order.BaykeOrderConfirmAPIView.as_view(), name='order-confirm'),
-    # 当前登录用户详情
-    # path('user/<int:pk>/', generics.BaykeUserRetrieveAPIView.as_view(), name='user-detail'),
     # 获取邮箱验证码 post
     path('obtain/code/', generics.BaykeVerifyCodeObtainAPIView.as_view(), name='obtain-code'),
     # 效验邮箱验证码 post

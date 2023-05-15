@@ -13,7 +13,10 @@ from rest_framework import mixins
 from rest_framework import viewsets
 from rest_framework import serializers
 
-from baykeshop.models import BaykeProductSPU, BaykeProductSpec
+from baykeshop.models import (
+    BaykeProductSPU, BaykeProductSpec, 
+    BaykeOrderComments, BaykeOrderSKU
+)
 
 
 class BaykeProductBannerSerializer(serializers.ModelSerializer):
@@ -80,6 +83,9 @@ class BaykeProductSPUSerializer(serializers.ModelSerializer):
     baykeproductbanner_set = BaykeProductBannerSerializer(many=True, read_only=True)
     baykeproductsku_set = BaykeProductSKUSerializer(many=True, read_only=True)
     specs = serializers.SerializerMethodField()
+    comments = serializers.SerializerMethodField()
+    rate = serializers.SerializerMethodField()
+    score = serializers.SerializerMethodField()
 
     class Meta:
         model = BaykeProductSPU
@@ -89,6 +95,33 @@ class BaykeProductSPUSerializer(serializers.ModelSerializer):
         spec_ids = obj.baykeproductsku_set.filter(is_release=True).values_list('options__spec__id', flat=True)
         specs = BaykeProductSpecSerializer(BaykeProductSpec.objects.filter(id__in=list(set(spec_ids))), many=True)
         return specs.data
+    
+    def get_comments_queryset(self, obj):
+        """ 评论的queryset """
+        from django.contrib.contenttypes.models import ContentType
+        baykeordersku = ContentType.objects.get_for_model(BaykeOrderSKU)
+        sku_ids = obj.baykeproductsku_set.values_list('id', flat=True)
+        osku_ids = BaykeOrderSKU.objects.filter(sku__id__in=list(sku_ids)).values_list('id', flat=True)
+        queryset = BaykeOrderComments.objects.filter(content_type=baykeordersku, object_id__in=list(osku_ids))
+        return queryset
+    
+    def get_comments(self, obj):
+        """ 当前商品的评论数据 """
+        from baykeshop.api.comment import BaykeOrderCommentsSerializer
+        queryset = self.get_comments_queryset(obj)
+        return BaykeOrderCommentsSerializer(queryset, many=True).data
+    
+    def get_rate(self, obj):
+        """ 好评率 """
+        queryset = self.get_comments_queryset(obj)
+        rate_gte_3 = queryset.filter(comment_choices__gte=3).count() if queryset.exists() else 0
+        return (rate_gte_3 / queryset.count() if queryset.exists() else 0.98) * 100
+    
+    def get_score(self, obj):
+        """ 平均分 """
+        from django.db.models import Avg
+        queryset = self.get_comments_queryset(obj)
+        return queryset.aggregate(Avg("comment_choices"))['comment_choices__avg'] if queryset.exists() else 4.8
 
 
 class BaykeProductSPUViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
@@ -98,6 +131,8 @@ class BaykeProductSPUViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet)
     """
     queryset = BaykeProductSPU.objects.all()
     serializer_class = BaykeProductSPUSerializer
+    
+    
    
 
 

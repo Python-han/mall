@@ -10,6 +10,9 @@
 '''
 
 from django.urls import reverse
+from django.http.response import HttpResponseRedirect
+from django.urls import reverse
+
 from rest_framework.renderers import TemplateHTMLRenderer
 
 from baykeshop.api.order import BaykeOrderConfirmAPIView, BaykeOrderGeneratedViewset
@@ -21,6 +24,12 @@ from baykeshop.models import BaykeOrder
 class BaykeOrderConfirmView(BaykeOrderConfirmAPIView):
     """ 订单确认 """
     renderer_classes = [TemplateHTMLRenderer, ]
+    
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        if self.response.status_code == 403:
+            return HttpResponseRedirect(reverse("baykeshop:login"))
+        return response
     
     def get(self, request, *args, **kwargs):
         response = super().get(request, *args, **kwargs)

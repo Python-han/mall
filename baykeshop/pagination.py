@@ -15,11 +15,12 @@ from rest_framework.pagination import PageNumberPagination as BasePageNumberPagi
 
 class PageNumberPagination(BasePageNumberPagination):
     """ 分页类扩展 """
-    page_size = 20
+    page_size = 2
     
     def get_paginated_response(self, data):
         response = super().get_paginated_response(data)
         response.data['current'] = int(self.request.query_params.get(self.page_query_param, 1))
+        response.data['page_range'] = self.get_page_range()
         return response
     
     def get_query_params(self):
@@ -46,3 +47,6 @@ class PageNumberPagination(BasePageNumberPagination):
         if self.get_query_params() and previous:
             previous += f"&{self.get_query_params()}"
         return previous
+    
+    def get_page_range(self):
+        return list(self.page.paginator.get_elided_page_range(int(self.request.query_params.get(self.page_query_param, 1))))

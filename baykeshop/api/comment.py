@@ -9,34 +9,19 @@
 @微信    :baywanyun
 '''
 
-from rest_framework import mixins
-from rest_framework import viewsets
+
 from rest_framework import serializers
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import SessionAuthentication
-from rest_framework_simplejwt.authentication import JWTAuthentication
+
 
 from baykeshop.models import BaykeOrderComments
-
+from baykeshop.api.serializers import UserSerializer
 
 
 class BaykeOrderCommentsSerializer(serializers.ModelSerializer):
-    
-    # owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    """ 详情页展示的商品评论 """
+    owner = UserSerializer(many=False, read_only=True)
     
     class Meta:
         model = BaykeOrderComments
-        fields = ("id", "content", "comment_choices", "object_id", "tag")
-        
-    def create(self, validated_data):
-        return super().create(validated_data)
-
-
-class BaykeOrderCommentsViewset(mixins.CreateModelMixin, viewsets.GenericViewSet):
-    
-    authentication_classes = [SessionAuthentication, JWTAuthentication]
-    permission_classes = [IsAuthenticated]
-    serializer_class = BaykeOrderCommentsSerializer
-    queryset = BaykeOrderComments.objects.all()
-    
+        fields = "__all__"
     

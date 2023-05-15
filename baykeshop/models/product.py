@@ -112,7 +112,7 @@ class BaykeProductSKU(base.ProductMixin):
     """Model definition for BaykeProductSKU."""
 
     spu = models.ForeignKey(BaykeProductSPU, on_delete=models.CASCADE, verbose_name=_("商品"))
-    options = models.ManyToManyField(BaykeProductSpecOption, verbose_name=_("规格值"))
+    options = models.ManyToManyField(BaykeProductSpecOption, verbose_name=_("规格值"), blank=True)
     
     # TODO: Define fields here
 

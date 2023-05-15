@@ -36,7 +36,7 @@ class LoginView(SuccessMessageMixin, BaseLoginView):
             cleaned_data,
             username=cleaned_data['username'],
         )
-        
+
 
 class LogoutView(BaseLogoutView):
     """ 登出 """
@@ -56,18 +56,21 @@ class BaykeUserMenmberView(BaykeUserMenmberViewset):
     renderer_classes = [TemplateHTMLRenderer, ]
     
     def retrieve(self, request, *args, **kwargs):
+        """ 详情 """
         response = super().retrieve(request, *args, **kwargs)
         response.template_name = "baykeshop/user/menmber.html"
         response.data['active'] = "menmber"
         return response
     
     def balance(self, request, *args, **kwargs):
+        """ 余额 """
         response = super().balance(request, *args, **kwargs)
         response.template_name = "baykeshop/user/balance.html"
         return response
     
     
 class BaykeAddressView(BaykeAddressViewSet):
+    """ 用户地址 """
     from baykeshop.utils import TemplateHTMLRenderer as BaykeTemplateHTMLRenderer
     renderer_classes = [BaykeTemplateHTMLRenderer, ]
     

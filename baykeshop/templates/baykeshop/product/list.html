@@ -41,7 +41,36 @@
     </div>
     <div class="mt-2">
         <span class=" has-text-grey-light">排序：</span>
-            <a class="mr-2 has-text-black" href="">价格</a>
+        
+        {% if request.GET.price == '-baykeproductsku__price' %}
+        <a class="mr-2 has-text-black {% if request.GET.price %} has-text-danger-dark {% endif %}" href="?price=baykeproductsku__price">价格
+            {% if request.GET.price %}<span class="mdi mdi-arrow-down"></span>{% endif %}
+        </a>
+        {% else %}
+        <a class="mr-2 has-text-black {% if request.GET.price %} has-text-danger-dark {% endif %}" href="?price=-baykeproductsku__price">价格
+            {% if request.GET.price %}<span class="mdi mdi-arrow-up"></span>{% endif %}
+        </a>
+        {% endif %}
+
+        {% if request.GET.sales == '-baykeproductsku__sales' %}
+        <a class="mr-2 has-text-black {% if request.GET.sales %} has-text-danger-dark {% endif %}" href="?sales=baykeproductsku__sales">销量
+            {% if request.GET.sales %}<span class="mdi mdi-arrow-down"></span>{% endif %}
+        </a>
+        {% else %}
+        <a class="mr-2 has-text-black {% if request.GET.sales %} has-text-danger-dark {% endif %}" href="?sales=-baykeproductsku__sales">销量
+            {% if request.GET.sales %}<span class="mdi mdi-arrow-up"></span>{% endif %}
+        </a>
+        {% endif %}
+
+        {% if request.GET.add_date == '-add_date' %}
+        <a class="mr-2 has-text-black {% if request.GET.add_date %} has-text-danger-dark {% endif %}" href="?add_date=add_date">上架时间
+            {% if request.GET.add_date %}<span class="mdi mdi-arrow-down"></span>{% endif %}
+        </a>
+        {% else %}
+        <a class="mr-2 has-text-black {% if request.GET.add_date %} has-text-danger-dark {% endif %}" href="?add_date=-add_date">上架时间
+            {% if request.GET.add_date %}<span class="mdi mdi-arrow-up"></span>{% endif %}
+        </a>
+        {% endif %}
     </div>
 </div>
 
@@ -55,5 +84,8 @@
             </div>
         {% endfor %}
     </div>
+</div>
+<div class="mt-3">
+{% pages page_obj %}
 </div>
 {% endblock %}

@@ -1,0 +1,52 @@
+<nav class="pagination is-small" role="navigation" aria-label="pagination">
+    {% if page_obj.has_previous %}
+    <a class="pagination-previous" href="?page=1">&laquo; 首页</a>
+    <a class="pagination-previous" href="?page={{ page_obj.previous_page_number }}">上一页</a>
+    {% endif %}
+    {% if page_obj.has_next %}
+        <a class="pagination-next" href="?page={{ page_obj.next_page_number }}">下一页</a>
+        <a class="pagination-next" href="?page={{ page_obj.paginator.num_pages }}">末页 &raquo;</a>
+    {% endif %}
+    
+    <ul class="pagination-list">
+    {% for page in page_range %}
+        {% if not page == "..." %}
+        <li>
+            <a class="pagination-link {% if current == page %} is-current {% endif %}" 
+                {% if request.GET.page == page %} aria-current="page" {% endif %}
+                aria-label="Goto page {{ page }}" 
+                href="?page={{ page }}">
+                {{ page }}
+            </a>
+        </li>
+        {% else %}
+        <li>
+            <span class="pagination-ellipsis">&hellip;</span>
+        </li>
+        {% endif %}
+            
+        
+    {% endfor %}
+      <!-- <li>
+        <a class="pagination-link" aria-label="Goto page 1">1</a>
+      </li>
+      <li>
+        <span class="pagination-ellipsis">&hellip;</span>
+      </li>
+      <li>
+        <a class="pagination-link" aria-label="Goto page 45">45</a>
+      </li>
+      <li>
+        <a class="pagination-link is-current" aria-label="Page 46" aria-current="page">46</a>
+      </li>
+      <li>
+        <a class="pagination-link" aria-label="Goto page 47">47</a>
+      </li>
+      <li>
+        <span class="pagination-ellipsis">&hellip;</span>
+      </li>
+      <li>
+        <a class="pagination-link" aria-label="Goto page 86">86</a>
+      </li> -->
+    </ul>
+</nav>

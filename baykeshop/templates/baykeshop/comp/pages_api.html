@@ -1,0 +1,28 @@
+<nav class="pagination is-small" role="navigation" aria-label="pagination">
+    {{ previous }}{{ next }}
+    {% if previous %}
+    <a class="pagination-previous" href="{{ previous }}">上一页</a>
+    {% endif %}
+    {% if next %}
+        <a class="pagination-next" href="{{ next }}">下一页</a>
+    {% endif %}
+    
+    <ul class="pagination-list">
+    {% for page in page_range %}
+        {% if not page == "..." %}
+        <li>
+            <a class="pagination-link {% if current == page %} is-current {% endif %}" 
+                {% if request.GET.page == page %} aria-current="page" {% endif %}
+                aria-label="Goto page {{ page }}" 
+                href="?page={{ page }}">
+                {{ page }}
+            </a>
+        </li>
+        {% else %}
+        <li>
+            <span class="pagination-ellipsis">&hellip;</span>
+        </li>
+        {% endif %}
+    {% endfor %}
+    </ul>
+</nav>

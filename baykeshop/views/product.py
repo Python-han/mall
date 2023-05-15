@@ -10,23 +10,52 @@
 '''
 
 
+
+from typing import Any
 from django.db.models import Q
+from django.db.models.query import QuerySet
 from django.views.generic import ListView
 from django.views.generic.detail import SingleObjectMixin
 from django.contrib import messages
 
+from django_filters import FilterSet, OrderingFilter
 from rest_framework import renderers
+
 
 from baykeshop.forms import SearchForm
 from baykeshop.models import BaykeProductCategory, BaykeProductSPU
 from baykeshop.api.product import BaykeProductSPUViewSet
 
 
+
+class BaykeProductFilterset(FilterSet):
+    """ 排序 """
+    price = OrderingFilter(fields=("baykeproductsku__price", ))
+    add_date = OrderingFilter(fields=("add_date",))
+    sales = OrderingFilter(fields=("baykeproductsku__sales", ))
+    
+    class Meta:
+        model = BaykeProductSPU
+        fields = ['baykeproductsku__price', 'add_date']
+        
+    def filter_queryset(self, queryset):
+        qs = []
+        filter_qs = super().filter_queryset(queryset)
+        for q in filter_qs:
+            if q not in qs:
+                qs.append(q)
+        return qs
+
+
 class BaykeProductSPUListView(ListView):
     """ 全部商品 """
     model = BaykeProductSPU
     template_name = "baykeshop/product/list.html"
-    paginate_by = 15
+    paginate_by = 24
+    
+    def get_queryset(self) -> QuerySet[Any]:
+        f = BaykeProductFilterset(self.request.GET, super().get_queryset())
+        return f.qs
 
 
 class BaykeProductCategoryListView(SingleObjectMixin, BaykeProductSPUListView):
@@ -48,7 +77,8 @@ class BaykeProductCategoryListView(SingleObjectMixin, BaykeProductSPUListView):
         queryset = self.object.baykeproductspu_set.all()
         if self.object.parent is None:
             queryset = BaykeProductSPU.objects.filter(cates__in=self.object.baykeproductcategory_set.all()).distinct()
-        return queryset
+        f = BaykeProductFilterset(self.request.GET, queryset)
+        return f.qs
     
 
 class BaykeSearchView(BaykeProductSPUListView):
@@ -67,7 +97,8 @@ class BaykeSearchView(BaykeProductSPUListView):
                 Q(title__icontains=word)|Q(desc__icontains=word)|Q(keywords__icontains=word)
             )
             messages.add_message(self.request, messages.SUCCESS, f'共搜索到{queryset.count()}条数据')
-        return queryset
+        f = BaykeProductFilterset(self.request.GET, queryset)
+        return f.qs
 
 
 class BaykeProductSPUDetailView(BaykeProductSPUViewSet):
@@ -79,6 +110,6 @@ class BaykeProductSPUDetailView(BaykeProductSPUViewSet):
         response = super().retrieve(request, *args, **kwargs)
         response.template_name = "baykeshop/product/detail.html"
         return response
-
+    
     
     

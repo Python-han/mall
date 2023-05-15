@@ -6,9 +6,11 @@ from baykeshop.models import BaykeProductCategory, BaykePermission, BaykeCart
 register = Library()
 
 
-@register.inclusion_tag("baykeshop/comp/spubox.html")
-def spubox(spu):
-    sku = spu.baykeproductsku_set.order_by("price").first()
+@register.inclusion_tag("baykeshop/comp/spubox.html", takes_context=True)
+def spubox(context, spu):
+    request = context['request']
+    sort = request.GET.get('price', '').startswith('-')
+    sku = spu.baykeproductsku_set.order_by("-price" if sort else "price").first()
     if sku:
         spu.price = sku.price
         spu.sales = sku.sales
@@ -78,6 +80,7 @@ def paystatus(value):
 def ordercount(baykeordersku_set):
     return sum([sku.get('count', 0) for sku in baykeordersku_set])
 
+
 @register.simple_tag
 def breadcrumbs(request, opts=None):
     if bayke_settings.ADMIN_MENUS:
@@ -96,4 +99,14 @@ def breadcrumbs(request, opts=None):
         return request.breadcrumbs
     else:
         return None
+
+
+@register.inclusion_tag("baykeshop/comp/pages.html", takes_context=True)
+def pages(context, page_obj):
+    return {
+        "page_obj": page_obj,
+        "page_range": page_obj.paginator.get_elided_page_range(int(context['request'].GET.get('page', 1))),
+        "current": int(context['request'].GET.get('page', 1))
+    }
+
     

@@ -241,7 +241,6 @@ class BaykeOrderGeneratedViewset(mixins.ListModelMixin,
             serializer_comment = BaykeOrderCommentsSerializer(data=request.data)
             serializer_comment.is_valid(raise_exception=True)
             validated_data = serializer_comment.validated_data
-            print(validated_data)
             baykeordersku = ContentType.objects.get_for_model(BaykeOrderSKU)
             osku_no_commented = BaykeOrderSKU.objects.filter(
                     is_commented=False, 

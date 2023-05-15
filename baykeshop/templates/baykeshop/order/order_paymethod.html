@@ -84,6 +84,7 @@
                         }
                     }).then(res => {
                         if (res.data.method == 2){
+                            bayke.toastMessage('is-success', '正在跳转支付宝收款...')
                             location.href = res.data.alipayapi
                         }else if (payMethod._data.defaultPay.value == 4 && res.data.pay_method == 4){
                             bayke.toastMessage('is-success', '支付成功，正在跳转...')
