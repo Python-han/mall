@@ -12,3 +12,6 @@ from baykeshop.views.user import (
     LoginView, LogoutView, BaykeRegisterView, BaykeUserMenmberView,
     BaykeAddressView
 )
+from baykeshop.views.article import(
+    BaykeArticleView, BaykeArticleCategoryView, BaykeArticleTagView
+)

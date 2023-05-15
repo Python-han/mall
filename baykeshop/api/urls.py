@@ -12,7 +12,9 @@
 from django.urls import path
 
 from rest_framework.routers import DefaultRouter
-from . import cart, product, public, user, order, pay, generics, token
+from . import (
+    cart, product, public, user, order, pay, generics, token, article
+)
 
 
 router = DefaultRouter()
@@ -35,6 +37,10 @@ router.register('order', order.BaykeOrderGeneratedViewset, basename='order')
 # 用户
 router.register('user', user.BaykeUserMenmberViewset, basename='user')
 
+# 文章
+router.register('article', article.BaykeArticleViewset, basename='article')
+router.register('article-cate', article.BaykeArticleCategoryViewset, basename='article-cate')
+router.register('article-tag', article.BaykeArticleTagViewset, basename='article-tag')
 
 urlpatterns = [
     # 支付宝支付回调

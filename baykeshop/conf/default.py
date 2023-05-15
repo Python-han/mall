@@ -54,6 +54,9 @@ DEFAULTS_CONF = {
     # 验证码长度
     "CODE_LENGTH": 4,
     
+    # 分页长度
+    "PAGE_SIZE": 20,
+    
     # 支付宝支付相关配置
     "ALIPAY_APPID": "2021000122666025",
     "ALIPAY_NOTIFY_URL": "baykeshop:alipay-api",

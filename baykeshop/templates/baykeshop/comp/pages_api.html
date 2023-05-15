@@ -1,5 +1,4 @@
 <nav class="pagination is-small" role="navigation" aria-label="pagination">
-    {{ previous }}{{ next }}
     {% if previous %}
     <a class="pagination-previous" href="{{ previous }}">上一页</a>
     {% endif %}
@@ -14,7 +13,7 @@
             <a class="pagination-link {% if current == page %} is-current {% endif %}" 
                 {% if request.GET.page == page %} aria-current="page" {% endif %}
                 aria-label="Goto page {{ page }}" 
-                href="?page={{ page }}">
+                href="?page={{ page }}&{{ params }}">
                 {{ page }}
             </a>
         </li>

@@ -9,18 +9,20 @@
 @微信    :baywanyun
 '''
 
-
+from baykeshop.conf import bayke_settings
 from rest_framework.pagination import PageNumberPagination as BasePageNumberPagination
 
 
 class PageNumberPagination(BasePageNumberPagination):
     """ 分页类扩展 """
-    page_size = 2
+    
+    page_size = bayke_settings.PAGE_SIZE
     
     def get_paginated_response(self, data):
         response = super().get_paginated_response(data)
         response.data['current'] = int(self.request.query_params.get(self.page_query_param, 1))
         response.data['page_range'] = self.get_page_range()
+        response.data['params'] = self.get_query_params()
         return response
     
     def get_query_params(self):

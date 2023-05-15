@@ -1,7 +1,10 @@
 from django.template import Library
 
 from baykeshop.conf import bayke_settings
-from baykeshop.models import BaykeProductCategory, BaykePermission, BaykeCart
+from baykeshop.models import (
+    BaykeProductCategory, BaykePermission, BaykeCart,
+    BaykeArticleCategory
+)
 
 register = Library()
 
@@ -109,4 +112,8 @@ def pages(context, page_obj):
         "current": int(context['request'].GET.get('page', 1))
     }
 
+
+@register.simple_tag
+def article_cates():
+    return BaykeArticleCategory.objects.all()
     

@@ -1,0 +1,71 @@
+{% extends 'baykeshop/base_site.html' %}
+{% load bayketags static %}
+{% block title %}商城资讯{% endblock %}
+
+{% block breadcrumb %}
+<div class="container">
+	<nav class="breadcrumb is-marginless mt-3 mb-3 is-small" aria-label="breadcrumbs">
+		<ul>
+			<li><a href="{% url 'baykeshop:home' %}">首页</a></li>
+			<li class="is-active"><a href="#" aria-current="page">商城资讯</a></li>
+		</ul>
+	</nav>
+</div>
+{% endblock %}
+
+{% block container %}
+<div class="container">
+    <div class="columns">
+        <div class="column is-9">
+            
+            {% block article_content %}
+            {% for article in results %}
+            <div class="box">
+                <h1 class=" is-size-5 has-text-weight-bold"><a href="{% url 'baykeshop:article-detail-pc' article.id %}">{{ article.title }}</a></h1>
+                <div class=" has-text-grey-light">
+                    <span>
+                        <span class="icon"><i class="mdi mdi-menu"></i></span> 
+                        分类：<a href="{% url 'baykeshop:article-cate-pc' article.category.id %}">
+                            {{ article.category.name }}</a>
+                        </span>
+                    <span>
+                        <span class="icon"><i class="mdi mdi-clock-minus-outline"></i></span> 
+                        日期：{{ article.add_date }}
+                    </span>
+                    <span>
+                        <span class="icon"><i class="mdi mdi-tag-check-outline"></i></span> 
+                        标签：
+                        {% for tag in article.tags %} 
+                            <a href="{% url 'baykeshop:article-tag-pc' tag.id %}">
+                                {{ tag.name }}
+                            </a>
+                        {% endfor %}
+                    </span>
+                </div>
+                <p>{{ article.desc }}</p>
+            </div>
+            {% endfor %}
+
+            {% include 'baykeshop/comp/pages_api.html' %}
+            {% endblock %}
+        </div>
+        <div class="column">
+            <div class="box">
+                <h1 class="is-size-5 has-text-weight-bold">分类</h1>
+                <div class="dropdown-divider"></div>
+                {% article_cates as cates %}
+                <div class=" menu">
+                    <ul class="menu-list">
+                        <li><a href="{% url 'baykeshop:article-list-pc' %}" class="{% if request.path == '/article/' %} is-active {% endif %}">全部文章</a></li>
+                        {% for cate in cates %}
+                        <li><a href="{% url 'baykeshop:article-cate-pc' cate.id %}" class="{% if category.id or id == cate.id %}is-active{% endif %}">
+                            {{ cate.name }}</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

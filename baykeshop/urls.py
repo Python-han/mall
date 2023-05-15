@@ -54,6 +54,14 @@ urlpatterns = [
     path('menmber/orders/<int:pk>/', views.BaykeOrderView.as_view({'get':'retrieve'}), name='menmber-orders-retrieve'),
     # 订单评价
     path('menmber/orders/<int:pk>/comment/', views.BaykeOrderView.as_view({'get':'ordercomment'}), name='menmber-orders-comment'),
+    # 文章列表
+    path('article/', views.BaykeArticleView.as_view({'get': 'list'}), name='article-list-pc'),
+    # 文章详情
+    path('article/<int:pk>/', views.BaykeArticleView.as_view({'get': 'retrieve'}), name='article-detail-pc'),
+    # 分类详情
+    path('article/cate/<int:pk>/', views.BaykeArticleCategoryView.as_view({'get': 'retrieve'}), name='article-cate-pc'),
+    # 标签详情
+    path('article/tag/<int:pk>/', views.BaykeArticleTagView.as_view({'get': 'retrieve'}), name='article-tag-pc'),
     
     # 接口
     path('api/', include('baykeshop.api.urls')),
