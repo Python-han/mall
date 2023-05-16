@@ -12,6 +12,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import get_user_model
+from django.conf import settings
+
 from . import base
 from baykeshop.conf import bayke_settings
 
@@ -67,21 +69,24 @@ class BaykeVerifyCode(base.BaseModelMixin):
         from baykeshop.utils import code_random
         if not self.code:
             self.code = code_random()
-        super().save(*args, **kwargs)
-        self.save_send_main(self.code)
+        try:
+            self.save_send_main(self.code)
+            super().save(*args, **kwargs)
+        except Exception as e:
+            raise ValueError("邮箱账号密码可能有误，请检查！")
+        
     
     def save_send_main(self, code):
         from django.core.mail import send_mail
         send_mail(
             subject="BaykeShop验证码, 请查收！", 
             message=f"您的验证码为：{code}, 请尽快验证，5分钟内有效！",
-            from_email="2539909370@qq.com",
+            from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[self.email],
             fail_silently=False,
-            auth_user="2539909370@qq.com",
-            auth_password="fhrygoqlndmxebjf"
+            auth_user=settings.EMAIL_HOST_USER,
+            auth_password=settings.EMAIL_HOST_PASSWORD
         )
-        
 
 class BaykeUserBalanceLog(base.BaseModelMixin):
     """ 用户余额变动表 """

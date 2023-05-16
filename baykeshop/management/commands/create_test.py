@@ -14,7 +14,7 @@ class Command(BaseCommand):
         baykebanner = f"{settings.BASE_DIR}/baykeshop/conf/data/baykebanner.json"
         baykecategory = f"{settings.BASE_DIR}/baykeshop/conf/data/baykeproductcategory.json"
         baykespec = f"{settings.BASE_DIR}/baykeshop/conf/data/baykeproductspec.json"
-        baykespecoptions = f"{settings.BASE_DIR}/baykeshop/conf/data/baykespecoption.json"
+        baykespecoptions = f"{settings.BASE_DIR}/baykeshop/conf/data/baykeproductspecoption.json"
         baykegoods = f"{settings.BASE_DIR}/baykeshop/conf/data/baykeproductspu.json"
         baykegoodsbanners = f"{settings.BASE_DIR}/baykeshop/conf/data/baykeproductbanner.json"
         baykeproduct = f"{settings.BASE_DIR}/baykeshop/conf/data/baykeproductsku.json"

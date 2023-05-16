@@ -124,14 +124,20 @@ SITE_ID = 1
 
 # 邮箱发送后端配置
 # https://docs.djangoproject.com/zh-hans/4.1/topics/email/
-EMAIL_HOST = 'smtp.qq.com'                # 用于发送电子邮件的主机。
-EMAIL_HOST_USER = "xxx.qq.com"            # 自己的邮箱地址
-EMAIL_HOST_PASSWORD = "xxxxxxx"           # 自己的邮箱密码，或授权码，一般现在的邮箱都需要授权码
-EMAIL_PORT = 465                          # 用于中定义的SMTP服务器的端口
-EMAIL_USE_SSL = True                      # 是否使用隐式的安全连接
+# 用于发送电子邮件的主机。
+EMAIL_HOST = 'smtp.qq.com'                
+# 自己的邮箱地址
+EMAIL_HOST_USER = "2539909370@qq.com"           
+# 自己的邮箱密码，或授权码，一般现在的邮箱都需要授权码
+EMAIL_HOST_PASSWORD = "fhzxcrygoqlndmxebsxggzjf" 
+# 用于中定义的SMTP服务器的端口
+EMAIL_PORT = 465
+# 是否使用隐式的安全连接                          
+EMAIL_USE_SSL = True                     
+DEFAULT_FROM_EMAIL = "2539909370@qq.com"
 
 # 控制台后端
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+# EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 from datetime import timedelta
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),

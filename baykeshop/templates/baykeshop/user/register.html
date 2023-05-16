@@ -99,6 +99,7 @@
                             email: this.email
                         }
                     }).then(res => {
+                        console.log(res)
                         if (res.status == 201 || res.status == 200){
                             bayke.toastMessage('is-success', '验证码已发送，请前往邮箱查收！')
                         }else{
