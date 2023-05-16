@@ -30,7 +30,7 @@ class Command(BaseCommand):
         management.call_command('loaddata', baykegoodsbanners, verbosity=0)
         management.call_command('loaddata', baykeproduct, verbosity=0)
         management.call_command('loaddata', baykearticlecategory, verbosity=0)
-        management.call_command('loaddata', baykearticle, verbosity=0)
         management.call_command('loaddata', baykearticletag, verbosity=0)
+        management.call_command('loaddata', baykearticle, verbosity=0)
         management.call_command('loaddata', flatpages, verbosity=0)
         self.stdout.write(self.style.SUCCESS("演示数据创建成功！"))
