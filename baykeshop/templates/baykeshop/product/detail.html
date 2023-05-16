@@ -1,5 +1,7 @@
 {% extends 'baykeshop/base_site.html' %}
 
+{% load bayketags %}
+
 {% block title %}{{ title }}{% endblock %}
 {% block meta_desc %}{{ desc }}{% endblock %}
 {% block meta_kw %}{{ keywords }}{% endblock %}
@@ -150,7 +152,15 @@
     </div>
 
     <div class="column is-2">
-        asda
+        {% spuhots as spus %}
+        <h1 class="has-text-centered has-background-white pt-3 is-size-6 pb-3 has-text-weight-bold">热销排行</h1>
+        <div class=" dropdown-divider is-marginless"></div>
+        {% for spu in spus %}
+            <div class="has-background-white">
+                {% spubox spu %}
+            </div>
+            <div class="dropdown-divider"></div>
+        {% endfor %}
     </div>
 </div>
 {% endblock %}

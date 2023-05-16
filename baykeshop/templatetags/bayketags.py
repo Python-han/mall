@@ -3,7 +3,7 @@ from django.template import Library
 from baykeshop.conf import bayke_settings
 from baykeshop.models import (
     BaykeProductCategory, BaykePermission, BaykeCart,
-    BaykeArticleCategory
+    BaykeArticleCategory, BaykeProductSPU
 )
 
 register = Library()
@@ -22,6 +22,7 @@ def spubox(context, spu):
 
 @register.simple_tag
 def navbar():
+    # 导航菜单
     return BaykeProductCategory.get_cates()
 
  
@@ -43,6 +44,7 @@ def filtercates(cate=None):
 
 @register.simple_tag
 def cartscount(request):
+    # 购物车商品数量
     return BaykeCart.get_cart_count(request.user) if request.user.is_authenticated else 0
 
 
@@ -79,8 +81,10 @@ def paystatus(value):
         s = "已取消"
     return s
 
+
 @register.filter
 def ordercount(baykeordersku_set):
+    # 订单商品数据量
     return sum([sku.get('count', 0) for sku in baykeordersku_set])
 
 
@@ -106,6 +110,7 @@ def breadcrumbs(request, opts=None):
 
 @register.inclusion_tag("baykeshop/comp/pages.html", takes_context=True)
 def pages(context, page_obj):
+    # 分页，适配django,不兼容drf接口
     return {
         "page_obj": page_obj,
         "page_range": page_obj.paginator.get_elided_page_range(int(context['request'].GET.get('page', 1))),
@@ -115,5 +120,15 @@ def pages(context, page_obj):
 
 @register.simple_tag
 def article_cates():
+    # 文章分类
     return BaykeArticleCategory.objects.all()
-    
+
+
+@register.simple_tag
+def spuhots():
+    # 热销排行
+    spus = []
+    for spu in BaykeProductSPU.objects.order_by('-baykeproductsku__sales')[:6]:
+        if spu not in spus:
+            spus.append(spu)
+    return spus
