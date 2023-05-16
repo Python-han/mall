@@ -1,0 +1,1 @@
+[{"model": "baykeshop.baykeproductspec", "pk": 1, "fields": {"add_date": "2023-04-28T05:43:39.809Z", "pub_date": "2023-04-28T05:43:39.809Z", "site": null, "is_del": false, "name": "颜色"}}, {"model": "baykeshop.baykeproductspec", "pk": 2, "fields": {"add_date": "2023-05-04T01:46:52.085Z", "pub_date": "2023-05-04T01:46:52.085Z", "site": null, "is_del": false, "name": "大小"}}]

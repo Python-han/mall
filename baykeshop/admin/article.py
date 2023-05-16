@@ -1,7 +1,14 @@
 from django.contrib import admin
+from django.contrib.flatpages.models import FlatPage
+from django.contrib.flatpages.admin import FlatPageAdmin as BaseFlatPageAdmin
+from django.contrib.sites.admin import SiteAdmin as BaseSiteAdmin
+from django.contrib.sites.models import Site
 
 from baykeshop.admin.base import BaseModelAdmin
 from baykeshop.models import BaykeArticleCategory, BaykeArticle, BaykeArticleTag
+
+admin.site.unregister(FlatPage)
+admin.site.unregister(Site)
 
 
 @admin.register(BaykeArticleCategory)
@@ -24,3 +31,14 @@ class BaykeArticleAdmin(BaseModelAdmin):
         return super().save_model(request, obj, form, change)
     
 admin.site.register(BaykeArticleTag)
+
+
+@admin.register(FlatPage)
+class FlatPageAdmin(BaseFlatPageAdmin):
+    from baykeshop.forms import FlatpageForm
+    form = FlatpageForm
+    
+
+@admin.register(Site)
+class SiteAdmin(BaseSiteAdmin):
+    pass

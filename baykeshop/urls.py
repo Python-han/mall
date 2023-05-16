@@ -20,6 +20,10 @@ app_name = "baykeshop"
 urlpatterns = [
     # 首页
     path("", views.HomeTemplateView.as_view(), name="home"),
+    # 上传图片
+    path("upload/tinymce/", views.TinymceUploadImg.as_view(), name="upload_tinymce"),
+    # 单页
+    path('pages/', include('django.contrib.flatpages.urls')),
     # 全部商品
     path('goods/', views.BaykeProductSPUListView.as_view(), name='goods'),
     # 分类页

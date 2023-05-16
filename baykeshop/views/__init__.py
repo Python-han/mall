@@ -1,4 +1,4 @@
-from baykeshop.views.public import HomeTemplateView
+from baykeshop.views.public import HomeTemplateView, TinymceUploadImg
 from baykeshop.views.product import (
     BaykeProductCategoryListView, BaykeProductSPUListView, 
     BaykeSearchView, BaykeProductSPUDetailView

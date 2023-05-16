@@ -47,4 +47,11 @@
         {{ content|safe }}
     </div>
 </div>
+
+<div class="is-flex is-align-items-center is-justify-content-space-between">
+    <div>{% if previous.title %}上一篇：<a href="{% url 'baykeshop:article-detail-pc' previous.id %}">{{ previous.title }}</a> {% endif %}</div>
+    
+    <div>{% if next.title %}下一篇：<a href="{% url 'baykeshop:article-detail-pc' next.id %}">{{ next.title }}</a>{% endif %}</div>
+</div>
+
 {% endblock %}

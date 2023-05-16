@@ -67,6 +67,12 @@ class BaykeArticleViewset(mixins.ListModelMixin,
     serializer_class = BaykeArticleSerializer
     pagination_class = PageNumberPagination
     queryset = BaykeArticle.objects.all()
+    
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        response.data['next'] = self.get_serializer(self.get_object().get_next_article(), many=False).data
+        response.data['previous'] = self.get_serializer(self.get_object().get_previous_article(), many=False).data
+        return response
 
 
 class BaykeArticleCategoryViewset(mixins.RetrieveModelMixin, viewsets.GenericViewSet):

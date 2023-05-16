@@ -12,7 +12,9 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.forms import AuthenticationForm, UsernameField
+from django.contrib.flatpages.forms import FlatpageForm as BaseFlatpageForm
 
+from baykeshop.tinymce import Tinymce
 from baykeshop.conf import bayke_settings
 
 
@@ -51,4 +53,10 @@ class LoginForm(AuthenticationForm):
     )
     
     
+
+class FlatpageForm(BaseFlatpageForm):
     
+    class Meta(BaseFlatpageForm.Meta):
+        widgets = {
+            'content': Tinymce(),
+        }

@@ -7,6 +7,7 @@ from django.contrib.sites.managers import CurrentSiteManager
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
+from baykeshop.tinymce import TinymceField
 
 User = get_user_model()
 
@@ -66,7 +67,8 @@ class ArticleMixin(BaseModelMixin):
     title = models.CharField(_("标题"), max_length=100)
     desc = models.CharField(_("描述"), max_length=150, blank=True, default="")
     keywords = models.CharField(_("关键字"), max_length=150, blank=True, default="")
-    content = models.TextField(_("详情"))
+    # content = models.TextField(_("详情"))
+    content = TinymceField(_("详情"))
     
     class Meta(BaseModelMixin.Meta):
         abstract = True

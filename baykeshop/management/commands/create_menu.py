@@ -42,7 +42,9 @@ MENUS = (
             'icon': '',
             'perms': [
                 {'name': '文章分类', 'codename': 'view_baykearticlecategory', 'icon': ''}, 
-                {'name': '内容管理', 'codename': 'view_baykearticle', 'icon': ''}
+                {'name': '内容管理', 'codename': 'view_baykearticle', 'icon': ''},
+                {'name': '单页管理', 'codename': 'view_flatpage', 'icon': ''},
+                {'name': '站点', 'codename': 'view_site', 'icon': ''},
             ]
         }
     ]
