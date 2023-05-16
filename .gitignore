@@ -142,5 +142,4 @@ node_modules/
 
 deploy/
 
-*.pem
 django-baykeshop

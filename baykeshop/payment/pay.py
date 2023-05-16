@@ -15,9 +15,15 @@ from baykeshop.payment import AliPay
 
 
 # 私钥
-private_key_string = ""
+private_key_string = """
+-----BEGIN RSA PRIVATE KEY-----
+-----END RSA PRIVATE KEY-----
+"""
 # 支付宝公钥
-public_key_string = ""
+public_key_string = """
+-----BEGIN RSA PUBLIC KEY-----
+-----END RSA PUBLIC KEY-----
+"""
     
 try:
     with open(settings.BASE_DIR / bayke_settings.ALIPAY_PRIVATE_KEY, 'r') as f:
