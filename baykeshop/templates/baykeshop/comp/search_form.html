@@ -1,13 +1,9 @@
 <form action="{% url 'baykeshop:search' %}" method="get">
-  {% csrf_token %}
     <div class="field-body">
       <div class="field is-expanded">
         <div class="field has-addons">
-          <p class="control is-expanded has-icons-left"> 
-            {% if categorys %}
-              <input type="hidden" name="categorys" value="{{ categorys }}">
-            {% endif %}
-            <input class="input" type="search" name="search" id="search" placeholder="BaykeShop Search " value="{{ word }}">
+          <p class="control is-expanded has-icons-left">
+            {{ form.search }}
             <span class="icon is-left">
                 <i class="mdi mdi-magnify"></i>
             </span>

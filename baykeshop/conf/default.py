@@ -4,7 +4,6 @@ from django.conf import settings
 
 INSTALLED_APPS = [
     'baykeshop.conf.apps.BaykeAdminConfig',
-    # 'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -32,23 +31,21 @@ DATABASES = {
 }
 
 
-
 DEFAULTS_CONF = {
+    # 后台站点标题
+    "SITE_HEADER": "BaykeShop",
+    "SITE_TITLE": "BaykeShop",
     
-    # 站点URL，最后不带斜杠
-    "SITE_URL": "http://127.0.0.1:3000",
-    
-    "API_BASE": "api/",
-    
-    "SITE_HEADER": "Bayke",
-    "SITE_TITLE": "Bayke",
-    
+    # 是否开启后台自定义管理菜单
     "ADMIN_MENUS": True,
     
+    # 设置后台自定义管理菜单
     "ADMIN_MENUS_DATAS": None,
     
+    # 是否开启邮件通知
     "HAS_MESSAGE_EAMIL": False,
     
+    # 是否开启关联分类搜索
     "HAS_SEARCH_CATEGORY": False,
     
     "PC_LOGO": "baykeshop",
@@ -69,7 +66,6 @@ DEFAULTS_CONF = {
     "CODE_CHAR": "1234567890",
     # 验证码长度
     "CODE_LENGTH": 4,
-    
     # 分页长度
     "PAGE_SIZE": 20,
     
@@ -87,7 +83,7 @@ DEFAULTS_CONF = {
     "FILE_PATH": "upload/",
     # <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
     "TINYMCE_CDN": False,
-    "TINYMCE_API_KEY": "no-api-key",   # 当TINYMCE_CDN未True时，必须设置该项为你的api-key,否则不能正确加载
+    "TINYMCE_API_KEY": "no-api-key",   # 当TINYMCE_CDN为True时，必须设置该项为你的api-key,否则不能正确加载
     "TINYMCE_DEFAULTS": {
         # 向用户展开展示的工具栏
         'toolbar': 'undo redo | styles | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media | forecolor backcolor emoticons',

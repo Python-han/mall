@@ -20,8 +20,6 @@ from baykeshop.conf import bayke_settings
 
 class SearchForm(forms.Form):
     
-    template_name = "baykeshop/comp/search_form.html"
-    
     search = forms.CharField(
         max_length=32, 
         label="搜索", 
@@ -51,7 +49,6 @@ class LoginForm(AuthenticationForm):
             "placeholder":" 请输入密码..."
         }),
     )
-    
     
 
 class FlatpageForm(BaseFlatpageForm):

@@ -89,7 +89,8 @@ class BaykeSearchView(BaykeProductSPUListView):
         return context
     
     def get_queryset(self):
-        queryset = super().get_queryset()
+        # queryset = super().get_queryset()
+        queryset = self.model.objects.all()
         form = SearchForm(self.request.GET)
         if form.is_valid():
             word = form.cleaned_data['search']

@@ -5,6 +5,8 @@ from baykeshop.models import (
     BaykeProductCategory, BaykePermission, BaykeCart,
     BaykeArticleCategory, BaykeProductSPU
 )
+from baykeshop.forms import SearchForm
+
 
 register = Library()
 
@@ -20,10 +22,20 @@ def spubox(context, spu):
     return {'spu': spu}
 
 
-@register.simple_tag
-def navbar():
-    # 导航菜单
-    return BaykeProductCategory.get_cates()
+# @register.simple_tag
+# def navbar():
+#     # 导航菜单
+#     return BaykeProductCategory.get_cates()
+
+@register.inclusion_tag("baykeshop/comp/navbar.html", takes_context=True)
+def navbar(context):
+    request = context['request']
+    return {
+        "pc_logo": bayke_settings.PC_LOGO,
+        "navs": BaykeProductCategory.get_cates(),
+        "word": request.GET.get("search", ''),
+        "placeholder": bayke_settings.SEARCH_VALUE
+    }
 
  
 @register.simple_tag
