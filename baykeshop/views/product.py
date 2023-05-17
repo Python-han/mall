@@ -12,13 +12,13 @@
 
 
 from typing import Any
+import django_filters as filters
 from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.views.generic import ListView
 from django.views.generic.detail import SingleObjectMixin
 from django.contrib import messages
 
-from django_filters import FilterSet, OrderingFilter
 from rest_framework import renderers
 
 
@@ -28,15 +28,15 @@ from baykeshop.api.product import BaykeProductSPUViewSet
 
 
 
-class BaykeProductFilterset(FilterSet):
+class BaykeProductFilterset(filters.FilterSet):
     """ 排序 """
-    price = OrderingFilter(fields=("baykeproductsku__price", ))
-    add_date = OrderingFilter(fields=("add_date",))
-    sales = OrderingFilter(fields=("baykeproductsku__sales", ))
+    price = filters.OrderingFilter(fields=("baykeproductsku__price", ))
+    add_date = filters.OrderingFilter(fields=("add_date",))
+    sales = filters.OrderingFilter(fields=("baykeproductsku__sales", ))
     
     class Meta:
         model = BaykeProductSPU
-        fields = ['baykeproductsku__price', 'add_date']
+        fields = ['baykeproductsku__price', 'add_date', 'baykeproductsku__sales',]
         
     def filter_queryset(self, queryset):
         qs = []

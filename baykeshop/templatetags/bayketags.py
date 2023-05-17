@@ -11,11 +11,24 @@ from baykeshop.forms import SearchForm
 register = Library()
 
 
+def sort_query(request):
+    sort = "add_date"
+    query = request.GET
+    if query.get('price') == "-baykeproductsku__price":
+        sort = "-price"
+    elif query.get('price') == "baykeproductsku__price":
+        sort = "price"
+    elif query.get('sales') == "baykeproductsku__sales":
+        sort = "sales"
+    elif query.get('sales') == "-baykeproductsku__sales":
+        sort = "-sales"
+    return sort
+        
+
 @register.inclusion_tag("baykeshop/comp/spubox.html", takes_context=True)
 def spubox(context, spu):
     request = context['request']
-    sort = request.GET.get('price', '').startswith('-')
-    sku = spu.baykeproductsku_set.order_by("-price" if sort else "price").first()
+    sku = spu.baykeproductsku_set.order_by(sort_query(request)).first()
     if sku:
         spu.price = sku.price
         spu.sales = sku.sales
