@@ -15,7 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -27,9 +26,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 from baykeshop.conf.default import INSTALLED_APPS
+
 INSTALLED_APPS = INSTALLED_APPS
 
 MIDDLEWARE = [
@@ -63,10 +62,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'baykesite.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 from baykeshop.conf.default import DATABASES
+
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.sqlite3',
@@ -74,7 +73,6 @@ from baykeshop.conf.default import DATABASES
 #     }
 # }
 DATABASES = DATABASES
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -94,7 +92,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -105,7 +102,6 @@ TIME_ZONE = 'Asia/Shanghai'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
@@ -125,20 +121,21 @@ SITE_ID = 1
 # 邮箱发送后端配置
 # https://docs.djangoproject.com/zh-hans/4.1/topics/email/
 # 用于发送电子邮件的主机。
-EMAIL_HOST = 'smtp.qq.com'                
+EMAIL_HOST = 'smtp.qq.com'
 # 自己的邮箱地址
-EMAIL_HOST_USER = "2539909370@qq.com"           
+EMAIL_HOST_USER = "240746804@qq.com"
 # 自己的邮箱密码，或授权码，一般现在的邮箱都需要授权码
-EMAIL_HOST_PASSWORD = "fhzxcrygoqlndmxebsxggzjf" 
+EMAIL_HOST_PASSWORD = "q********************d"
 # 用于中定义的SMTP服务器的端口
 EMAIL_PORT = 465
 # 是否使用隐式的安全连接                          
-EMAIL_USE_SSL = True                     
-DEFAULT_FROM_EMAIL = "2539909370@qq.com"
+EMAIL_USE_SSL = True
+DEFAULT_FROM_EMAIL = "240746804@qq.com"
 
 # 控制台后端
 # EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 from datetime import timedelta
+
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
