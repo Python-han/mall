@@ -2,12 +2,18 @@
 	<div class="login_bg">
 		<div class="login_adv" style="background-image: url(img/auth_banner.jpg);">
 			<div class="login_adv__title">
-				<h2>SCUI</h2>
+				<h2>baykeShop</h2>
 				<h4>{{ $t('login.slogan') }}</h4>
 				<p>{{ $t('login.describe') }}</p>
 				<div>
 					<span>
 						<el-icon><sc-icon-vue /></el-icon>
+					</span>
+					<span>
+						<el-icon class="add"><el-icon-plus /></el-icon>
+					</span>
+					<span>
+						<el-icon><el-icon-eleme-filled /></el-icon>
 					</span>
 					<span>
 						<el-icon class="add"><el-icon-plus /></el-icon>
@@ -72,6 +78,7 @@
 </template>
 
 <script>
+	import { useLocalStorage } from "@vueuse/core"
 	import passwordForm from './components/passwordForm'
 	import phoneForm from './components/phoneForm'
 
@@ -117,6 +124,8 @@
 			}
 		},
 		created: function() {
+			useLocalStorage("USERINFO").value = null
+			useLocalStorage("SYSTEM").value = null
 			this.$TOOL.cookie.remove("TOKEN")
 			this.$TOOL.data.remove("USER_INFO")
 			this.$TOOL.data.remove("MENU")

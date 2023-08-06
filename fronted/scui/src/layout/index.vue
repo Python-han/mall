@@ -245,12 +245,8 @@
 			this.menu = this.filterUrl(menu);
 			this.showThis()
 
-			this.$API.badmin.system.read.get().then(res => {
-				if (res.status == 200){
-					this.system = res.data
-					useLocalStorage("SYSTEM", res.data)
-				}
-			})
+			this.system = JSON.parse(useLocalStorage("SYSTEM").value)
+			
 		},
 		watch: {
 			$route() {

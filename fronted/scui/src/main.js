@@ -7,7 +7,6 @@ import i18n from './locales'
 import router from './router'
 import store from './store'
 import App from './App.vue'
-import bayke from './bayke'
 
 const app = createApp(App);
 
@@ -16,6 +15,5 @@ app.use(router);
 app.use(ElementPlus);
 app.use(i18n);
 app.use(scui);
-app.use(bayke);
 //挂载app
 app.mount('#app');

@@ -28,7 +28,7 @@
 		props: {
 			src: { type: String, default: "" },
 			compress: {type: Number, default: 1},
-			aspectRatio:  {type: Number, default: NaN},
+			aspectRatio:  {type: Number, default: NaN}
 		},
 		data() {
 			return {

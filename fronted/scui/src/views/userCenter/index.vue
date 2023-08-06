@@ -37,6 +37,7 @@
 </template>
 
 <script>
+	import { useLocalStorage } from "@vueuse/core"
 	import { defineAsyncComponent } from 'vue'
 
 	export default {
@@ -137,10 +138,10 @@
 			}
 		},
 		created() {
-			const userinfo = this.$TOOL.data.get("USER_INFO")
+			const userinfo = JSON.parse(useLocalStorage("USERINFO").value)
 			this.user.id = userinfo.id
-			this.user.username = userinfo.userName
-			this.user.role = userinfo.role.join('/')
+			this.user.username = userinfo.owner.username
+			this.user.role = userinfo.roles.join('/')
 			this.user.avatar = userinfo.avatar
 		}
 	}

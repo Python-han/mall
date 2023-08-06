@@ -9,7 +9,7 @@
 							<el-input v-model="sys.site_title"></el-input>
 						</el-form-item>
 						<el-form-item label="LogoUrl">
-							<sc-upload v-model="sys.logo_url" title="logo" :cropper="true" :compress="1" :aspectRatio="1/1" round icon="el-icon-avatar"></sc-upload>
+							<sc-upload v-model="sys.logo_url" title="logo" :cropper="false" :compress="1" :aspectRatio="1/1" round icon="el-icon-avatar"></sc-upload>
 							<!-- <el-input v-model="sys.logo_url"></el-input> -->
 							<!-- <div class="el-form-item-msg" data-v-b33b3cf8="">必须为http://或https://开头的完整url地址</div> -->
 						</el-form-item>

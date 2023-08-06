@@ -48,7 +48,7 @@
 		<el-dropdown class="user panel-item" trigger="click" @command="handleUser">
 			<div class="user-avatar">
 				<el-avatar :size="30">{{ userNameF }}</el-avatar>
-				<label>{{ userName }}</label>
+				<label>{{ username }}</label>
 				<el-icon class="el-icon--right"><el-icon-arrow-down /></el-icon>
 			</div>
 			<template #dropdown>
@@ -72,6 +72,7 @@
 </template>
 
 <script>
+	import { useLocalStorage } from "@vueuse/core"
 	import search from './search.vue'
 	import tasks from './tasks.vue'
 
@@ -82,7 +83,7 @@
 		},
 		data(){
 			return {
-				userName: "",
+				username: "",
 				userNameF: "",
 				searchVisible: false,
 				tasksVisible: false,
@@ -119,9 +120,10 @@
 			}
 		},
 		created() {
-			var userInfo = this.$TOOL.data.get("USER_INFO");
-			this.userName = userInfo.userName;
-			this.userNameF = this.userName.substring(0,1);
+			// var userInfo = this.$TOOL.data.get("USER_INFO");
+			var userInfo = JSON.parse(useLocalStorage("USERINFO").value);
+			this.username = userInfo.owner.username;
+			this.userNameF = this.username.substring(0,1);
 		},
 		methods: {
 			//个人信息

@@ -31,6 +31,7 @@
 </template>
 
 <script>
+	import { useLocalStorage } from "@vueuse/core";
 	export default {
 		data() {
 			return {
@@ -91,18 +92,11 @@
 				// 获取当前登录用户信息
 				const user = await this.$API.badmin.user.get()
 				if (user.status == 200){
-					const userInfo = {
-						userId: user.data.owner.id, 
-						userName: user.data.owner.username,
-						name: user.data.name, 
-						sex: user.data.sex,
-						about: user.data.about,
-						dashboard: "0", 
-						role: user.data.roles,
-						avatar: user.data.avatar
-					}
 					const dashboardGrid = ["welcome", "ver", "time", "progress", "echarts", "about"]
-					this.$TOOL.data.set("USER_INFO", userInfo)
+					// this.$TOOL.data.set("USER_INFO", userInfo)
+					useLocalStorage("USERINFO", user.data)
+					const system = await this.$API.badmin.system.read.get()
+					useLocalStorage("SYSTEM", system.data)
 					this.$TOOL.data.set("PERMISSIONS", user.data.perms)
 					this.$TOOL.data.set("DASHBOARDGRID", dashboardGrid)
 					this.$TOOL.data.set("MENU", user.data.menus)
