@@ -1,7 +1,7 @@
 <template>
 	<div class="sc-upload" :class="{'sc-upload-round':round}" :style="style">
 		<div v-if="file && file.status != 'success'" class="sc-upload__uploading">
-			<div class="sc-upload__progress">
+			<div class="sc-upload__progress" v-if="autoUpload">
 				<el-progress :percentage="file.percentage" :text-inside="true" :stroke-width="16"/>
 			</div>
 			<el-image class="image" :src="file.tempFile" fit="cover"></el-image>
@@ -81,7 +81,8 @@
 
 			cropper: { type: Boolean, default: false },
 			compress: {type: Number, default: 1},
-			aspectRatio:  {type: Number, default: NaN}
+			aspectRatio:  {type: Number, default: NaN},
+
 		},
 		components: {
 			scCropper

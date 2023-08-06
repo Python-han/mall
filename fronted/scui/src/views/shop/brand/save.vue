@@ -1,6 +1,9 @@
 <template>
 	<el-dialog :title="titleMap[mode]" v-model="visible" :width="500" destroy-on-close @closed="$emit('closed')">
 		<el-form :model="form" :rules="rules" :disabled="mode=='show'" ref="dialogForm" label-width="100px">
+			<el-form-item label="分类图标" prop="logo">
+				<sc-upload :autoUpload="false" ref="uploadRef" v-model="form.logo"></sc-upload>
+			</el-form-item>
 			<el-form-item label="品牌名称" prop="name">
 				<el-input v-model="form.name" placeholder="请输入品牌名称" clearable></el-input>
 			</el-form-item>
@@ -36,7 +39,8 @@
 					id:"",
 					name: "",
 					sort: 1,
-					status: true
+					status: true,
+					logo: null
 				},
 				//验证规则
 				rules: {
@@ -77,10 +81,17 @@
 				this.$refs.dialogForm.validate(async (valid) => {
 					if (valid) {
 						this.isSaveing = true; 
-						var res = await this.getSubmitApi(this.mode, this.form);
+						const sendData = new FormData()
+						if (this.$refs.uploadRef.file){
+							sendData.append('logo', this.$refs.uploadRef.file.raw)
+						}
+						for (const key in this.form) {
+							sendData.append(key, this.form[key]);
+						}
+						var res = await this.getSubmitApi(this.mode, sendData);
 						this.isSaveing = false;
 						if(res.status == 200 || res.status == 201){
-							this.$emit('success', this.form, this.mode)
+							this.$emit('success', res.data, this.mode)
 							this.visible = false;
 							this.$message.success("操作成功")
 						}else{
@@ -102,8 +113,9 @@
 				Object.assign(this.form, data)
 			},
 			getSubmitApi(model, data){
+				if (data.get('logo') == 'null' || data.get('logo') == 'undefined'){ data.delete('logo') }
 				if (model == 'edit'){
-					return this.$API.shop.brand.update.put(data.id, data)
+					return this.$API.shop.brand.update.put(data.get('id'), data)
 				}else if (model == 'add'){
 					return this.$API.shop.brand.create.post(data)
 				}

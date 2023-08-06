@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ElNotification, ElMessageBox } from 'element-plus';
+import { ElNotification, ElMessageBox, ElMessage } from 'element-plus';
 import sysConfig from "@/config";
 import tool from '@/utils/tool';
 import router from '@/router';
@@ -44,6 +44,11 @@ axios.interceptors.response.use(
 					title: '请求错误',
 					message: "Status:404，正在请求不存在的服务器记录！"
 				});
+			} else if (error.response.status == 403) {
+				ElMessage({
+					message: '无权限访问',
+					type: 'warning',
+				})
 			} else if (error.response.status == 500) {
 				ElNotification.error({
 					title: '请求错误',

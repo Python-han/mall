@@ -1,6 +1,9 @@
 <template>
 	<el-dialog :title="titleMap[mode]" v-model="visible" :width="500" destroy-on-close @closed="$emit('closed')">
 		<el-form :model="form" :rules="rules" :disabled="mode=='show'" ref="dialogForm" label-width="100px">
+			<el-form-item label="分类图标" prop="icon">
+				<sc-upload :autoUpload="false" ref="uploadRef" v-model="form.icon"></sc-upload>
+			</el-form-item>
 			<el-form-item label="上级分类" prop="parent">
 				<el-cascader v-model="form.parent" :options="groups" :props="groupsProps" :show-all-levels="false" clearable style="width: 100%;"></el-cascader>
 			</el-form-item>
@@ -37,10 +40,11 @@
 				//表单数据
 				form: {
 					id:"",
-					parent: "",
 					name: "",
 					sort: 1,
-					status: true
+					status: true,
+					icon: null,
+					parent: null
 				},
 				//验证规则
 				rules: {
@@ -81,10 +85,17 @@
 				this.$refs.dialogForm.validate(async (valid) => {
 					if (valid) {
 						this.isSaveing = true; 
-						var res = await this.getSubmitApi(this.mode, this.form);
+						const sendData = new FormData()
+						if (this.$refs.uploadRef.file){
+							sendData.append('icon', this.$refs.uploadRef.file.raw)
+						}
+						for (const key in this.form) {
+							sendData.append(key, this.form[key]);
+						}
+						var res = await this.getSubmitApi(this.mode, sendData);
 						this.isSaveing = false;
 						if(res.status == 200 || res.status == 201){
-							this.$emit('success', this.form, this.mode)
+							this.$emit('success', res.data, this.mode)
 							this.visible = false;
 							this.$message.success("操作成功")
 						}else{
@@ -95,23 +106,18 @@
 			},
 			//表单注入数据
 			setData(data){
-				// this.form.id = data.id
-				// this.form.label = data.label
-				// this.form.status = data.status
-				// this.form.sort = data.sort
-				// this.form.parentId = data.parentId
-				// this.form.remark = data.remark
-
 				//可以和上面一样单个注入，也可以像下面一样直接合并进去
 				Object.assign(this.form, data)
 			},
 			getSubmitApi(model, data){
-				if (model == 'edit'){
-					return this.$API.shop.category.update.put(data.id, data)
+				if (data.get('parent') == 'null'){ data.delete('parent') }
+				if (data.get('icon') == 'null' || data.get('icon') == 'undefined'){ data.delete('icon') }
+				if (model == 'edit'){	
+					return this.$API.shop.category.update.put(data.get('id'), data)
 				}else if (model == 'add'){
 					return this.$API.shop.category.create.post(data)
 				}
-			}
+			},
 		}
 	}
 </script>
