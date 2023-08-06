@@ -44,10 +44,20 @@
           "name": "shopCategory",
           "meta": {
             "title": "商品分类",
-            "icon": "el-icon-menu",
+            "icon": "sc-icon-menu",
             "type": "menu"
           },
           "component": "shop/category"
+        },
+        {
+          "path": "/shop/brand",
+          "name": "shopBrand",
+          "meta": {
+            "title": "品牌管理",
+            "icon": "sc-icon-alpha-r-box-outline",
+            "type": "menu"
+          },
+          "component": "shop/brand"
         }
       ]
     },
@@ -115,7 +125,7 @@
           "name": "settingMenu",
           "meta": {
             "title": "菜单管理",
-            "icon": "el-icon-fold",
+            "icon": "sc-icon-menu",
             "type": "menu"
           },
           "component": "setting/menu"

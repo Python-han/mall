@@ -7,4 +7,6 @@ router = DefaultRouter()
 
 router.register('category', viewsets.BaykeShopCategoryViewSet, basename='category')
 
+router.register('brand', viewsets.BaykeshopBrandViewSet, basename='brand')
+
 urlpatterns = router.urls

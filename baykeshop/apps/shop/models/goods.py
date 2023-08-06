@@ -28,12 +28,15 @@ class BaykeshopBrand(BaseModelMixin):
     """Model definition for BaykeshopBrand."""
     name = models.CharField(_("品牌名称"), max_length=50)
     logo = models.ImageField(
-        _("品牌logo"), upload_to="shop/brand/", max_length=200)
+        _("品牌logo"), upload_to="shop/brand/", max_length=200, blank=True, null=True)
+    sort = models.PositiveSmallIntegerField(_("排序"), default=1)
+    status = models.BooleanField(_("状态"), default=True)
+    
     # TODO: Define fields here
 
     class Meta:
         """Meta definition for BaykeshopBrand."""
-        ordering = ['-add_date']
+        ordering = ['-sort']
         verbose_name = 'BaykeshopBrand'
         verbose_name_plural = 'BaykeshopBrands'
 
