@@ -62,7 +62,7 @@ class BaykeFrontedMenus(BaseModelMixin):
     # TODO: Define fields here
 
     class Meta:
-        ordering = ['add_date']
+        ordering = ['sort']
         verbose_name = 'BaykeFrontedMenus'
         verbose_name_plural = 'BaykeFrontedMenus'
 

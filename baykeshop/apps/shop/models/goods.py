@@ -6,14 +6,16 @@ from baykeshop.common.models import BaseModelMixin
 class BaykeShopCategory(BaseModelMixin):
     """Model definition for BaykeShopCategory."""
     name = models.CharField(_("名称"), max_length=50)
-    parent = models.ForeignKey(
-        "self", on_delete=models.CASCADE, blank=True, null=True)
+    parent = models.ForeignKey("self", on_delete=models.CASCADE, blank=True, null=True)
+    icon = models.ImageField(_("分类图标"), upload_to="shop/category", max_length=200, blank=True, null=True)
+    sort = models.PositiveSmallIntegerField(_("排序"), default=1)
+    status = models.BooleanField(_("状态"), default=True)
 
     # TODO: Define fields here
 
     class Meta:
         """Meta definition for BaykeShopCategory."""
-        ordering = ['-add_date']
+        ordering = ['-sort']
         verbose_name = 'BaykeShopCategory'
         verbose_name_plural = 'BaykeShopCategorys'
 

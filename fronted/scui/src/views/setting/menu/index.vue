@@ -87,7 +87,13 @@
 			//树拖拽
 			nodeDrop(draggingNode, dropNode, dropType){
 				this.$refs.save.setData({})
-				this.$message(`拖拽对象：${draggingNode.data.meta.title}, 释放对象：${dropNode.data.meta.title}, 释放对象的位置：${dropType}`)
+				let sort = dropType == 'before' ? draggingNode.data.sort - 1 : draggingNode.data.sort + 1
+				this.$API.badmin.menus.partial_update.patch(draggingNode.data.id, {sort: sort}).then(res => {
+					if (res.status == 200){
+						this.$message.success("顺序修改成功，重新登录后生效！")
+					}
+				})
+				// this.$message(`拖拽对象：${draggingNode.data.meta.title}, 释放对象：${dropNode.data.meta.title}, 释放对象的位置：${dropType}`)
 			},
 			//增加
 			async add(node, data){

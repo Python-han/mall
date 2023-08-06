@@ -162,25 +162,28 @@
 					type: 'warning'
 				}).then(() => {
 					this.showDicloading = true;
-
-					//删除节点是否为高亮当前 是的话 设置第一个节点高亮
-					var dicCurrentKey = this.$refs.dic.getCurrentKey();
-					this.$refs.dic.remove(data.id)
-					if(dicCurrentKey == data.id){
-						var firstNode = this.dicList[0];
-						if(firstNode){
-							this.$refs.dic.setCurrentKey(firstNode.id);
-							this.$refs.table.upData({
-								code: firstNode.code
-							})
-						}else{
-							this.listApi = null;
-							this.$refs.table.tableData = []
+					this.$API.badmin.dictkey.remove.delete(data.id).then(res => {
+						if (res.status == 204) {
+							//删除节点是否为高亮当前 是的话 设置第一个节点高亮
+							var dicCurrentKey = this.$refs.dic.getCurrentKey();
+							this.$refs.dic.remove(data.id)
+							if(dicCurrentKey == data.id){
+								var firstNode = this.dicList[0];
+								if(firstNode){
+									this.$refs.dic.setCurrentKey(firstNode.id);
+									this.$refs.table.upData({
+										code: firstNode.code
+									})
+								}else{
+									this.listApi = null;
+									this.$refs.table.tableData = []
+								}
+							}
+							this.showDicloading = false;
+							this.$message.success("操作成功")
 						}
-					}
-
-					this.showDicloading = false;
-					this.$message.success("操作成功")
+					})
+					
 				}).catch(() => {
 
 				})
@@ -306,7 +309,7 @@
 						this.listApiParams = {
 							dic__code: data.code
 						}
-						this.listApi = this.$API.dic.info;
+						this.listApi = this.$API.badmin.dic.list;
 					}
 					this.$refs.dic.append(data, data.parent)
 					this.$refs.dic.setCurrentKey(data.id)

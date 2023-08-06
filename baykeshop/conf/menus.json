@@ -31,6 +31,27 @@
       ]
     },
     {
+      "name": "shop",
+      "path": "/shop",
+      "meta": {
+        "title": "商品",
+        "icon": "sc-icon-shopping-outline",
+        "type": "menu"
+      },
+      "children":[
+        {
+          "path": "/shop/category",
+          "name": "shopCategory",
+          "meta": {
+            "title": "商品分类",
+            "icon": "el-icon-menu",
+            "type": "menu"
+          },
+          "component": "shop/category"
+        }
+      ]
+    },
+    {
       "name": "setting",
       "path": "/setting",
       "meta": {

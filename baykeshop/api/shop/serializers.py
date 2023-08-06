@@ -7,5 +7,5 @@ class BaykeShopCategorySerializer(serializers.ModelSerializer):
     
     class Meta:
         model = BaykeShopCategory
-        fields = ("name", "parent")
+        fields = "__all__"
 
