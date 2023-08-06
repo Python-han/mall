@@ -19,7 +19,7 @@
 						<el-icon class="add"><el-icon-plus /></el-icon>
 					</span>
 					<span>
-						<el-icon><el-icon-eleme-filled /></el-icon>
+						<el-icon><sc-icon-django /></el-icon>
 					</span>
 				</div>
 			</div>
