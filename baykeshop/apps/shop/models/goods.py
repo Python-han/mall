@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from baykeshop.common.models import BaseModelMixin
-
+from baykeshop.common.validators import validate_count
 
 class BaykeShopCategory(BaseModelMixin):
     """Model definition for BaykeShopCategory."""
@@ -48,62 +48,27 @@ class BaykeshopBrand(BaseModelMixin):
 class BaykeShopSPU(BaseModelMixin):
     """Model definition for BaykeShopSPU."""
     title = models.CharField(_("标题"), max_length=80)
-    subtitle = models.CharField(
-        _("副标题"), max_length=150, blank=True, default="")
+    subtitle = models.CharField(_("副标题"), max_length=150, blank=True, default="")
     content = models.TextField(_("详情"))
-    category = models.ForeignKey(
-        BaykeShopCategory, on_delete=models.SET_NULL, blank=True, null=True, verbose_name=_("分类"))
-    brand = models.ForeignKey(
-        BaykeshopBrand, on_delete=models.SET_NULL, blank=True, null=True, verbose_name=_("品牌"))
+    unit = models.CharField(_("单位"), max_length=50)
+    images = models.JSONField(_("轮播图"), default=list, validators=[validate_count], blank=True)
+    category = models.ManyToManyField(BaykeShopCategory, blank=True, verbose_name=_("分类"))
+    brand = models.ForeignKey(BaykeshopBrand, on_delete=models.SET_NULL, blank=True, null=True, verbose_name=_("品牌"))
+    skutype = models.PositiveSmallIntegerField(choices=((0, "单规格"), (1, "多规格")), default=0, blank=True, verbose_name="规格类型")
+    sort = models.IntegerField(default=1, verbose_name=_("排序"))
+    status = models.BooleanField(default=True, verbose_name=_("商品状态(上下架)"))
 
     # TODO: Define fields here
 
     class Meta:
         """Meta definition for BaykeShopSPU."""
-        ordering = ['-add_date']
+        ordering = ['-sort', '-add_date']
         verbose_name = 'BaykeShopSPU'
         verbose_name_plural = 'BaykeShopSPUs'
 
     def __str__(self):
         """Unicode representation of BaykeShopSPU."""
         return self.title
-
-
-class BaykeShopBanner(BaseModelMixin):
-    """Model definition for BaykeShopBanner."""
-    spu = models.ForeignKey(
-        BaykeShopSPU, on_delete=models.CASCADE, verbose_name=_("商品"))
-    img = models.ImageField(_("图片"), upload_to="shop/banner/", max_length=200)
-
-    # TODO: Define fields here
-
-    class Meta:
-        """Meta definition for BaykeShopBanner."""
-        ordering = ['-add_date']
-        verbose_name = 'BaykeShopBanner'
-        verbose_name_plural = 'BaykeShopBanners'
-
-    def __str__(self):
-        """Unicode representation of BaykeShopBanner."""
-        return self.spu.title
-
-
-class BaykeShopUnit(BaseModelMixin):
-    """Model definition for BaykeShopUnit."""
-    name = models.CharField(_("名称"), max_length=50)
-
-    # TODO: Define fields here
-
-    class Meta:
-        """Meta definition for BaykeShopUnit."""
-        ordering = ['-add_date']
-        verbose_name = 'BaykeShopUnit'
-        verbose_name_plural = 'BaykeShopUnits'
-
-    def __str__(self):
-        """Unicode representation of BaykeShopUnit."""
-        return self.name
-
 
 class BaykeShopSpec(BaseModelMixin):
     """Model definition for BaykeShopSpec."""
@@ -145,17 +110,20 @@ class BaykeShopSKU(BaseModelMixin):
 
     stock = models.PositiveSmallIntegerField(_("库存"), default=0)
     sales = models.PositiveIntegerField(_("销量"), default=0)
-    unit = models.ForeignKey(BaykeShopUnit, on_delete=models.SET_DEFAULT,
-                             default="", blank=True, verbose_name=_("单位"))
     img = models.ImageField(_("主图"), upload_to="shop/sku/",
                             max_length=200, blank=True, null=True)
     spu = models.ForeignKey(
         BaykeShopSPU, on_delete=models.CASCADE, verbose_name=_("商品"))
     spec_values = models.ManyToManyField(
         BaykeShopSpecValue, blank=True, verbose_name=_("规格"))
-    price = models.DecimalField(_("售价"), max_digits=8, decimal_places=2)
+    price = models.DecimalField(_("售价"), max_digits=8, decimal_places=2, blank=True, default=0.00)
+    cost_price = models.DecimalField(_("售价"), max_digits=8, decimal_places=2, blank=True, default=0.00)
     retail_price = models.DecimalField(
-        _("零售价"), max_digits=10, decimal_places=2)
+        _("零售价"), max_digits=10, decimal_places=2, blank=True, default=0.00)
+    item = models.CharField(_("商品编号"), max_length=50, blank=True)
+    weight = models.FloatField(_("重量"), blank=True, default=0)
+    vol = models.FloatField(_("体积"), blank=True, default=0)
+    status = models.BooleanField(default=True, verbose_name=_("商品状态(上下架)"))
 
     # TODO: Define fields here
 

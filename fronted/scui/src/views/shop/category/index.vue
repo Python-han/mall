@@ -17,6 +17,15 @@
 				<el-table-column type="selection" width="50"></el-table-column>
 				<el-table-column label="ID" prop="id" width="250"></el-table-column>
 				<el-table-column label="分类名称" prop="name" width="250"></el-table-column>
+				<el-table-column label="分类图标" prop="icon" width="250">
+					<template #default="scope">
+						<el-image :src="scope.row.icon" style="width: 30px; height: 30px" fit="cover" :preview-src-list="[scope.row.icon]" :preview-teleported="true">
+							<template #placeholder>
+								<div class="image-slot">-</div>
+							</template>
+						</el-image>
+					</template>
+				</el-table-column>
 				<el-table-column label="排序" prop="sort" width="150"></el-table-column>
 				<el-table-column label="状态" prop="status" width="150">
 					<template #default="scope">
@@ -158,5 +167,8 @@
 	}
 </script>
 
-<style>
+<style scoped>
+.image-slot{
+	line-height: 30px;
+}
 </style>

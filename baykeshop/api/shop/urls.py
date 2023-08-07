@@ -9,4 +9,6 @@ router.register('category', viewsets.BaykeShopCategoryViewSet, basename='categor
 
 router.register('brand', viewsets.BaykeshopBrandViewSet, basename='brand')
 
+router.register('spu', viewsets.BaykeShopSPUViewSet, basename='spu')
+
 urlpatterns = router.urls

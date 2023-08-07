@@ -94,9 +94,9 @@
 					images_upload_handler: function(blobInfo) {
 						return new Promise((resolve, reject) => {
 							const data = new FormData();
-							data.append("file", blobInfo.blob() ,blobInfo.filename());
+							data.append("img", blobInfo.blob() ,blobInfo.filename());
 							API.common.upload.post(data).then((res) => {
-								resolve(res.data.src)
+								resolve(res.data.img)
 							}).catch(() => {
 								reject("Image upload failed")
 							})

@@ -1,7 +1,7 @@
 from .cart import BaykeShopCart
 from .goods import (
-    BaykeShopBanner, BaykeshopBrand, BaykeShopCategory, 
+    BaykeshopBrand, BaykeShopCategory, 
     BaykeShopSKU, BaykeShopSpec, BaykeShopSpecValue, 
-    BaykeShopSPU, BaykeShopUnit
+    BaykeShopSPU, 
 )
 from .order import BaykeShopOrder, BaykeShopOrderSKU

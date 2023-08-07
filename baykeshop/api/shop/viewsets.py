@@ -1,6 +1,12 @@
 from baykeshop.common import viewsets, pagination, utils
-from baykeshop.apps.shop.models import BaykeShopCategory, BaykeshopBrand
-from baykeshop.api.shop.serializers import BaykeShopCategorySerializer, BaykeshopBrandSerializer
+from baykeshop.apps.shop.models import (
+    BaykeShopCategory, BaykeshopBrand, BaykeShopSPU, BaykeShopSKU
+)
+from baykeshop.api.shop.serializers import (
+    BaykeShopCategorySerializer, BaykeshopBrandSerializer,
+    BaykeShopSPUSerializer, BaykeShopSKUSerializer
+)
+from . import filters
 
 
 class BaykeShopCategoryViewSet(viewsets.ModelViewSet):
@@ -52,3 +58,27 @@ class BaykeshopBrandViewSet(viewsets.ModelViewSet):
     serializer_class = BaykeshopBrandSerializer
     pagination_class = pagination.PageNumberPagination
     search_fields = ("name", )
+    
+
+class BaykeShopSPUViewSet(viewsets.ModelViewSet):
+    """商品增删改查
+    list:
+        列表
+    create:
+        添加
+    retrieve:
+        详情
+    update:
+        修改
+    partial_update:
+        局部修改
+    destroy:
+        删除单个数据
+    batch_destroy:
+        批量删除
+    """
+    queryset = BaykeShopSPU.objects.all()
+    serializer_class = BaykeShopSPUSerializer
+    pagination_class = pagination.PageNumberPagination
+    filterset_class = filters.BaykeShopSPUFilterSet
+    search_fields = ("title", "subtitle")

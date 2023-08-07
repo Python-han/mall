@@ -12,6 +12,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from baykeshop.conf import bayke_settings
 
+
 def validate_phone(value):
     # 中国区手机号验证
     reg = re.compile(bayke_settings.REGEX_PHONE)
@@ -20,3 +21,13 @@ def validate_phone(value):
             _("%(value)s is not phone"),
             params={"value": value},
         )
+        
+
+def validate_count(value):
+    # 验证列表的长度不超过10个
+    if isinstance(value, list):
+        if len(value) > 10:
+            raise ValidationError(
+                _("%(value)s is max length 10"),
+                params={"value": value},
+            )

@@ -58,6 +58,16 @@
             "type": "menu"
           },
           "component": "shop/brand"
+        },
+        {
+          "path": "/shop/goods",
+          "name": "shopGoods",
+          "meta": {
+            "title": "商品管理",
+            "icon": "el-icon-goods",
+            "type": "menu"
+          },
+          "component": "shop/goods"
         }
       ]
     },

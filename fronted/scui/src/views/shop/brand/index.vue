@@ -17,6 +17,15 @@
 				<el-table-column type="selection" width="50"></el-table-column>
 				<el-table-column label="ID" prop="id" width="250"></el-table-column>
 				<el-table-column label="名称" prop="name" width="250"></el-table-column>
+				<el-table-column label="品牌logo" prop="logo" width="250">
+					<template #default="scope">
+						<el-image :src="scope.row.logo" style="width: 30px; height: 30px" fit="cover" :preview-src-list="[scope.row.logo]" :preview-teleported="true">
+							<template #placeholder>
+								<div class="image-slot">-</div>
+							</template>
+						</el-image>
+					</template>
+				</el-table-column>
 				<el-table-column label="排序" prop="sort" width="150"></el-table-column>
 				<el-table-column label="状态" prop="status" width="150">
 					<template #default="scope">
@@ -25,7 +34,6 @@
 					</template>
 				</el-table-column>
 				<el-table-column label="创建时间" prop="add_date" width="180"></el-table-column>
-				<!-- <el-table-column label="备注" prop="mark" min-width="300"></el-table-column> -->
 				<el-table-column label="操作" fixed="right" align="right" width="170">
 					<template #default="scope">
 						<el-button-group>
