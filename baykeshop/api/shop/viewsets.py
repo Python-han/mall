@@ -1,10 +1,12 @@
 from baykeshop.common import viewsets, pagination, utils
 from baykeshop.apps.shop.models import (
-    BaykeShopCategory, BaykeshopBrand, BaykeShopSPU, BaykeShopSKU
+    BaykeShopCategory, BaykeshopBrand, BaykeShopSPU, BaykeShopSKU,
+    BaykeShopSpec, BaykeShopSpecValue
 )
 from baykeshop.api.shop.serializers import (
     BaykeShopCategorySerializer, BaykeshopBrandSerializer,
-    BaykeShopSPUSerializer, BaykeShopSKUSerializer
+    BaykeShopSPUSerializer, BaykeShopSKUSerializer, BaykeShopSpecSerializer,
+    BaykeShopSpecValueSerializer
 )
 from . import filters
 
@@ -61,7 +63,7 @@ class BaykeshopBrandViewSet(viewsets.ModelViewSet):
     
 
 class BaykeShopSPUViewSet(viewsets.ModelViewSet):
-    """商品增删改查
+    """SKU规格商品增删改查
     list:
         列表
     create:
@@ -82,3 +84,70 @@ class BaykeShopSPUViewSet(viewsets.ModelViewSet):
     pagination_class = pagination.PageNumberPagination
     filterset_class = filters.BaykeShopSPUFilterSet
     search_fields = ("title", "subtitle")
+
+
+class BaykeShopSKUViewSet(viewsets.ModelViewSet):
+    """商品增删改查
+    list:
+        列表
+    create:
+        添加
+    retrieve:
+        详情
+    update:
+        修改
+    partial_update:
+        局部修改
+    destroy:
+        删除单个数据
+    batch_destroy:
+        批量删除
+    """
+    queryset = BaykeShopSKU.objects.all()
+    serializer_class = BaykeShopSKUSerializer
+    
+
+class BaykeShopSpecViewSet(viewsets.ModelViewSet):
+    """商品规格增删改查
+    list:
+        列表
+    create:
+        添加
+    retrieve:
+        详情
+    update:
+        修改
+    partial_update:
+        局部修改
+    destroy:
+        删除单个数据
+    batch_destroy:
+        批量删除
+    """
+    queryset = BaykeShopSpec.objects.all()
+    serializer_class = BaykeShopSpecSerializer
+    pagination_class = pagination.PageNumberPagination
+    search_fields = ("name", )
+
+
+class BaykeShopSpecValueViewSet(viewsets.ModelViewSet):
+    """商品规格值增删改查
+    list:
+        列表
+    create:
+        添加
+    retrieve:
+        详情
+    update:
+        修改
+    partial_update:
+        局部修改
+    destroy:
+        删除单个数据
+    batch_destroy:
+        批量删除
+    """
+    queryset = BaykeShopSpecValue.objects.all()
+    serializer_class = BaykeShopSpecValueSerializer
+    # pagination_class = pagination.PageNumberPagination
+    # search_fields = ("name", )

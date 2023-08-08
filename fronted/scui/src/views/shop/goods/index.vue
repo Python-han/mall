@@ -33,7 +33,7 @@
 				<el-table-column label="标题" prop="title" width="300"></el-table-column>
 				<el-table-column label="商品图" prop="images" width="150">
 					<template #default="scope">
-						<el-image :src="scope.row.images[0]" style="width: 50px; height: 50px" fit="cover" :preview-src-list="[scope.row.images]" :preview-teleported="true">
+						<el-image :src="img(scope.row.images)" style="width: 50px; height: 50px" fit="cover" :preview-src-list="imgs(scope.row.images)" :preview-teleported="true">
 							<template #placeholder>
 								<div class="image-slot" style="line-height: 50px;">-</div>
 							</template>
@@ -58,11 +58,11 @@
 					</template>
 				</el-table-column>
 				<el-table-column label="创建时间" prop="add_date" width="180"></el-table-column>
-				<el-table-column label="操作" fixed="right" align="right" width="170">
+				<el-table-column label="操作" fixed="right" align="right" width="270">
 					<template #default="scope">
 						<el-button-group>
 							<el-button text type="primary" size="small" @click="table_show(scope.row, scope.$index)">查看</el-button>
-							<el-button text type="primary" size="small" @click="table_edit(scope.row, scope.$index)">编辑</el-button>
+							<el-button text type="primary" size="small" @click="table_edit_page(scope.row, scope.$index)">编辑</el-button>
 							<el-popconfirm title="确定删除吗？" @confirm="table_del(scope.row, scope.$index)">
 								<template #reference>
 									<el-button text type="primary" size="small">删除</el-button>
@@ -124,12 +124,26 @@
 				],
 			}
 		},
-
+		computed:{
+			
+		},
 		created(){
 			this.getGoodsCategory()
 			this.getBrands()
 		},
 		methods: {
+			img(images){
+				return images.length ? images[0].url : ""
+			},
+			imgs(images){
+				let items = []
+				if (images.length){
+					images.forEach(el => {
+						items.push(el.url)
+					})
+				}
+				return items
+			},
 			//页面新增
 			addPage(){
 				this.$router.push({

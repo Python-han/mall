@@ -68,6 +68,16 @@
             "type": "menu"
           },
           "component": "shop/goods"
+        },
+        {
+          "path": "/shop/spec",
+          "name": "shopSpec",
+          "meta": {
+            "title": "规格管理",
+            "icon": "el-icon-operation",
+            "type": "menu"
+          },
+          "component": "shop/spec"
         }
       ]
     },
