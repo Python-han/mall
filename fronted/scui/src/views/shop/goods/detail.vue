@@ -26,7 +26,7 @@
 										style="width: 100%;"
 										placeholder="请选择..."
 									>
-								</el-tree-select>
+									</el-tree-select>
 								</el-form-item>
 								<el-form-item label="商品品牌">
 									<el-select v-model="form.brand" filterable placeholder="请选择..." style="width: 100%;">
@@ -106,7 +106,9 @@
 										<el-input v-model="form.item" placeholder="请输入商品编号"></el-input>
 									</el-form-item>
 								</div>
-
+								<div v-else>
+									<sku-form></sku-form>
+								</div>
 								<el-form-item>
 									<el-button @click="activeName='base'">上一步</el-button>
 									<el-button @click="activeName='content'" type="primary">下一步</el-button>
@@ -177,13 +179,16 @@
 <script>
 	import { RouterLink } from "vue-router"
 	import { defineAsyncComponent } from 'vue';
-	const scEditor = defineAsyncComponent(() => import('@/components/scEditor'));
+	import skuForm from "./skuForm.vue";
 
+	const scEditor = defineAsyncComponent(() => import('@/components/scEditor'));
+	
 	export default {
 		name: 'goodsDetail',
 		components:{
 			RouterLink,
-			scEditor
+			scEditor,
+			skuForm
 		},
 		data() {
 			return {
