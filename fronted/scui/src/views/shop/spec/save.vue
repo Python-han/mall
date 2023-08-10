@@ -114,7 +114,6 @@
 				this.$refs.dialogForm.validate(async (valid) => {
 					if (valid) {
 						this.isSaveing = true; 
-						console.log(this.form)
 						if (this.form.baykeshopspecvalue_set.length == 1 && !this.form.baykeshopspecvalue_set[0].value){
 							this.$alert("规格值至少应该有一个", "提示", {type: 'error'})
 							this.isSaveing = false;

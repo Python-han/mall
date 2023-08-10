@@ -70,7 +70,7 @@
 					</el-tab-pane>
 					<el-tab-pane label="规格库存" name="sku">
 						<el-row>
-							<el-col :span="12" :xs="24">
+							<el-col :span="24" :xs="24">
 								<el-form-item label="商品规格">
 									<el-radio-group v-model="form.skutype">
 										<el-radio :label="0">单规格</el-radio>
@@ -107,7 +107,7 @@
 									</el-form-item>
 								</div>
 								<div v-else>
-									<sku-form></sku-form>
+									<sku-form ref="skuFormRef"></sku-form>
 								</div>
 								<el-form-item>
 									<el-button @click="activeName='base'">上一步</el-button>
@@ -294,10 +294,81 @@
 			onsubmit(){
 				this.$refs.form.validate(async (valid) => {
 					if (valid) {
-						this.$API.shop.spu.create.post(this.form).then(spures => {
-							if (spures.status == 201){
-								if (!this.form.skutype){
-									// 组装数据格式
+						// this.$API.shop.spu.create.post(this.form).then(spures => {
+						// 	if (spures.status == 201){
+						// 		if (!this.form.skutype){
+						// 			// 组装数据格式
+						// 			let _sku = {
+						// 				spu: spures.data.id,
+						// 				stock: this.form.stock,
+						// 				sales: 0,
+						// 				price: this.form.price,
+						// 				cost_price: this.form.cost_price,
+						// 				retail_price: this.form.retail_price,
+						// 				item: this.form.item,
+						// 				weight: this.form.weight,
+						// 				vol: this.form.vol,
+						// 				status: true
+						// 			}
+						// 			const sendData = new FormData()
+						// 			if (this.$refs.uploadRef.file){
+						// 				sendData.append('img', this.$refs.uploadRef.file.raw)
+						// 			}
+						// 			for (const key in _sku) {
+						// 				sendData.append(key, this.form[key]);
+						// 			}
+						// 			// 调用sku的保存接口，保存单规格
+						// 			sendData.set("spu", Number(spures.data.id))
+						// 			this.$API.shop.sku.create.post(sendData).then(skures => {
+						// 				if (skures.status == 201){
+						// 					console.log(skures)
+						// 					this.$message.success("单规格保存成功")
+						// 				}
+						// 			})
+						// 		}else{
+						// 			console.log("多规格回调")
+						// 		}
+						// 		this.$message.success("全部验证通过,并且已经保存")
+						// 	}
+						// })
+
+						// 多规格商品保存
+						if (this.form.skutype){
+							// 规格数据
+							let skus = this.$refs.skuFormRef.skuSpecs
+							console.log(this.$refs.skuFormRef)
+							// 保存spu
+							this.$API.shop.spu.create.post(this.form).then(spures => {
+								if (spures.status == 201){
+									// 多规格循环调用sku的保存接口
+									skus.forEach((element, i) => {
+										element['spu'] = spures.data.id
+										element['spec_values'] = element.spectype
+										// 保存主图
+										let sendData = new FormData()
+										if (this.$refs.skuFormRef.$refs[`skuUploadRef${i}`].file){
+											sendData.append('img', this.$refs.skuFormRef.$refs[`skuUploadRef${i}`].file.raw)
+										}
+										// 组装数据格式
+										for (const key in element) {
+											sendData.append(key, element[key]);
+										}
+										// 后端要求spu的值为数字类型，组装后需要转换下数据类型
+										sendData.set("spu", Number(spures.data.id))
+										this.$API.shop.sku.create.post(sendData).then(skures => {
+											if (skures.status == 201){
+												this.$message.success("多规格保存成功")
+											}
+											console.log(skures, 'skures')
+										})
+									});
+								}
+							})
+						// 单规格商品保存
+						}else{
+							this.$API.shop.spu.create.post(this.form).then(spures => {
+								if (spures.status == 201){
+									// 组装sku数据格式
 									let _sku = {
 										spu: spures.data.id,
 										stock: this.form.stock,
@@ -310,25 +381,27 @@
 										vol: this.form.vol,
 										status: true
 									}
+									// 保存主图
 									const sendData = new FormData()
 									if (this.$refs.uploadRef.file){
 										sendData.append('img', this.$refs.uploadRef.file.raw)
 									}
+									// 组装数据格式
 									for (const key in _sku) {
 										sendData.append(key, this.form[key]);
 									}
-									// 调用sku的保存接口，保存单规格
+									// 后端要求spu的值为数字类型，组装后需要转换下数据类型
 									sendData.set("spu", Number(spures.data.id))
+									// 调用sku保存接口保存sku
 									this.$API.shop.sku.create.post(sendData).then(skures => {
 										if (skures.status == 201){
-											console.log(skures)
 											this.$message.success("单规格保存成功")
 										}
 									})
 								}
-								this.$message.success("全部验证通过,并且已经保存")
-							}
-						})
+							})
+						}
+
 						
 					}else{
 						this.$message.warning("表单填写有误，请检查！")
