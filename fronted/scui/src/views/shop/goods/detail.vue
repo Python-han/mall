@@ -107,7 +107,7 @@
 									</el-form-item>
 								</div>
 								<div v-else>
-									<sku-form ref="skuFormRef"></sku-form>
+									<sku-form ref="skuFormRef" :skuSpecss="skuSpecss" :specss="specs" :specvaluess="specvalues"></sku-form>
 								</div>
 								<el-form-item>
 									<el-button @click="activeName='base'">上一步</el-button>
@@ -241,7 +241,12 @@
 					content: [
 						{ required: true, message: '请输入商品详情'  }
 					],
-				}
+				},
+
+				// 多规格
+				skuSpecss: [],
+				specs: [],
+				specvalues: []
 			}
 		},
 		created() {
@@ -282,6 +287,17 @@
 						this.form.item = sku.item
 						this.form.img = sku.img
 					}
+					this.skuSpecss = res.data.skuSpecs
+					this.specs = res.data.specs
+
+					this.specs.forEach(el => {
+						console.log(el)
+						el.baykeshopspecvalue_set.forEach(item => {
+							if (!this.specvalues.includes(item)){
+								this.specvalues.push(item)
+							}
+						})
+					})
 				}
 			},
 
@@ -343,7 +359,7 @@
 									// 多规格循环调用sku的保存接口
 									skus.forEach((element, i) => {
 										element['spu'] = spures.data.id
-										element['spec_values'] = element.spectype
+										// element['spec_values'] = element.spec_values
 										// 保存主图
 										let sendData = new FormData()
 										if (this.$refs.skuFormRef.$refs[`skuUploadRef${i}`].file){

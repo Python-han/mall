@@ -77,9 +77,9 @@
 
     <el-form-item prop="skuSpecs" v-if="skuSpecs.length">
         <sc-form-table ref="skuFormTableRef" v-model="skuSpecs" :addTemplate="addTemplate" placeholder="暂无数据" :hideAdd="true" :hideDelete="true" @rowDel="deleteRow">
-            <el-table-column prop="spectype" label="商品规格" width="240">
+            <el-table-column prop="spec_values" label="商品规格" width="240">
 				<template #default="scope">
-					<el-select v-model="scope.row.spectype" placeholder="请选择" multiple :disabled="true">
+					<el-select v-model="scope.row.spec_values" placeholder="请选择" multiple :disabled="false">
 						<el-option v-for="item in specvalues" :key="item.id" :label="item.value" :value="item.id"></el-option>
 					</el-select>
 				</template>
@@ -145,6 +145,11 @@
 export default {
     name: "skuForm",
     components: {},
+    props:{
+        skuSpecss: { type: Array, default: () => []},
+        specss: { type: Array, default: () => []},
+        specvaluess: { type: Array, default: () => []}
+    },
     data() {
         return {
             specs: [],
@@ -152,7 +157,7 @@ export default {
             inputVisible: false,
             inputValue: [],
             addTemplate: {
-                spectype: [],
+                spec_values: [],
 				price: 0,
                 cost_price: 0,
                 retail_price: 0,
@@ -169,6 +174,9 @@ export default {
     },
     created() {
         this.getSpecsData()
+        this.specs = this.$props.specss
+        this.skuSpecs = this.$props.skuSpecss
+        this.specvalues = this.$props.specvaluess
     },
 
     watch: {
@@ -215,7 +223,6 @@ export default {
             this.$nextTick(() => {
                 this.$refs.tagInputRef[0].input.focus()
             })
-            
         },
 
         // 规格输入完毕回调
@@ -268,7 +275,7 @@ export default {
                 this.arrp(this.specs).forEach(sp => {
                     if (sp.id) {
                         _values.push({
-                            spectype: [sp.id],
+                            spec_values: [sp.id],
                             price: 0,
                             cost_price: 0,
                             retail_price: 0,
@@ -282,7 +289,7 @@ export default {
                         })
                     }else if (sp.length){
                         _values.push({
-                            spectype: this.getSpecType(sp),
+                            spec_values: this.getSpecType(sp),
                             price: 0,
                             cost_price: 0,
                             retail_price: 0,

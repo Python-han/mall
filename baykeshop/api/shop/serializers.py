@@ -31,6 +31,9 @@ class BaykeShopSPUSerializer(ModelSerializer):
     stock = serializers.SerializerMethodField()
     sales = serializers.SerializerMethodField()
     baykeshopsku_set = BaykeShopSKUSerializer(many=True, read_only=True)
+    skuSpecs = serializers.SerializerMethodField()
+    specs = serializers.SerializerMethodField()
+    
     class Meta:
         model = BaykeShopSPU
         fields = "__all__"
@@ -45,11 +48,31 @@ class BaykeShopSPUSerializer(ModelSerializer):
 
     def get_skus(self, obj):
         return BaykeShopSKU.objects.filter(spu=obj)
+    
+    def get_skuSpecs(self, obj):
+        sku_specs = BaykeShopSKUSerializer(obj.baykeshopsku_set.all(), many=True).data
+        
+        for spec in sku_specs:
+            spec['img'] = f"{self.context['request'].scheme}://{self.context['request'].get_host()}{spec['img']}"
+        return sku_specs
 
+    def get_specs(self, obj):
+        specs = []
+        ids = obj.baykeshopsku_set.values_list('spec_values__spec__id', flat=True)
+        specs_queryset = BaykeShopSpec.objects.filter(id__in=set(ids))
+        for spec in specs_queryset:
+            spec_dict = {
+                "id": spec.id,
+                "name": spec.name,
+                "baykeshopspecvalue_set": BaykeShopSpecValueSerializer(spec.baykeshopspecvalue_set.all(), many=True).data
+            }
+            specs.append(spec_dict)
+        return specs
 
 class BaykeShopSpecValueSerializer(ModelSerializer):
     """ 商品规格 """
     spec = serializers.PrimaryKeyRelatedField(read_only=True)
+    
     class Meta:
         model = BaykeShopSpecValue
         fields = "__all__"
