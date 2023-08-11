@@ -176,7 +176,7 @@
 										<sc-form-table ref="specTableRef" v-model="skuTableData" placeholder="暂无数据" :hideAdd="true" :hideDelete="true">
 											<el-table-column prop="specops" label="规格" width="180">
 												<template #default="scope">
-													<el-select v-model="scope.row.spec_values" multiple>
+													<el-select v-model="scope.row.spec_values" multiple :disabled="true" size="large" suffix-icon="" style="width:100%">
 														<el-option
 															v-for="item in scope.row.specops"
 															:key="item.id"
@@ -188,40 +188,40 @@
 											</el-table-column>
 											<el-table-column prop="img" label="图片" width="105">
 												<template #default="scope">
-													<sc-upload :autoUpload="false" :ref="`skuUploadRef${scope.$index}`" v-model="scope.row.img" :width="80" :height="80"></sc-upload>
+													<sc-upload :autoUpload="true" :ref="`skuUploadRef${scope.$index}`" v-model="scope.row.img" :width="80" :height="80"></sc-upload>
 												</template>
 											</el-table-column>
-											<el-table-column prop="price" label="售价" width="180">
+											<el-table-column prop="price" label="售价" >
 												<template #default="scope">
 													<el-input v-model="scope.row.price"></el-input>
 												</template>
 											</el-table-column>
-											<el-table-column prop="cost_price" label="成本价" width="180">
+											<el-table-column prop="cost_price" label="成本价">
 												<template #default="scope">
 													<el-input v-model="scope.row.cost_price"></el-input>
 												</template>
 											</el-table-column>
-											<el-table-column prop="retail_price" label="划线价" width="180">
+											<el-table-column prop="retail_price" label="划线价" >
 												<template #default="scope">
 													<el-input v-model="scope.row.retail_price"></el-input>
 												</template>
 											</el-table-column>
-											<el-table-column prop="stock" label="库存" width="180">
+											<el-table-column prop="stock" label="库存">
 												<template #default="scope">
 													<el-input v-model="scope.row.stock"></el-input>
 												</template>
 											</el-table-column>
-											<el-table-column prop="weight" label="重量" width="180">
+											<el-table-column prop="weight" label="重量">
 												<template #default="scope">
 													<el-input v-model="scope.row.weight"></el-input>
 												</template>
 											</el-table-column>
-											<el-table-column prop="vol" label="体积" width="180">
+											<el-table-column prop="vol" label="体积">
 												<template #default="scope">
 													<el-input v-model="scope.row.vol"></el-input>
 												</template>
 											</el-table-column>
-											<el-table-column prop="item" label="商品编号" width="180">
+											<el-table-column prop="item" label="商品编号">
 												<template #default="scope">
 													<el-input v-model="scope.row.item"></el-input>
 												</template>
@@ -411,6 +411,7 @@
 				if (this.form.id){
 					const res = await this.$API.shop.spu.read.get(this.form.id)
 					this.form = res.data
+					console.log(res.data)
 					this.form.freight = parseFloat(res.data.freight)
 					if (!res.data.skutype && res.data.baykeshopsku_set.length == 1){
 						let sku = res.data.baykeshopsku_set[0]
@@ -556,15 +557,16 @@
 
 			// 编辑函数
 			editSubmit(data){
-				data.baykeshopsku_set.forEach((el, i) => {
-					// if (this.$refs[`skuUploadRef${i}`].file && this.$refs[`skuUploadRef${i}`].file.status == 'ready'){
-					// 	sendData.append('img', this.$refs[`skuUploadRef${i}`].file.raw)
-					// }
-					if (el.id){
-						console.log("编辑", i)
-					}else{
-						console.log("新增", i)
-					}
+				// const sendData = new FormData()
+				// data.baykeshopsku_set.forEach((el, i) => {
+				// 	if (this.$refs[`skuUploadRef${i}`].file && this.$refs[`skuUploadRef${i}`].file.status == 'ready'){
+				// 		el['img'] = this.$refs[`skuUploadRef${i}`].file.raw
+				// 	}
+				// })
+				// sendData.append('baykeshopsku_set', JSON.stringify(data.baykeshopsku_set))
+				// console.log(data)
+				this.$API.shop.spu.create.post(data).then(res => {
+					console.log(res)
 				})
 			},
 
@@ -590,4 +592,4 @@
 	display: flex;
 	flex-direction: column;
 }
-</style>
+</style>, stringifyQuery

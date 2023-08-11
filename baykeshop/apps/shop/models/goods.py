@@ -117,8 +117,9 @@ class BaykeShopSKU(BaseModelMixin):
 
     stock = models.PositiveSmallIntegerField(_("库存"), default=0)
     sales = models.PositiveIntegerField(_("销量"), default=0)
-    img = models.ImageField(_("主图"), upload_to="shop/sku/",
-                            max_length=200, blank=True, null=True)
+    # img = models.ImageField(_("主图"), upload_to="shop/sku/",
+    #                         max_length=200, blank=True, null=True)
+    img = models.CharField(_("主图"), max_length=200, blank=True, default="")
     spu = models.ForeignKey(
         BaykeShopSPU, on_delete=models.CASCADE, verbose_name=_("商品"))
     spec_values = models.ManyToManyField(

@@ -107,7 +107,7 @@ export default {
 			},
 		},
 		create:{
-			url: `${config.API_URL}/shop/spu/`,
+			url: `${config.API_URL}/shop/spu/create/`,
 			name: "新增",
 			post: async function(data){
 				return await http.post(this.url, data)
