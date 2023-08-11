@@ -1,4 +1,4 @@
-from baykeshop.common import viewsets, pagination, utils
+from baykeshop.common import viewsets, pagination, utils, mixins
 from baykeshop.apps.shop.models import (
     BaykeShopCategory, BaykeshopBrand, BaykeShopSPU, BaykeShopSKU,
     BaykeShopSpec, BaykeShopSpecValue
@@ -62,7 +62,11 @@ class BaykeshopBrandViewSet(viewsets.ModelViewSet):
     search_fields = ("name", )
     
 
-class BaykeShopSPUViewSet(viewsets.ModelViewSet):
+class BaykeShopSPUViewSet(mixins.ListModelMixin, 
+                          mixins.RetrieveModelMixin,
+                          mixins.DestroyModelMixin,
+                          mixins.BatchDestroyModelMixin,
+                          viewsets.GenericViewSet):
     """SKU规格商品增删改查
     list:
         列表
@@ -84,9 +88,13 @@ class BaykeShopSPUViewSet(viewsets.ModelViewSet):
     pagination_class = pagination.PageNumberPagination
     filterset_class = filters.BaykeShopSPUFilterSet
     search_fields = ("title", "subtitle")
+    
 
-
-class BaykeShopSKUViewSet(viewsets.ModelViewSet):
+class BaykeShopSKUViewSet(mixins.ListModelMixin, 
+                          mixins.RetrieveModelMixin,
+                          mixins.DestroyModelMixin,
+                          mixins.BatchDestroyModelMixin,
+                          viewsets.GenericViewSet):
     """商品增删改查
     list:
         列表

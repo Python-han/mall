@@ -51,9 +51,9 @@ class BaykeShopSPUSerializer(ModelSerializer):
     
     def get_skuSpecs(self, obj):
         sku_specs = BaykeShopSKUSerializer(obj.baykeshopsku_set.all(), many=True).data
-        
         for spec in sku_specs:
             spec['img'] = f"{self.context['request'].scheme}://{self.context['request'].get_host()}{spec['img']}"
+            spec['specops'] = [BaykeShopSpecValueSerializer(BaykeShopSpecValue.objects.get(id=v), many=False).data for v in spec['spec_values']]
         return sku_specs
 
     def get_specs(self, obj):
@@ -69,13 +69,21 @@ class BaykeShopSPUSerializer(ModelSerializer):
             specs.append(spec_dict)
         return specs
 
+
 class BaykeShopSpecValueSerializer(ModelSerializer):
     """ 商品规格 """
     spec = serializers.PrimaryKeyRelatedField(read_only=True)
-    
+
     class Meta:
         model = BaykeShopSpecValue
         fields = "__all__"
+
+
+# class BaykeShopSpecValueSerializerCRUD(ModelSerializer):
+#     """ 商品规格增删改查 """
+#     class Meta:
+#         model = BaykeShopSpecValue
+#         fields = "__all__"
 
 class BaykeShopSpecSerializer(ModelSerializer):
     """ 商品规格 """
@@ -106,3 +114,21 @@ class BaykeShopSpecSerializer(ModelSerializer):
         for v in baykeshopspecvalue_set:
             objs.update_or_create(spec=instance, value=v['value'], defaults={'value': v['value']})    
         return instance
+    
+
+# class BaykeShopSPUSerializerCRUD(ModelSerializer):
+    
+#     baykeshopsku_set = BaykeShopSKUSerializer(many=True)
+    
+#     class Meta:
+#         model = BaykeShopSPU
+#         fields = "__all__"
+        
+#     def update(self, instance, validated_data):
+#         print(self.context['request'].data)
+#         print(instance)
+#         print(validated_data)
+#         return super().update(instance, validated_data)
+    
+#     def create(self, validated_data):
+#         return super().create(validated_data)

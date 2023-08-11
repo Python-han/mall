@@ -10,10 +10,11 @@
 	<el-main>
 		<el-card shadow="never">
 			<el-form ref="form" :model="form" :rules="rules" label-width="100px">
-				<el-tabs v-model="activeName" @tab-click="handleTabClick">
+				<el-tabs v-model="activeName">
 					<el-tab-pane label="基础信息" name="base">
 						<el-row>
 							<el-col :span="12" :xs="24">
+								
 								<el-form-item label="商品分类" prop="category">
 									<el-tree-select
 										v-model="form.category"
@@ -44,6 +45,14 @@
 								<el-form-item label="副标题">
 									<el-input v-model="form.subtitle" placeholder="请输入商品副标题"></el-input>
 								</el-form-item>
+								<el-form-item label="商品关键字">
+									<el-input v-model="form.keywords" placeholder="请输入商品关键字"></el-input>
+								</el-form-item>
+								<el-form-item label="商品简介">
+									<el-input v-model="form.desc" placeholder="请输入商品简介" 
+										:autosize="{ minRows: 2, maxRows: 4 }" type="textarea">
+									</el-input>
+								</el-form-item>
 								<el-form-item label="单位" prop="unit">
 									<el-input v-model="form.unit" placeholder="请输入商品单位"></el-input>
 								</el-form-item>
@@ -54,6 +63,21 @@
 										:limit="10"
 										tip="最多上传10个文件,单个文件不要超过10M,请上传图像格式文件">
 									</sc-upload-multiple>
+								</el-form-item>
+								<el-form-item label="物流方式">
+									<el-radio-group v-model="form.expresstype">
+										<el-radio :label="0">快递</el-radio>
+										<!-- <el-radio :label="1">到店核销</el-radio> -->
+									</el-radio-group>
+								</el-form-item>
+								<el-form-item label="运费设置">
+									<el-radio-group v-model="form.freighttype">
+										<el-radio :label="0">固定运费</el-radio>
+										<!-- <el-radio :label="1">运费模板</el-radio> -->
+									</el-radio-group>
+								</el-form-item>
+								<el-form-item v-if="!form.freighttype">
+									<el-input-number v-model="form.freight" controls-position="right" :min="0" :precision="2" :step="1" style="width: 100%;"></el-input-number>
 								</el-form-item>
 								<el-form-item label="商品状态">
 									<el-radio-group v-model="form.status">
@@ -107,7 +131,103 @@
 									</el-form-item>
 								</div>
 								<div v-else>
-									<sku-form ref="skuFormRef" :skuSpecss="skuSpecss" :specss="specs" :specvaluess="specvalues"></sku-form>
+									<!-- <sku-form ref="skuFormRef" :skuSpecss="skuSpecss" :specss="specs" :specvaluess="specvalues"></sku-form> -->
+									<el-form-item label="选择规格">
+										<el-select v-model="modelSpec" placeholder="Select" multiple value-key="id" @change="onSpecChange">
+											<el-option
+												v-for="item in specOptions"
+												:key="item.id"
+												:label="item.name"
+												:value="item"
+												/>
+										</el-select>
+									</el-form-item>
+
+									<el-form-item prop="modelSpec" v-for="item, index in modelSpec" :key="item.id">
+										<div class="spec-tags">
+											<p>{{ item.name }}：</p>
+											<div >
+												<el-tag
+													v-for="tag, indexn in item.baykeshopspecvalue_set"
+													:key="tag.id"
+													closable
+													:disable-transitions="false"
+													style="margin-right: 5px;"
+													@close="handleClose(item.baykeshopspecvalue_set, tag, indexn)"
+												>
+													{{ tag.value }}
+												</el-tag>
+												<el-input
+														v-if="item.inputVisible"
+														ref="tagInputRef"
+														v-model="inputValue[index]"
+														size="small"
+														@keyup.enter="handleInputConfirm(index)"
+														@blur="handleInputConfirm(index, item)"
+														style="width: auto;"
+													/>
+												<el-button v-else size="small" @click="showInput(index)">
+													+ 添加
+												</el-button>
+											</div>
+										</div>
+									</el-form-item>
+									<el-form-item>
+										<sc-form-table ref="specTableRef" v-model="skuTableData" placeholder="暂无数据" :hideAdd="true" :hideDelete="true">
+											<el-table-column prop="specops" label="规格" width="180">
+												<template #default="scope">
+													<el-select v-model="scope.row.spec_values" multiple>
+														<el-option
+															v-for="item in scope.row.specops"
+															:key="item.id"
+															:label="item.value"
+															:value="item.id"
+															/>
+													</el-select>
+												</template>
+											</el-table-column>
+											<el-table-column prop="img" label="图片" width="105">
+												<template #default="scope">
+													<sc-upload :autoUpload="false" :ref="`skuUploadRef${scope.$index}`" v-model="scope.row.img" :width="80" :height="80"></sc-upload>
+												</template>
+											</el-table-column>
+											<el-table-column prop="price" label="售价" width="180">
+												<template #default="scope">
+													<el-input v-model="scope.row.price"></el-input>
+												</template>
+											</el-table-column>
+											<el-table-column prop="cost_price" label="成本价" width="180">
+												<template #default="scope">
+													<el-input v-model="scope.row.cost_price"></el-input>
+												</template>
+											</el-table-column>
+											<el-table-column prop="retail_price" label="划线价" width="180">
+												<template #default="scope">
+													<el-input v-model="scope.row.retail_price"></el-input>
+												</template>
+											</el-table-column>
+											<el-table-column prop="stock" label="库存" width="180">
+												<template #default="scope">
+													<el-input v-model="scope.row.stock"></el-input>
+												</template>
+											</el-table-column>
+											<el-table-column prop="weight" label="重量" width="180">
+												<template #default="scope">
+													<el-input v-model="scope.row.weight"></el-input>
+												</template>
+											</el-table-column>
+											<el-table-column prop="vol" label="体积" width="180">
+												<template #default="scope">
+													<el-input v-model="scope.row.vol"></el-input>
+												</template>
+											</el-table-column>
+											<el-table-column prop="item" label="商品编号" width="180">
+												<template #default="scope">
+													<el-input v-model="scope.row.item"></el-input>
+												</template>
+											</el-table-column>
+										</sc-form-table>
+									</el-form-item>
 								</div>
 								<el-form-item>
 									<el-button @click="activeName='base'">上一步</el-button>
@@ -120,24 +240,28 @@
 						<el-form-item label="详情" prop="content">
 							<sc-editor v-model="form.content" placeholder="请输入" :templates="templates" :height="800"></sc-editor>
 						</el-form-item>
-						<el-form-item>
+						<!-- <el-form-item>
 							<el-button @click="activeName='sku'">上一步</el-button>
 							<el-button @click="activeName='express'" type="primary">下一步</el-button>
+						</el-form-item> -->
+						<el-form-item>
+							<el-button @click="activeName='sku'">上一步</el-button>
+							<el-button @click="onsubmit" type="primary">保存</el-button>
 						</el-form-item>
 					</el-tab-pane>
-					<el-tab-pane label="物流设置" name="express">
+					<!-- <el-tab-pane label="物流设置" name="express">
 						<el-row>
 							<el-col :span="12" :xs="24">
 								<el-form-item label="物流方式">
 									<el-radio-group v-model="form.expresstype">
 										<el-radio :label="0">快递</el-radio>
-										<!-- <el-radio :label="1">到店核销</el-radio> -->
+										<el-radio :label="1">到店核销</el-radio>
 									</el-radio-group>
 								</el-form-item>
 								<el-form-item label="运费设置">
 									<el-radio-group v-model="form.freighttype">
 										<el-radio :label="0">固定运费</el-radio>
-										<!-- <el-radio :label="1">运费模板</el-radio> -->
+										<el-radio :label="1">运费模板</el-radio>
 									</el-radio-group>
 								</el-form-item>
 								<el-form-item v-if="!form.freighttype">
@@ -149,9 +273,9 @@
 								</el-form-item>
 							</el-col>
 						</el-row>
-					</el-tab-pane>
+					</el-tab-pane> -->
 					<!-- <el-tab-pane label="营销设置" name="markting">markting</el-tab-pane> -->
-					<el-tab-pane label="其他设置" name="other">
+					<!-- <el-tab-pane label="其他设置" name="other">
 						<el-row>
 							<el-col :span="12" :xs="24">
 								<el-form-item label="商品关键字">
@@ -168,7 +292,7 @@
 								</el-form-item>
 							</el-col>
 						</el-row>
-					</el-tab-pane>
+					</el-tab-pane> -->
 				</el-tabs> 
 				
 			</el-form>
@@ -179,7 +303,6 @@
 <script>
 	import { RouterLink } from "vue-router"
 	import { defineAsyncComponent } from 'vue';
-	import skuForm from "./skuForm.vue";
 
 	const scEditor = defineAsyncComponent(() => import('@/components/scEditor'));
 	
@@ -187,8 +310,7 @@
 		name: 'goodsDetail',
 		components:{
 			RouterLink,
-			scEditor,
-			skuForm
+			scEditor
 		},
 		data() {
 			return {
@@ -225,6 +347,17 @@
 					value: "id",
 					children: "children"
 				},
+				
+				// 选择规格,规格的下拉选项
+				specOptions: [],
+				// 规格选中的响应式数据,应为spec的id数组[]
+				modelSpec: [],
+				skuTableData: [],
+				// 编辑时缓存原有数据
+				skuTableDataCache:[],
+				// 添加规格输入框值
+				inputValue:[],
+
 				rules: {
 					category: [
 						{ required: true, message: '请选择商品分类',  }
@@ -242,17 +375,13 @@
 						{ required: true, message: '请输入商品详情'  }
 					],
 				},
-
-				// 多规格
-				skuSpecss: [],
-				specs: [],
-				specvalues: []
 			}
 		},
 		created() {
 			this.getBrands()
 			this.getCategory()
 			this.getGoodsSpu()
+			this.getSpecsData()
 		},
 		mounted() {
 			//修改tab名称
@@ -265,10 +394,16 @@
 				this.brandOptions = res.data.results
 			},
 
-			// 获取品牌数据
+			// 获取分类数据
 			async getCategory(){
 				const res = await this.$API.shop.category.list.get({pageSize: 1000})
 				this.categoryDatas = res.data.results
+			},
+
+			// 获取规格数据
+			async getSpecsData(){
+				const res = await this.$API.shop.spec.list.get({pageSize: 1000})
+				this.specOptions = res.data.results
 			},
 
 			// 获取详情数据
@@ -287,145 +422,158 @@
 						this.form.item = sku.item
 						this.form.img = sku.img
 					}
-					this.skuSpecss = res.data.skuSpecs
-					this.specs = res.data.specs
 
-					this.specs.forEach(el => {
-						console.log(el)
-						el.baykeshopspecvalue_set.forEach(item => {
-							if (!this.specvalues.includes(item)){
-								this.specvalues.push(item)
-							}
-						})
-					})
+					// 多规格需要的数据
+					this.modelSpec = res.data.specs
+					this.skuTableData = res.data.skuSpecs
+					this.skuTableDataCache = res.data.skuSpecs
 				}
-			},
-
-			// tab切换回调
-			handleTabClick(tab){
-				console.log(tab)
 			},
 
 			// 提交表单
 			onsubmit(){
 				this.$refs.form.validate(async (valid) => {
 					if (valid) {
-						// this.$API.shop.spu.create.post(this.form).then(spures => {
-						// 	if (spures.status == 201){
-						// 		if (!this.form.skutype){
-						// 			// 组装数据格式
-						// 			let _sku = {
-						// 				spu: spures.data.id,
-						// 				stock: this.form.stock,
-						// 				sales: 0,
-						// 				price: this.form.price,
-						// 				cost_price: this.form.cost_price,
-						// 				retail_price: this.form.retail_price,
-						// 				item: this.form.item,
-						// 				weight: this.form.weight,
-						// 				vol: this.form.vol,
-						// 				status: true
-						// 			}
-						// 			const sendData = new FormData()
-						// 			if (this.$refs.uploadRef.file){
-						// 				sendData.append('img', this.$refs.uploadRef.file.raw)
-						// 			}
-						// 			for (const key in _sku) {
-						// 				sendData.append(key, this.form[key]);
-						// 			}
-						// 			// 调用sku的保存接口，保存单规格
-						// 			sendData.set("spu", Number(spures.data.id))
-						// 			this.$API.shop.sku.create.post(sendData).then(skures => {
-						// 				if (skures.status == 201){
-						// 					console.log(skures)
-						// 					this.$message.success("单规格保存成功")
-						// 				}
-						// 			})
-						// 		}else{
-						// 			console.log("多规格回调")
-						// 		}
-						// 		this.$message.success("全部验证通过,并且已经保存")
-						// 	}
-						// })
-
-						// 多规格商品保存
-						if (this.form.skutype){
-							// 规格数据
-							let skus = this.$refs.skuFormRef.skuSpecs
-							console.log(this.$refs.skuFormRef)
-							// 保存spu
-							this.$API.shop.spu.create.post(this.form).then(spures => {
-								if (spures.status == 201){
-									// 多规格循环调用sku的保存接口
-									skus.forEach((element, i) => {
-										element['spu'] = spures.data.id
-										// element['spec_values'] = element.spec_values
-										// 保存主图
-										let sendData = new FormData()
-										if (this.$refs.skuFormRef.$refs[`skuUploadRef${i}`].file){
-											sendData.append('img', this.$refs.skuFormRef.$refs[`skuUploadRef${i}`].file.raw)
-										}
-										// 组装数据格式
-										for (const key in element) {
-											sendData.append(key, element[key]);
-										}
-										// 后端要求spu的值为数字类型，组装后需要转换下数据类型
-										sendData.set("spu", Number(spures.data.id))
-										this.$API.shop.sku.create.post(sendData).then(skures => {
-											if (skures.status == 201){
-												this.$message.success("多规格保存成功")
-											}
-											console.log(skures, 'skures')
-										})
-									});
-								}
-							})
-						// 单规格商品保存
+						this.form['baykeshopsku_set'] = this.skuTableData
+						if (this.form.id){
+							// 编辑
+							this.editSubmit(this.form)
 						}else{
-							this.$API.shop.spu.create.post(this.form).then(spures => {
-								if (spures.status == 201){
-									// 组装sku数据格式
-									let _sku = {
-										spu: spures.data.id,
-										stock: this.form.stock,
-										sales: 0,
-										price: this.form.price,
-										cost_price: this.form.cost_price,
-										retail_price: this.form.retail_price,
-										item: this.form.item,
-										weight: this.form.weight,
-										vol: this.form.vol,
-										status: true
-									}
-									// 保存主图
-									const sendData = new FormData()
-									if (this.$refs.uploadRef.file){
-										sendData.append('img', this.$refs.uploadRef.file.raw)
-									}
-									// 组装数据格式
-									for (const key in _sku) {
-										sendData.append(key, this.form[key]);
-									}
-									// 后端要求spu的值为数字类型，组装后需要转换下数据类型
-									sendData.set("spu", Number(spures.data.id))
-									// 调用sku保存接口保存sku
-									this.$API.shop.sku.create.post(sendData).then(skures => {
-										if (skures.status == 201){
-											this.$message.success("单规格保存成功")
-										}
-									})
-								}
-							})
+							// 新增
+							this.saveSubmit(this.form)
 						}
-
-						
 					}else{
 						this.$message.warning("表单填写有误，请检查！")
 						return false;
 					}
 				})
-			}
-		}
+			},
+
+			// 删除
+			handleClose(items, tag, indexn){
+				items.splice(indexn, 1)
+				this.generateSkuData(this.modelSpec)
+			},
+
+			// 笛卡尔积算法
+			arrp(arr){
+				//编辑原数组格式
+				if(arr[0].baykeshopspecvalue_set){
+					arr=arr.map((item)=>{
+						return item=item.baykeshopspecvalue_set
+					})
+				}
+				if(arr.length == 1){
+					//最终合并成一个
+					return arr[0];
+				}else{	//有两个子数组就合并
+					let arrySon = [];
+					//将组合放到新数组中
+					arr[0].forEach((item,index)=>{
+						arr[1].forEach((item1,index1)=>{
+							arrySon.push([].concat(arr[0][index],arr[1][index1]));
+						})
+					})
+					// 新数组并入原数组,去除合并的前两个数组
+					arr[0] = arrySon;
+					arr.splice(1,1);
+					// 递归
+					return this.arrp(arr);
+				}
+			},
+
+			// 选择下拉框生成
+			onSpecChange(val){
+				this.generateSkuData(val)
+				// 刷新规格
+				this.getSpecsData()
+			},
+			// 组装下拉框的默认值
+			getSpecType(items){
+				let ids = []
+				items.forEach(element => {
+					ids.push(element.id)
+				});
+				return ids
+			},
+
+			// 生成规格函数
+			generateSkuData(val){
+				let skuDatas = []
+				if (val.length){
+					this.arrp(val).forEach((items) => {
+						skuDatas.push({
+							spec_values: items.length ? this.getSpecType(items) : [items.id],
+							specops: items.length ? items : [items]
+						})
+					})
+				}
+				this.skuTableData = skuDatas
+				// 携带原有的sku数据
+				if (this.form.id && this.skuTableData.length){
+					for(let i=0; i < this.skuTableData.length; i++){
+						if (this.skuTableDataCache[i]){
+							this.skuTableData[i]["id"] = this.skuTableDataCache[i].id
+							this.skuTableData[i]["price"] = this.skuTableDataCache[i].price
+							this.skuTableData[i]["cost_price"] = this.skuTableDataCache[i].cost_price
+							this.skuTableData[i]["retail_price"] = this.skuTableDataCache[i].retail_price
+							this.skuTableData[i]["item"] = this.skuTableDataCache[i].item
+							this.skuTableData[i]["weight"] = this.skuTableDataCache[i].weight
+							this.skuTableData[i]["stock"] = this.skuTableDataCache[i].stock
+							this.skuTableData[i]["vol"] = this.skuTableDataCache[i].vol
+							this.skuTableData[i]["status"] = this.skuTableDataCache[i].status
+							this.skuTableData[i]["img"] = this.skuTableDataCache[i].img
+						}
+					}
+				}
+			},
+
+			// 点击显示输入框
+			showInput(index){
+				this.modelSpec[index]['inputVisible'] = true
+				this.$nextTick(() => {
+					this.$refs.tagInputRef[0].input.focus()
+				})
+			},
+
+			// 规格输入完毕回调
+			handleInputConfirm(index, item){
+				if (this.inputValue[index]) {
+					this.$API.shop.specvalue.create.post({spec: item.id, value:this.inputValue[index]}).then(res => {
+						if (res.status == 201) {
+							// console.log(res)
+							this.modelSpec[index].baykeshopspecvalue_set.push({id: res.data.id, value: res.data.value})
+							this.generateSkuData(this.modelSpec)
+						}
+					})
+					// this.modelSpec[index].baykeshopspecvalue_set.push({id: "", value:this.inputValue[index]})
+					// 删除表单值
+					this.inputValue.splice(index, 1)
+				}
+				// 隐藏输入框
+				this.modelSpec[index].inputVisible = false
+			},
+
+			// 编辑函数
+			editSubmit(data){
+				data.baykeshopsku_set.forEach((el, i) => {
+					// if (this.$refs[`skuUploadRef${i}`].file && this.$refs[`skuUploadRef${i}`].file.status == 'ready'){
+					// 	sendData.append('img', this.$refs[`skuUploadRef${i}`].file.raw)
+					// }
+					if (el.id){
+						console.log("编辑", i)
+					}else{
+						console.log("新增", i)
+					}
+				})
+			},
+
+			// 新增
+			saveSubmit(data){
+				console.log(data)
+			},
+
+		},
 	}
 </script>
 
@@ -438,7 +586,8 @@
 	width: 80px !important;
 	height: 80px !important;
 }
-</style>
-
-<style>
+.spec-tags{
+	display: flex;
+	flex-direction: column;
+}
 </style>
