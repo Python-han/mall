@@ -21,9 +21,9 @@ class Command(BaseCommand):
         for menu in menus:
             parent_menu, iscreated = BaykeFrontedMenus.objects.update_or_create(
                 name=menu['name'],
-                path=menu['path'],
+                path=menu.get("path", ""),
                 defaults={
-                    'path':menu['path'],
+                    'path':menu.get("path", ""),
                     'name':menu['name'],
                     'component':menu.get('component', ''),
                     'redirect': menu.get('redirect', ''),
@@ -37,9 +37,9 @@ class Command(BaseCommand):
                 for submenu in menu.get('children'):
                     child_menu, iscreated = BaykeFrontedMenus.objects.update_or_create(
                         name=submenu['name'],
-                        path=submenu['path'],
+                        path=submenu.get('path', ""),
                         defaults={
-                            'path':submenu['path'],
+                            'path':submenu.get('path', ""),
                             'name':submenu['name'],
                             'component':submenu.get('component', ''),
                             'redirect': submenu.get('redirect', ''),

@@ -2,15 +2,18 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import serializers
-from baykeshop.common import viewsets, pagination, utils, mixins
+from rest_framework.permissions import IsAdminUser
+from rest_framework.authentication import SessionAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from baykeshop.common import viewsets, pagination, utils, mixins, permission
 from baykeshop.apps.shop.models import (
     BaykeShopCategory, BaykeshopBrand, BaykeShopSPU, BaykeShopSKU,
-    BaykeShopSpec, BaykeShopSpecValue
+    BaykeShopSpec, BaykeShopSpecValue, BaykeShopOrder
 )
 from baykeshop.api.shop.serializers import (
     BaykeShopCategorySerializer, BaykeshopBrandSerializer,
     BaykeShopSPUSerializer, BaykeShopSKUSerializer, BaykeShopSpecSerializer,
-    BaykeShopSpecValueSerializerCRUD
+    BaykeShopSpecValueSerializerCRUD, BaykeShopOrderSerializer
 )
 from . import filters
 
@@ -179,7 +182,10 @@ class BaykeShopSpecValueViewSet(viewsets.ModelViewSet):
             raise serializers.ValidationError("当前规格已关联商品，不允许删除")
         return super().perform_destroy(instance)
     
-class BaykeShopSPUCreateAPIView(APIView):
+class BaykeShopSPUCreateOrUpdateAPIView(APIView):
+    """ 商品的增加和修改 """
+    permission_classes = [IsAdminUser, permission.BaykePermission]
+    authentication_classes = [SessionAuthentication, JWTAuthentication]
     
     def post(self, request, *args, **kwargs):
         data = request.data
@@ -249,3 +255,13 @@ class BaykeShopSPUCreateAPIView(APIView):
                 sku_obj.spec_values.set(sku.get('spec_values', []))
         
         return Response({'code': 'ok'})
+    
+
+class BaykeShopOrderViewSet(viewsets.ModelViewSet):
+    """ 订单管理 """
+    queryset = BaykeShopOrder.objects.all()
+    serializer_class = BaykeShopOrderSerializer
+    pagination_class = pagination.PageNumberPagination
+    filterset_class = filters.BaykeShopOrderFilterSet
+    search_fields = ("order_sn", "name", "phone")
+

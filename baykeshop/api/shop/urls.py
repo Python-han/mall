@@ -17,8 +17,10 @@ router.register('spec', viewsets.BaykeShopSpecViewSet, basename='spec')
 
 router.register('specvalue', viewsets.BaykeShopSpecValueViewSet, basename='specvalue')
 
+router.register('order', viewsets.BaykeShopOrderViewSet, basename='order')
+
 urlpatterns = [
-    path('spu/create/', viewsets.BaykeShopSPUCreateAPIView.as_view(), name='spu_create'),
+    path('spu/create/', viewsets.BaykeShopSPUCreateOrUpdateAPIView.as_view(), name='spu_create'),
     
     *router.urls
 ]

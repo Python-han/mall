@@ -82,6 +82,26 @@
       ]
     },
     {
+      "name": "order",
+      "meta": {
+        "title": "订单",
+        "icon": "el-icon-goods",
+        "type": "menu"
+      },
+      "children": [
+        {
+          "name": "shopOrder",
+          "path": "/order",
+          "component": "order",
+          "meta": {
+            "title": "订单管理",
+            "icon": "el-icon-tools",
+            "type": "menu"
+          }
+        }
+      ]
+    },
+    {
       "name": "setting",
       "path": "/setting",
       "meta": {

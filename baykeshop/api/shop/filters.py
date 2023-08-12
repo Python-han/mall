@@ -1,6 +1,5 @@
-from django.db.models import Sum
 from django_filters import rest_framework
-from baykeshop.apps.shop.models import BaykeShopSPU
+from baykeshop.apps.shop.models import BaykeShopSPU, BaykeShopOrder
 
 
 class BaykeShopSPUFilterSet(rest_framework.FilterSet):
@@ -47,3 +46,10 @@ class BaykeShopSPUFilterSet(rest_framework.FilterSet):
             ids = [int(i) for i in value.split(',')]
             queryset = queryset.filter(category__id__in=ids).distinct()
         return queryset
+    
+
+class BaykeShopOrderFilterSet(rest_framework.FilterSet):
+    """ 订单筛选器 """
+    class Meta:
+        model = BaykeShopOrder
+        fields = ('status', 'paymethod',)

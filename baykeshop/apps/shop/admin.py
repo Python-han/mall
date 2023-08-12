@@ -8,5 +8,5 @@ from . models import (
 
 admin.site.register([
     BaykeShopSPU, BaykeShopOrderSKU, BaykeShopSKU, BaykeshopBrand, BaykeShopCart, BaykeShopCategory,
-    BaykeShopOrder, BaykeShopSpec, BaykeShopSpecValue 
+    BaykeShopOrder, BaykeShopSpec, BaykeShopSpecValue
 ])

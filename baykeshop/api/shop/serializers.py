@@ -114,4 +114,23 @@ class BaykeShopSpecSerializer(ModelSerializer):
         for v in baykeshopspecvalue_set:
             objs.update_or_create(spec=instance, value=v['value'], defaults={'value': v['value']})    
         return instance
-    
+
+
+class BaykeShopOrderSKUSerializer(ModelSerializer):
+    """ 订单商品 """
+    class Meta:
+        model = BaykeShopOrderSKU
+        fields = "__all__"
+
+class BaykeShopOrderSerializer(ModelSerializer):
+    """ 订单 """
+    owner_data = serializers.SerializerMethodField()
+    baykeshopordersku_set = BaykeShopOrderSKUSerializer(many=True, read_only=True)
+    class Meta:
+        model = BaykeShopOrder
+        fields = "__all__"
+        
+    def get_owner_data(self, obj):
+        return f"{obj.owner.username}|{obj.owner.id}|(uid:{obj.owner.baykeuser.id})"
+        
+

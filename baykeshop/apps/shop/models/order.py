@@ -7,36 +7,37 @@ from .goods import BaykeShopSKU
 
 class BaykeShopOrder(BaseModelMixin):
     """Model definition for BaykeShopOrder."""
-
-    class PayMethod(models.TextChoices):
-        ALIPAY = "ALIPAY", _("支付宝支付")
-        WXPAY = "WXPAY", _("微信支付")
-        BALANCE = "BALANCE", _("余额支付")
+    class PayMethod(models.IntegerChoices):
+        ALIPAY = 1, _("支付宝支付")
+        WXPAY = 2, _("微信支付")
+        BALANCE = 3, _("余额支付")
 
         __empty__ = _("(Unknown)")
 
-    class OrderStatus(models.TextChoices):
-        UNPAID = "UNPAID", _("待付款")
-        UNSHIP = "UNSHIP", _("待发货")
-        UNGOODS = "UNGOODS", _("待收货")
-        UNCOMMENT = "UNCOMMENT", _("待评价")
-        DONE = "DONE", _("已完成")
-        CLOSED = "CLOSED", _("已关闭")
-        REFUND = "REFUND", _("退款中")
+    class OrderStatus(models.IntegerChoices):
+        UNPAID = 1, _("待付款")
+        UNSHIP = 2, _("待发货")
+        UNGOODS = 3, _("待收货")
+        UNCOMMENT = 4, _("待评价")
+        DONE = 5, _("已完成")
+        CLOSED = 6, _("已关闭")
+        REFUND = 7, _("退款中")
 
-    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, verbose_name=_("用户"))
-    status = models.CharField(choices=OrderStatus.choices,
-                              default=OrderStatus.UNPAID, max_length=50, verbose_name=_("订单状态"))
-    paymethod = models.CharField(
-        choices=PayMethod.choices, default=PayMethod.__empty__, max_length=50, verbose_name=_("支付方式"))
-    order_sn = models.CharField(_("订单号"), max_length=100)
+    owner = models.ForeignKey(
+        get_user_model(), on_delete=models.CASCADE, verbose_name=_("用户"))
+    status = models.PositiveSmallIntegerField(
+        choices=OrderStatus.choices, default=OrderStatus.UNPAID, verbose_name=_("订单状态"))
+    paymethod = models.PositiveSmallIntegerField(
+        choices=PayMethod.choices, blank=True, verbose_name=_("支付方式"), null=True)
+    order_sn = models.CharField(_("订单号"), max_length=100, blank=True)
     total_price = models.DecimalField(_("总价"), max_digits=10, decimal_places=2)
     mark = models.CharField(_("订单备注"), max_length=150, blank=True, default="")
     name = models.CharField("签收人", max_length=50)
     phone = models.CharField("手机号", max_length=11)
     email = models.EmailField("邮箱", blank=True, default="", max_length=50)
     address = models.CharField("收货地址", max_length=200)
-    pay_time = models.DateTimeField(null=True, blank=True, verbose_name="支付时间", help_text="支付时间", editable=False)
+    pay_time = models.DateTimeField(
+        null=True, blank=True, verbose_name="支付时间", help_text="支付时间", editable=False)
 
     # TODO: Define fields here
 
@@ -46,7 +47,8 @@ class BaykeShopOrder(BaseModelMixin):
         verbose_name = 'BaykeShopOrder'
         verbose_name_plural = 'BaykeShopOrders'
         constraints = [
-            models.UniqueConstraint('owner', 'order_sn', name='unique_owner_order'),
+            models.UniqueConstraint(
+                'owner', 'order_sn', name='unique_owner_order'),
         ]
 
     def __str__(self):
@@ -77,7 +79,8 @@ class BaykeShopOrderSKU(BaseModelMixin):
     sku = models.ForeignKey(
         BaykeShopSKU, on_delete=models.PROTECT, verbose_name=_("商品规格"))
     count = models.PositiveSmallIntegerField(default=1, verbose_name=_("数量"))
-    sku_json = models.JSONField(verbose_name=_("商品快照"), blank=True, default=dict)
+    sku_json = models.JSONField(
+        verbose_name=_("商品快照"), blank=True, default=dict)
 
     # TODO: Define fields here
 
@@ -94,9 +97,13 @@ class BaykeShopOrderSKU(BaseModelMixin):
     def save(self, *args, **kwargs):
         self.sku_json = {
             "title": self.sku.spu.title,
+            "subtitle": self.sku.spu.subtitle,
             "content": self.sku.spu.content,
+            "img": self.sku.img if self.sku.img else self.sku.spu.images[0].get('url', ''),
+            "item": self.sku.item,
             "price": self.sku.price.to_eng_string(),
             "retail_price": self.sku.retail_price.to_eng_string(),
-            "unit": self.sku.unit.name
+            "unit": self.sku.spu.unit,
+            "spec_values": list(self.sku.spec_values.values("id", "spec__id", "spec__name", "value"))
         }
         super().save(*args, **kwargs)
