@@ -21,7 +21,7 @@
 			</div>
 			<div class="right-panel">
 				<div class="right-panel-search">
-					<el-input v-model="search.keyword" placeholder="品牌名称" clearable></el-input>
+					<el-input v-model="search.keyword" placeholder="商品名称" clearable></el-input>
 					<el-button type="primary" icon="el-icon-search" @click="upsearch"></el-button>
 				</div>
 			</div>
@@ -78,9 +78,8 @@
 </template>
 
 <script>
-	// import saveDialog from './save'
 	import scSelectFilter from '@/components/scSelectFilter'
-
+	import useTabs from '@/utils/useTabs'
 	export default {
 		name: 'shopGoods',
 		components: {
@@ -124,12 +123,20 @@
 				],
 			}
 		},
-		computed:{
-			
-		},
 		created(){
 			this.getGoodsCategory()
 			this.getBrands()
+		},
+		//路由跳转进来 判断from是否有特殊标识做特殊处理
+		beforeRouteEnter (to, from, next){
+			next(()=>{
+				if(from.is){
+					//删除特殊标识，防止标签刷新重复执行
+					delete from.is
+					//执行特殊方法
+					useTabs.refresh()
+				}
+			})
 		},
 		methods: {
 			img(images){

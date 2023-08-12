@@ -11,7 +11,7 @@
 							{{ scope.row.id }}
 						</template>
 					</el-table-column> -->
-					<el-table-column prop="value" label="规格值" width="280">
+					<el-table-column prop="value" label="规格值">
 						<template #default="scope">
 							<el-input v-model="scope.row.value" placeholder="请输入规格值" :minlength="1"></el-input>
 						</template>
@@ -99,10 +99,11 @@
 					this.$API.shop.specvalue.remove.delete(row.id).then(res => {
 						if (res.status == 204){
 							this.$message.success("删除成功")
+							this.$refs.table.deleteRow(index)
 						}	
 					})
 				}
-				this.$refs.table.deleteRow(index)
+				
 			},
 			//加载树数据
 			// async getGroup(){

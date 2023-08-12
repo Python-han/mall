@@ -103,7 +103,7 @@
 								</el-form-item>
 								<div v-if="!form.skutype">
 									<el-form-item label="图片">
-										<sc-upload :autoUpload="false" ref="uploadRef" v-model="form.img" :width="80" :height="80"></sc-upload>
+										<sc-upload ref="uploadRef" v-model="form.img" :width="80" :height="80"></sc-upload>
 									</el-form-item>
 									<el-form-item label="售价">
 										<el-input-number v-model="form.price" controls-position="right" :min="0" :precision="2" :step="1" style="width: 100%;"></el-input-number>
@@ -131,7 +131,6 @@
 									</el-form-item>
 								</div>
 								<div v-else>
-									<!-- <sku-form ref="skuFormRef" :skuSpecss="skuSpecss" :specss="specs" :specvaluess="specvalues"></sku-form> -->
 									<el-form-item label="选择规格">
 										<el-select v-model="modelSpec" placeholder="Select" multiple value-key="id" @change="onSpecChange">
 											<el-option
@@ -141,6 +140,7 @@
 												:value="item"
 												/>
 										</el-select>
+										<el-button @click="onGenter" type="primary">生成</el-button>
 									</el-form-item>
 
 									<el-form-item prop="modelSpec" v-for="item, index in modelSpec" :key="item.id">
@@ -172,8 +172,11 @@
 											</div>
 										</div>
 									</el-form-item>
+
 									<el-form-item>
-										<sc-form-table ref="specTableRef" v-model="skuTableData" placeholder="暂无数据" :hideAdd="true" :hideDelete="true">
+										<el-alert title="注意：如果生成的新sku规格数量小于原有sku数量，需先删除原有sku数量小于生成sku数量，否则会造成规格混乱" type="warning" v-if="form.id" />
+
+										<sc-form-table ref="specTableRef" v-model="skuTableData" placeholder="暂无数据" :hideAdd="true" @rowDel="tabRowdel">
 											<el-table-column prop="specops" label="规格" width="180">
 												<template #default="scope">
 													<el-select v-model="scope.row.spec_values" multiple :disabled="true" size="large" suffix-icon="" style="width:100%">
@@ -303,7 +306,7 @@
 <script>
 	import { RouterLink } from "vue-router"
 	import { defineAsyncComponent } from 'vue';
-
+	import useTabs from '@/utils/useTabs'
 	const scEditor = defineAsyncComponent(() => import('@/components/scEditor'));
 	
 	export default {
@@ -336,7 +339,8 @@
 					content: "",
 					expresstype: 0,
 					freighttype: 0,
-					freight: 0
+					freight: 0,
+					sku_id: ''
 				},
 				activeName: "base",
 				templates: [],
@@ -377,6 +381,15 @@
 				},
 			}
 		},
+		// computed:{
+		// 	sku: () => {
+		// 		let _sku = {}
+		// 		if (this.form.baykeshopsku_set.length == 1){
+		// 			_sku = this.form.baykeshopsku_set[0]
+		// 		}
+		// 		return _sku
+		// 	}
+		// },
 		created() {
 			this.getBrands()
 			this.getCategory()
@@ -411,10 +424,10 @@
 				if (this.form.id){
 					const res = await this.$API.shop.spu.read.get(this.form.id)
 					this.form = res.data
-					console.log(res.data)
 					this.form.freight = parseFloat(res.data.freight)
 					if (!res.data.skutype && res.data.baykeshopsku_set.length == 1){
 						let sku = res.data.baykeshopsku_set[0]
+						this.form.sku_id = sku.id
 						this.form.price = parseFloat(sku.price)
 						this.form.cost_price = parseFloat(sku.cost_price)
 						this.form.retail_price = parseFloat(sku.retail_price)
@@ -422,6 +435,7 @@
 						this.form.vol = parseFloat(sku.vol)
 						this.form.item = sku.item
 						this.form.img = sku.img
+						// this.form.baykeshopsku_set = res.data.baykeshopsku_set
 					}
 
 					// 多规格需要的数据
@@ -435,14 +449,34 @@
 			onsubmit(){
 				this.$refs.form.validate(async (valid) => {
 					if (valid) {
-						this.form['baykeshopsku_set'] = this.skuTableData
-						if (this.form.id){
-							// 编辑
-							this.editSubmit(this.form)
+						// 组装sku的数据
+						if (this.form.skutype){
+							this.form['baykeshopsku_set'] = this.skuTableData
 						}else{
-							// 新增
-							this.saveSubmit(this.form)
+							this.form['baykeshopsku_set'] = [{
+								id: this.form.sku_id,
+								price: this.form.price,
+								stock: this.form.stock,
+								sales: this.form.sales,
+								img: this.form.img,
+								retail_price: this.form.retail_price,
+								cost_price: this.form.cost_price,
+								item: this.form.item,
+								weight: this.form.weight,
+								vol: this.form.vol,
+							}]
 						}
+
+						// 这个接口后端根据spu的id和每个skuid来自动判断为新增或修改，因此编辑某个spu时必须携带spu的id
+						// baykeshopsku_set为sku的数组，如果sku的id存在则修改否则新增
+						this.$API.shop.spu.create.post(this.form).then(res => {
+							if (res.status == 200){
+								this.$message.success('操作成功')
+								this.$router.push({name: 'shopGoods'})
+								this.$route.is = true
+								useTabs.close() // 关闭当前
+							}
+						})
 					}else{
 						this.$message.warning("表单填写有误，请检查！")
 						return false;
@@ -453,7 +487,7 @@
 			// 删除
 			handleClose(items, tag, indexn){
 				items.splice(indexn, 1)
-				this.generateSkuData(this.modelSpec)
+				// this.generateSkuData(this.modelSpec)
 			},
 
 			// 笛卡尔积算法
@@ -544,7 +578,7 @@
 						if (res.status == 201) {
 							// console.log(res)
 							this.modelSpec[index].baykeshopspecvalue_set.push({id: res.data.id, value: res.data.value})
-							this.generateSkuData(this.modelSpec)
+							// this.generateSkuData(this.modelSpec)
 						}
 					})
 					// this.modelSpec[index].baykeshopspecvalue_set.push({id: "", value:this.inputValue[index]})
@@ -555,26 +589,26 @@
 				this.modelSpec[index].inputVisible = false
 			},
 
-			// 编辑函数
-			editSubmit(data){
-				// const sendData = new FormData()
-				// data.baykeshopsku_set.forEach((el, i) => {
-				// 	if (this.$refs[`skuUploadRef${i}`].file && this.$refs[`skuUploadRef${i}`].file.status == 'ready'){
-				// 		el['img'] = this.$refs[`skuUploadRef${i}`].file.raw
-				// 	}
-				// })
-				// sendData.append('baykeshopsku_set', JSON.stringify(data.baykeshopsku_set))
-				// console.log(data)
-				this.$API.shop.spu.create.post(data).then(res => {
-					console.log(res)
-				})
+			// 手动onGenter生成规格
+			onGenter(){
+				this.generateSkuData(this.modelSpec)
+				if (this.skuTableData.length < this.skuTableDataCache.length){
+					this.$message.warning("当前生成的sku数量少于原有sku数量，请先删除原有sku后再次生成")
+					// useTabs.refresh()
+				}
 			},
 
-			// 新增
-			saveSubmit(data){
-				console.log(data)
-			},
-
+			// 删除sku
+			tabRowdel(row, index){
+				if (row.id){
+					this.$API.shop.sku.remove.delete(row.id).then(res => {
+						if (res.status == 204){
+							this.$message.success("删除成功")
+						}	
+					})
+				}
+				this.$refs.specTableRef.deleteRow(index)
+			}
 		},
 	}
 </script>
