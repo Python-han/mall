@@ -29,10 +29,11 @@ class BaykeFrontedMenusSerializer(ModelSerializer):
         fields = "__all__"
     
     def get_apiList(self, obj):
-        actions = obj.baykepermissionaction_set.values('id', 'permission__id', 'apiname', 'request_method')
+        actions = obj.baykepermissionaction_set.values('id', 'permission__id', 'apiname', 'request_method', 'mark')
         return [{'id':perm['id'], 
                  'code': perm['permission__id'], 
                  'url': perm['apiname'], 
+                 'mark': perm['mark'],
                  'request_method': perm['request_method']} for perm in actions]
         
     def update(self, instance, validated_data):
@@ -67,6 +68,7 @@ class BaykeUserSerializer(ModelSerializer):
     menus = serializers.SerializerMethodField()
     roles = serializers.SerializerMethodField()
     perms = serializers.SerializerMethodField()
+    permids = serializers.SerializerMethodField()
     owner = UserSerializer(many=False)
     
     class Meta:
@@ -101,7 +103,14 @@ class BaykeUserSerializer(ModelSerializer):
                 for perm in menu.baykepermissionaction_set.values("permission__content_type__app_label", "permission__codename")
             ])
         return list(set(perms))
-        
+    
+    def get_permids(self, obj):
+        # 当前用户权限ids
+        perms = []
+        menus = self.get_user_menus(obj)
+        for menu in menus:
+            perms.extend(list(menu.baykepermissionaction_set.values_list("permission__id", flat=True)))  
+        return perms
 
 class UserCreateSerializer(ModelSerializer):
     """ 创建用户 """
@@ -171,7 +180,11 @@ class BaykeRolesSerializer(ModelSerializer):
     """ 角色增删改查 """
     name = serializers.CharField(write_only=True, label="角色名")
     group = GroupModelSerializer(many=False, read_only=True)
-    
+    perm_ids = serializers.ListField(
+        write_only=True, label="权限id", child=serializers.IntegerField(min_value=1), 
+        allow_empty=True, 
+    )
+     
     class Meta:
         model = BaykeRoles
         fields = "__all__"
@@ -193,19 +206,20 @@ class BaykeRolesSerializer(ModelSerializer):
         return super().create(validated_data)
     
 
-class BaykePermissionActionSerializer(ModelSerializer):
-    """ 菜单权限操作表 """
-    class Meta:
-        model = BaykePermissionAction
-        fields = "__all__"
-        
-
 class PermissionSerializer(ModelSerializer):
     """ django自带权限序列化 """
     class Meta:
         model = Permission
         fields = ("id", "name", "codename", "content_type")
-        
+
+
+class BaykePermissionActionSerializer(ModelSerializer):
+    """ 菜单权限操作表 """
+    permission = PermissionSerializer(many=False)
+
+    class Meta:
+        model = BaykePermissionAction
+        fields = "__all__"
 
 class BaykeDictKeySerializer(ModelSerializer):
     """ 字典键 """

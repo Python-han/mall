@@ -203,13 +203,21 @@ export default {
 	},
 
 	action: {
+		list: {
+			url: `${config.API_URL}/badmin/action/`,
+			name: "权限列表",
+			get: async function(params){
+				return await http.get(this.url, params);
+			}
+		},
 		remove: {
 			url: `${config.API_URL}/badmin/action/`,
 			name: "删除菜单权限操作",
 			delete: async function(id, data){
 				return await http.delete(`${this.url}${id}/`, data)
 			},
-		}
+		},
+
 	},
 
 	// 字典键接口

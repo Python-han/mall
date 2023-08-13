@@ -101,18 +101,9 @@ class BaykeRolesViewSet(viewsets.ModelViewSet):
     pagination_class = pagination.PageNumberPagination
     search_fields = ("group__name", "codename")
     
-    # def partial_update(self, request, *args, **kwargs):
-    #     print('patch')
-    #     return super().partial_update(request, *args, **kwargs)
-    
     def perform_update(self, serializer):
         validated_data = serializer.validated_data
-        menus = validated_data.get('menus', [])
-        perm_ids = []
-        for menu in menus:
-            perm_ids.extend(list(menu.baykepermissionaction_set.values_list("permission__id", flat=True)))
-        # 向权限组同步权限
-        self.get_object().group.permissions.set(perm_ids)
+        self.get_object().group.permissions.set(validated_data.get('perm_ids', []))
         return super().perform_update(serializer)
 
 class BaykePermissionActionViewSet(viewsets.ModelViewSet):

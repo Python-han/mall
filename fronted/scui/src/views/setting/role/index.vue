@@ -27,10 +27,11 @@
 				</el-table-column>
 				<el-table-column label="创建时间" prop="add_date" width="180"></el-table-column>
 				<el-table-column label="备注" prop="remark" min-width="150"></el-table-column>
-				<el-table-column label="操作" fixed="right" align="right" width="170">
+				<el-table-column label="操作" fixed="right" align="right">
 					<template #default="scope">
 						<el-button-group>
 							<el-button text type="primary" size="small" @click="table_show(scope.row, scope.$index)">查看</el-button>
+							<!-- <el-button text type="primary" size="small" @click="perm_assign(scope.row, scope.$index)">权限设置</el-button> -->
 							<el-button text type="primary" size="small" @click="table_edit(scope.row, scope.$index)">编辑</el-button>
 							<el-popconfirm title="确定删除吗？" @confirm="table_del(scope.row, scope.$index)">
 								<template #reference>
@@ -49,6 +50,7 @@
 
 	<permission-dialog v-if="dialog.permission" ref="permissionDialog" @closed="dialog.permission=false" @success="permissionSuccess"></permission-dialog>
 
+	<!-- <el-drawer v-model="permDrawerOpen" title="接口权限" width="40%"></el-drawer> -->
 </template>
 
 <script>
@@ -72,7 +74,8 @@
 				search: {
 					keyword: null
 				},
-				ids: []
+				ids: [],
+				permDrawerOpen: false
 			}
 		},
 		methods: {
@@ -102,6 +105,14 @@
 				this.dialog.permission = true
 				this.$nextTick(() => {
 					this.$refs.permissionDialog.open()
+				})
+			},
+			// 权限分配
+			perm_assign(row){
+				this.permDrawerOpen = true
+				console.log(row)
+				this.$API.badmin.action.list.get().then(res => {
+					console.log(res)
 				})
 			},
 			//删除

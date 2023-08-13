@@ -1,5 +1,5 @@
 <template>
-	<el-dialog title="角色权限设置" v-model="visible" :width="500" destroy-on-close @closed="$emit('closed')">
+	<el-dialog title="角色权限设置" v-model="visible" :width="1000" destroy-on-close @closed="$emit('closed')">
 		<el-tabs tab-position="top">
 			<el-tab-pane label="菜单权限">
 				<div class="treeMain">
@@ -26,6 +26,18 @@
 					<el-form-item label="规则值" v-show="data.dataType=='6'">
 						<el-input v-model="data.rule" clearable type="textarea" :rows="6" placeholder="请输入自定义规则代码"></el-input>
 					</el-form-item>
+
+					<el-form-item label="接口权限">
+						<el-select v-model="apiPermModel" placeholder="请选择" multiple style="width: 100%;">
+							<el-option
+								v-for="item in data.apiPerms"
+								:key="item.permission.id"
+								:label="item.permission.name"
+								:value="item.permission.id"
+							/>
+						</el-select>
+					</el-form-item>
+
 				</el-form>
 			</el-tab-pane>
 			<el-tab-pane label="控制台模块">
@@ -116,7 +128,8 @@
 							value: 6,
 							name: '自定义',
 						},
-					]
+					],
+					apiPerms: []
 				},
 				dashboard: "1",
 				dashboardOptions: [
@@ -131,13 +144,15 @@
 						label: '工作台',
 						views: 'work'
 					},
-				]
+				],
+				apiPermModel:[]
 			}
 		},
 		mounted() {
 			this.getMenu()
 			this.getDept()
 			this.getGrid()
+			this.getApiPerms()
 		},
 		methods: {
 			open(){
@@ -158,13 +173,15 @@
 				// console.log(checkedKeys_grid, 'grid')
 				// 控制台类型
 				// console.log(this.dashboard, '控制台')
+				console.log(this.apiPermModel)
 				const formData = {
 					role_id: this.$parent.selection[0].id, 
 					menus: checkedKeys,
 					depts: checkedKeys_dept,
 					perm_range: this.data.dataType,
 					grids: checkedKeys_grid,
-					dashboard: this.dashboard
+					dashboard: this.dashboard,
+					perm_ids: this.apiPermModel
 				}
 				// 传递到父组件
 				this.$emit('success', formData)
@@ -221,10 +238,24 @@
 					}
 				]
 			},
+
+			// 获取接口权限
+			async getApiPerms(){
+				const res = await this.$API.badmin.action.list.get()
+				this.data.apiPerms = res.data
+			}
 		}
 	}
 </script>
 
 <style scoped>
 	.treeMain {height:280px;overflow: auto;border: 1px solid #dcdfe6;margin-bottom: 10px;}
+	.permcustom{
+		flex: 1;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		font-size: 14px;
+		padding-right: 8px;
+	}
 </style>

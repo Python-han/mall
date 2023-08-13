@@ -98,6 +98,7 @@ class BaykePermissionAction(BaseModelMixin):
     menus = models.ForeignKey(BaykeFrontedMenus, on_delete=models.CASCADE, verbose_name=_("菜单"))
     apiname = models.CharField(_("api接口name"), max_length=50, blank=True, default="", help_text="url的name别名，用来反解url")
     request_method = models.CharField(choices=RequestMethod.choices, max_length=10, blank=True, default="GET")
+    mark = models.CharField(_("备注"), max_length=150, blank=True, default="")
     
     # TODO: Define fields here
 
