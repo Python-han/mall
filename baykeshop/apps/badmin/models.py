@@ -87,10 +87,17 @@ class BaykeFrontedMenus(BaseModelMixin):
 
 class BaykePermissionAction(BaseModelMixin):
     """Model definition for BaykePermissionAction."""
+    class RequestMethod(models.TextChoices):
+        GET = "GET", _("查看")
+        POST = "POST", _("新增")
+        PUT = "PUT", _("修改")
+        PATCH = "PATCH", _("局部修改")
+        DELETE = "DELETE", _("删除")
     
     permission = models.OneToOneField(Permission, on_delete=models.CASCADE, verbose_name=_("权限"))
     menus = models.ForeignKey(BaykeFrontedMenus, on_delete=models.CASCADE, verbose_name=_("菜单"))
     apiname = models.CharField(_("api接口name"), max_length=50, blank=True, default="", help_text="url的name别名，用来反解url")
+    request_method = models.CharField(choices=RequestMethod.choices, max_length=10, blank=True, default="GET")
     
     # TODO: Define fields here
 

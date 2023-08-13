@@ -29,8 +29,11 @@ class BaykeFrontedMenusSerializer(ModelSerializer):
         fields = "__all__"
     
     def get_apiList(self, obj):
-        actions = obj.baykepermissionaction_set.values('id', 'permission__id', 'apiname')
-        return [{'id':perm['id'], 'code': perm['permission__id'], 'url': perm['apiname']} for perm in actions]
+        actions = obj.baykepermissionaction_set.values('id', 'permission__id', 'apiname', 'request_method')
+        return [{'id':perm['id'], 
+                 'code': perm['permission__id'], 
+                 'url': perm['apiname'], 
+                 'request_method': perm['request_method']} for perm in actions]
         
     def update(self, instance, validated_data):
         super().update(instance, validated_data)
@@ -42,7 +45,8 @@ class BaykeFrontedMenusSerializer(ModelSerializer):
                         permission__id=perm.get('code'),
                         defaults = {
                             "permission": Permission.objects.get(id=perm.get('code')),
-                            "apiname": perm.get('url', '')
+                            "apiname": perm.get('url', ''),
+                            "request_method": perm.get('request_method', '')
                         }
                     )
                     instance = obj.menus

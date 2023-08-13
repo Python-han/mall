@@ -5,13 +5,14 @@
 		</el-col>
 		<template v-else>
 			<el-col :lg="12">
-				<h2>{{form.meta.title || "新增菜单"}}</h2>
+				<h2>{{ form.meta.title || "新增菜单" }}</h2>
 				<el-form :model="form" :rules="rules" ref="dialogForm" label-width="80px" label-position="left">
 					<el-form-item label="显示名称" prop="meta.title">
 						<el-input v-model="form.meta.title" clearable placeholder="菜单显示名字"></el-input>
 					</el-form-item>
 					<el-form-item label="上级菜单" prop="parentId">
-						<el-cascader v-model="form.parentId" :options="menuOptions" :props="menuProps" :show-all-levels="false" placeholder="顶级菜单" clearable disabled></el-cascader>
+						<el-cascader v-model="form.parentId" :options="menuOptions" :props="menuProps"
+							:show-all-levels="false" placeholder="顶级菜单" clearable disabled></el-cascader>
 					</el-form-item>
 					<el-form-item label="类型" prop="meta.type">
 						<el-radio-group v-model="form.meta.type">
@@ -67,21 +68,25 @@
 			</el-col>
 			<el-col :lg="12" class="apilist">
 				<h2>接口权限</h2>
-				<sc-form-table ref="reft" v-model="form.apiList" :addTemplate="apiListAddTemplate" @rowDel="rowDel" placeholder="暂无匹配接口权限">
-					<el-table-column prop="code" label="权限标识" width="200">
+				<sc-form-table ref="reft" v-model="form.apiList" :addTemplate="apiListAddTemplate" @rowDel="rowDel"
+					placeholder="暂无匹配接口权限">
+					<el-table-column prop="request_method" label="请求方式" width="200">
 						<template #default="scope">
-							<!-- <el-input v-model="scope.row.code" placeholder="请输入内容"></el-input> -->
-							<el-select v-model="scope.row.code" value-key="id" filterable placeholder="请选择权限">
-								<el-option
-									v-for="item in options"
-									:key="item.id"
-									:label="item.codename"
-									:value="item.id"
-								/>
+							<el-select v-model="scope.row.request_method" value-key="value" filterable
+								placeholder="请选择请求方式">
+								<el-option v-for="item in requestMethodOptions" :key="item.value" :label="item.label"
+									:value="item.value" />
 							</el-select>
 						</template>
 					</el-table-column>
-					<el-table-column prop="url" label="Api url">
+					<el-table-column prop="code" label="权限标识" width="200">
+						<template #default="scope">
+							<el-select v-model="scope.row.code" value-key="id" filterable placeholder="请选择权限">
+								<el-option v-for="item in options" :key="item.id" :label="item.codename" :value="item.id" />
+							</el-select>
+						</template>
+					</el-table-column>
+					<el-table-column prop="url" label="Api name">
 						<template #default="scope">
 							<el-input v-model="scope.row.url" placeholder="请输入内容"></el-input>
 						</template>
@@ -93,132 +98,166 @@
 </template>
 
 <script>
-	import scIconSelect from '@/components/scIconSelect'
+import scIconSelect from '@/components/scIconSelect'
 
-	export default {
-		components: {
-			scIconSelect
-		},
-		props: {
-			menu: { type: Object, default: () => {} },
-		},
-		data(){
-			return {
-				form: {
-					id: "",
-					parentId: "",
-					name: "",
-					path: "",
-					component: "",
-					redirect: "",
-					meta:{
-						title: "",
-						icon: "",
-						active: "",
-						color: "",
-						type: "menu",
-						fullpage: false,
-						tag: "",
-					},
-					apiList: []
+export default {
+	components: {
+		scIconSelect
+	},
+	props: {
+		menu: { type: Object, default: () => { } },
+	},
+	data() {
+		return {
+			form: {
+				id: "",
+				parentId: "",
+				name: "",
+				path: "",
+				component: "",
+				redirect: "",
+				meta: {
+					title: "",
+					icon: "",
+					active: "",
+					color: "",
+					type: "menu",
+					fullpage: false,
+					tag: "",
 				},
-				menuOptions: [],
-				menuProps: {
-					value: 'id',
-					label: 'title',
-					checkStrictly: true
+				apiList: []
+			},
+			menuOptions: [],
+			menuProps: {
+				value: 'id',
+				label: 'title',
+				checkStrictly: true
+			},
+			predefineColors: [
+				'#ff4500',
+				'#ff8c00',
+				'#ffd700',
+				'#67C23A',
+				'#00ced1',
+				'#409EFF',
+				'#c71585'
+			],
+			rules: [],
+			apiListAddTemplate: {
+				id: "",
+				code: "",
+				url: "",
+				request_method: ""
+			},
+			loading: false,
+			options: [],
+			requestMethodOptions: [
+				{
+					label: "新增[POST]",
+					value: "POST",
 				},
-				predefineColors: [
-					'#ff4500',
-					'#ff8c00',
-					'#ffd700',
-					'#67C23A',
-					'#00ced1',
-					'#409EFF',
-					'#c71585'
-				],
-				rules: [],
-				apiListAddTemplate: {
-					id: "",
-					code: "",
-					url: ""
+				{
+					label: "查看[GET]",
+					value: "GET",
 				},
-				loading: false,
-				options: []
-			}
-		},
-		watch: {
-			menu: {
-				handler(){
-					this.menuOptions = this.treeToMap(this.menu)
+				{
+					label: "修改[PUT]",
+					value: "PUT",
 				},
-				deep: true
-			}
-		},
-		mounted() {
-			this.$API.badmin.perms.list.get().then(res => {
-				if (res.status == 200){
-					this.options = res.data
+				{
+					label: "局部修改[PATCH]",
+					value: "PATCH",
+				},
+				{
+					label: "删除[DELETE]",
+					value: "DELETE",
 				}
+			]
+		}
+	},
+	watch: {
+		menu: {
+			handler() {
+				this.menuOptions = this.treeToMap(this.menu)
+			},
+			deep: true
+		}
+	},
+	mounted() {
+		this.$API.badmin.perms.list.get().then(res => {
+			if (res.status == 200) {
+				this.options = res.data
+			}
+		})
+	},
+	methods: {
+		//简单化菜单
+		treeToMap(tree) {
+			const map = []
+			tree.forEach(item => {
+				var obj = {
+					id: item.id,
+					parentId: item.parentId,
+					parent: item.parentId,
+					title: item.meta.title,
+					children: item.children && item.children.length > 0 ? this.treeToMap(item.children) : null
+				}
+				map.push(obj)
 			})
+			return map
 		},
-		methods: {
-			//简单化菜单
-			treeToMap(tree){
-				const map = []
-				tree.forEach(item => {
-					var obj = {
-						id: item.id,
-						parentId: item.parentId,
-						parent: item.parentId,
-						title: item.meta.title,
-						children: item.children&&item.children.length>0 ? this.treeToMap(item.children) : null
-					}
-					map.push(obj)
-				})
-				return map
-			},
-			//保存
-			async save(){
-				this.loading = true
-				try{
-					var res = await this.$API.badmin.menus.update.put(this.form.id, this.form)
-				} catch (error){
-					this.$message.warning(error.data.message)
-					this.loading = false
-					return
-				}
+		//保存
+		async save() {
+			this.loading = true
+			try {
+				var res = await this.$API.badmin.menus.update.put(this.form.id, this.form)
+			} catch (error) {
+				this.$message.warning(error.data.message)
 				this.loading = false
-				if(res.status == 200){
-					this.$message.success("保存成功")
-				}else{
-					this.$message.warning(res.data.detail)
-				}
-			},
-			//表单注入数据
-			setData(data, pid){
-				this.form = data
-				this.form.apiList = data.apiList || []
-				this.form.parentId = pid
-			},
-			rowDel(row, index){
-				if (row.code){
-					this.$API.badmin.action.remove.delete(row.id).then(res => {
-						if (res.status == 204) {
-							this.$message.success("删除成功")
-						}
-					})
-				}
-				this.$refs.reft.rowDel(row, index)
+				return
 			}
+			this.loading = false
+			if (res.status == 200) {
+				this.$message.success("保存成功")
+			} else {
+				this.$message.warning(res.data.detail)
+			}
+		},
+		//表单注入数据
+		setData(data, pid) {
+			this.form = data
+			this.form.apiList = data.apiList || []
+			this.form.parentId = pid
+		},
+		rowDel(row, index) {
+			if (row.code) {
+				this.$API.badmin.action.remove.delete(row.id).then(res => {
+					if (res.status == 204) {
+						this.$message.success("删除成功")
+					}
+				})
+			}
+			this.$refs.reft.rowDel(row, index)
 		}
 	}
+}
 </script>
 
 <style scoped>
-	h2 {font-size: 17px;color: #3c4a54;padding:0 0 30px 0;}
-	.apilist {border-left: 1px solid #eee;}
+h2 {
+	font-size: 17px;
+	color: #3c4a54;
+	padding: 0 0 30px 0;
+}
 
-	[data-theme="dark"] h2 {color: #fff;}
-	[data-theme="dark"] .apilist {border-color: #434343;}
-</style>
+.apilist {
+	border-left: 1px solid #eee;
+}
+
+[data-theme="dark"] h2 {
+	color: #fff;
+}
+
+[data-theme="dark"] .apilist {
+	border-color: #434343;
+}</style>

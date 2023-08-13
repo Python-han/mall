@@ -15,7 +15,7 @@ class GenericViewSet(viewsets.GenericViewSet):
     but does include the base set of generic view behavior, such as
     the `get_object` and `get_queryset` methods.
     """
-    permission_classes = [IsAdminUser, permission.BaykePermission]
+    permission_classes = [permission.BaykePermission]
     authentication_classes = [SessionAuthentication, JWTAuthentication]
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter) # DRF自带的过滤器
     search_fields = ()
@@ -24,7 +24,7 @@ class GenericViewSet(viewsets.GenericViewSet):
 
 class ModelViewSet(mixins.BatchDestroyModelMixin, viewsets.ModelViewSet):
     """ 全局继承类 """
-    permission_classes = [IsAdminUser, permission.BaykePermission]
+    permission_classes = [permission.BaykePermission]
     authentication_classes = [SessionAuthentication, JWTAuthentication]
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter) # DRF自带的过滤器
     search_fields = ()

@@ -11,7 +11,7 @@ from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 
-from baykeshop.common import viewsets, mixins, pagination, utils
+from baykeshop.common import viewsets, mixins, pagination, utils, permission
 from baykeshop.apps.badmin.models import (
     BaykeDepartment, BaykeFrontedMenus, BaykeRoles, BaykeUser, 
     BaykePermissionAction, BaykeDictKey, BaykeDictValue, BaykeImage,
@@ -88,17 +88,10 @@ class UserCreateViewset(mixins.CreateModelMixin, viewsets.GenericViewSet):
     authentication_classes = [SessionAuthentication, JWTAuthentication]
 
 
-class BaykeUserViewset(mixins.ListModelMixin,
-                       mixins.RetrieveModelMixin,
-                       mixins.UpdateModelMixin,
-                       mixins.DestroyModelMixin, 
-                       mixins.BatchDestroyModelMixin,
-                       viewsets.GenericViewSet):
+class BaykeUserViewset(viewsets.ModelViewSet):
     """ 用户列表 """
     queryset = BaykeUser.objects.all()
     serializer_class = BaykeUserModelSerializer
-    permission_classes = [IsAdminUser]
-    authentication_classes = [SessionAuthentication, JWTAuthentication]
     pagination_class = pagination.PageNumberPagination
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter) # DRF自带的过滤器
     search_fields = ('name', )
@@ -131,7 +124,7 @@ class PermissionListAPIView(ListAPIView):
     """
     serializer_class = PermissionSerializer
     queryset = Permission.objects.all()
-    permission_classes = [IsAdminUser]
+    permission_classes = [permission.BaykePermission]
     authentication_classes = [SessionAuthentication, JWTAuthentication]
 
 

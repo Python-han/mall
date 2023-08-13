@@ -42,14 +42,14 @@
                 </el-table-column>
                 <el-table-column label="实际支付" prop="total_price">
                     <template #default="scope">
-                        <span v-if="6 < scope.row.status > 1">{{ scope.row.total_price }}</span>
+                        <span v-if="scope.row.status > 1">{{ scope.row.total_price }}</span>
                         <span v-else-if="scope.row.status == 7">退款中</span>
                         <span v-else>未支付</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="支付方式" prop="paymethod">
                     <template #default="scope">
-                        <span v-if="scope.row.paymethod == 1">支付宝</span>
+                        <span v-if="scope.row.paymethod == 1">支付宝支付</span>
                         <span v-if="scope.row.paymethod == 2">微信支付</span>
                         <span v-if="scope.row.paymethod == 3">余额支付</span>
                     </template>
@@ -119,9 +119,9 @@
                     <el-col :span="12">实际支付：{{ drawerData.total_price }}</el-col>
                     <el-col :span="12">创建时间：{{ drawerData.add_date }}</el-col>
                     <el-col :span="12">支付方式：
-                        <span v-if="drawerData.paymethod == 1">支付宝</span>
-                        <span v-if="drawerData.paymethod == 2">微信支付</span>
-                        <span v-if="drawerData.paymethod == 3">余额支付</span>
+                        <span v-if="drawerData.paymethod == 1">支付宝支付</span>
+                        <span v-else-if="drawerData.paymethod == 2">微信支付</span>
+                        <span v-else-if="drawerData.paymethod == 3">余额支付</span>
                         <span v-else>未支付</span>
                     </el-col>
                     <el-col :span="12">支付时间：{{ drawerData.paytime }}</el-col>
@@ -263,7 +263,13 @@ export default {
         },
         // 发货
         send_goods(row) {
-            console.log(row)
+            // console.log(row)
+            this.$API.shop.order.partial_update.patch(row.id, {status:3}).then(res => {
+                if (res.status == 200) {
+                    this.$message.success("发货成功")
+                    this.$refs.table.refresh()
+                }
+            })
         },
         //删除
         async table_del(row) {
