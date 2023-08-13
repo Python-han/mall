@@ -79,17 +79,28 @@ class BaykeUserSerializer(ModelSerializer):
     
     def get_menus(self, obj):
         """ 返回当前用户的权限菜单 """
+        menus_queryset = self.get_user_menus(obj)
+        return BaykeFrontedMenusSerializer(menus_queryset, many=True).data
+    
+    def get_user_menus(self, obj):
         roles = obj.owner.groups.values_list("baykeroles__id", flat=True)
         menus_queryset = BaykeFrontedMenus.objects.filter(baykeroles__id__in=list(roles))
         try:
-            if self.context['request'].user.is_superuser:
+            if obj.owner.is_superuser:
                 menus_queryset = BaykeFrontedMenus.objects.all()
         except KeyError:
             pass
-        return BaykeFrontedMenusSerializer(menus_queryset, many=True).data
+        return menus_queryset
     
     def get_perms(self, obj):
-        return obj.owner.get_all_permissions()
+        perms = []
+        menus = self.get_user_menus(obj)
+        for menu in menus:
+            perms.extend([
+                f"{perm['permission__content_type__app_label']}.{perm['permission__codename']}" 
+                for perm in menu.baykepermissionaction_set.values("permission__content_type__app_label", "permission__codename")
+            ])
+        return list(set(perms))
         
 
 class UserCreateSerializer(ModelSerializer):

@@ -37,8 +37,8 @@
 			return {
 				userType: 'admin',
 				form: {
-					user: "admin",
-					password: "sxggz0306",
+					user: "",
+					password: "",
 					autologin: false
 				},
 				rules: {
@@ -55,8 +55,8 @@
 		watch:{
 			userType(val){
 				if(val == 'admin'){
-					this.form.user = 'admin'
-					this.form.password = 'sxggz0306'
+					this.form.user = ''
+					this.form.password = ''
 				}else if(val == 'user'){
 					this.form.user = 'user'
 					this.form.password = 'user'
@@ -68,7 +68,6 @@
 		},
 		methods: {
 			async login(){
-
 				var validate = await this.$refs.loginForm.validate().catch(()=>{})
 				if(!validate){ return false }
 
@@ -79,32 +78,44 @@
 					password: this.form.password
 				}
 				//获取token
-				var token = await this.$API.auth.token.post(data)				
+				console.log(data)
+				var token = await this.$API.auth.token.post(data)			
 				if(token.status == 200){
 					this.$TOOL.cookie.set("TOKEN", token.data.access, {
 						expires: this.form.autologin ? 24*60*60 : 0
 					})
-				}else{
-					this.islogin = false 
-					this.$message.warning(token.data.detail)
-					return false
-				}
-				// 获取当前登录用户信息
-				const user = await this.$API.badmin.user.get()
-				if (user.status == 200){
+					console.log(token)
+					const user = await this.$API.badmin.user.get({id: token.data.baykeuser_id})
+					console.log(user)
 					const dashboardGrid = ["welcome", "ver", "time", "progress", "echarts", "about"]
-					// this.$TOOL.data.set("USER_INFO", userInfo)
 					useLocalStorage("USERINFO", user.data)
 					const system = await this.$API.badmin.system.read.get()
 					useLocalStorage("SYSTEM", system.data)
 					this.$TOOL.data.set("PERMISSIONS", user.data.perms)
 					this.$TOOL.data.set("DASHBOARDGRID", dashboardGrid)
 					this.$TOOL.data.set("MENU", user.data.menus)
+
 				}else{
 					this.islogin = false 
-					this.$message.warning(user.data.detail)
+					this.$message.warning(token.data.detail)
 					return false
 				}
+				// 获取当前登录用户信息
+				// const user = await this.$API.badmin.user.get()
+				// if (user.status == 200){
+				// 	const dashboardGrid = ["welcome", "ver", "time", "progress", "echarts", "about"]
+				// 	this.$TOOL.data.set("USER_INFO", userInfo)
+				// 	useLocalStorage("USERINFO", user.data)
+				// 	const system = await this.$API.badmin.system.read.get()
+				// 	useLocalStorage("SYSTEM", system.data)
+				// 	this.$TOOL.data.set("PERMISSIONS", user.data.perms)
+				// 	this.$TOOL.data.set("DASHBOARDGRID", dashboardGrid)
+				// 	this.$TOOL.data.set("MENU", user.data.menus)
+				// }else{
+				// 	this.islogin = false 
+				// 	this.$message.warning(user.data.detail)
+				// 	return false
+				// }
 				this.$router.replace({
 					path: '/'
 				})

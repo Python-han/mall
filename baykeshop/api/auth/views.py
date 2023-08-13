@@ -9,6 +9,9 @@
 @微信    :baywanyun
 '''
 
+from django.contrib.auth import logout
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView as BaseTokenObtainPairView, 
     TokenRefreshView, 
@@ -40,6 +43,7 @@ class TokenObtainPairSerializer(BaseTokenObtainPairSerializer):
         refresh = self.get_token(self.user)
         data['access_expire'] = refresh.access_token.payload['exp']   # token过期时间戳
         data['refresh_expire'] = self.get_refresh_expire()            # 刷新taoken的过期时间
+        data['baykeuser_id'] = self.user.baykeuser.id
         return data
     
     def get_refresh_expire(self):
@@ -52,3 +56,10 @@ class TokenObtainPairSerializer(BaseTokenObtainPairSerializer):
 class TokenObtainPairView(BaseTokenObtainPairView):
     
     serializer_class = TokenObtainPairSerializer
+    
+
+class LogoutView(APIView):
+    
+    def post(self, request, *args, **kwargs):
+        logout(request)
+        return Response({'code': 'ok'})

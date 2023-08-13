@@ -155,6 +155,9 @@
 						confirmButtonText: '退出',
 						confirmButtonClass: 'el-button--danger'
 					}).then(() => {
+						this.$API.auth.logout.post().then(res => {
+							console.log(res)
+						})
 						this.$router.replace({path: '/login'});
 					}).catch(() => {
 						//取消退出

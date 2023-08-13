@@ -23,5 +23,12 @@ export default {
 		post: async function(data={}){
 			return await http.post(this.url, data);
 		}
+	},
+	logout: {
+		url: `${config.API_URL}/auth/logout/`,
+		name: "验证TOKEN",
+		post: async function(){
+			return await http.post(this.url);
+		}
 	}
 }

@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
 from rest_framework.authentication import SessionAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.generics import GenericAPIView, ListAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
@@ -57,34 +57,25 @@ class BaykeDepartmentViewSet(viewsets.ModelViewSet):
         return response
 
 
-class BaykeUserGenericAPIView(GenericAPIView):
+class BaykeUserRetrieveAPIView(RetrieveAPIView):
     """ 获取当前登录用户信息 """
     serializer_class = BaykeUserSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [permission.BaykePermission]
     authentication_classes = [SessionAuthentication, JWTAuthentication]
+    queryset = BaykeUser.objects.all()
     
-    def get_queryset(self):
-        if not self.request:
-            return BaykeUser.objects.none()
-        return BaykeUser.objects.filter(owner=self.request.user)
-    
-    def get_object(self):
-        return self.get_queryset().first()
-    
-    def get(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        data = serializer.data
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
         from baykeshop.common.utils import generate_tree
-        data['menus'] = generate_tree(data['menus'], None)
-        return Response(data)
+        response.data['menus'] = generate_tree(response.data['menus'], None)
+        return response
 
 
 class UserCreateViewset(mixins.CreateModelMixin, viewsets.GenericViewSet):
     """ 创建用户 """
     queryset = get_user_model().objects.all()
     serializer_class = UserCreateSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [permission.BaykePermission]
     authentication_classes = [SessionAuthentication, JWTAuthentication]
 
 
@@ -110,6 +101,19 @@ class BaykeRolesViewSet(viewsets.ModelViewSet):
     pagination_class = pagination.PageNumberPagination
     search_fields = ("group__name", "codename")
     
+    # def partial_update(self, request, *args, **kwargs):
+    #     print('patch')
+    #     return super().partial_update(request, *args, **kwargs)
+    
+    def perform_update(self, serializer):
+        validated_data = serializer.validated_data
+        menus = validated_data.get('menus', [])
+        perm_ids = []
+        for menu in menus:
+            perm_ids.extend(list(menu.baykepermissionaction_set.values_list("permission__id", flat=True)))
+        # 向权限组同步权限
+        self.get_object().group.permissions.set(perm_ids)
+        return super().perform_update(serializer)
 
 class BaykePermissionActionViewSet(viewsets.ModelViewSet):
     """ 菜单权限关系分配 """

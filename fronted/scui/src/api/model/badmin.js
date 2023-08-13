@@ -6,7 +6,7 @@ export default {
 		url: `${config.API_URL}/badmin/user/`,
 		name: "登录当前登录用户信息",
 		get: async function(params={}){
-			return await http.get(this.url, params)
+			return await http.get(`${this.url}${params.id}/`, params)
 		},
 		post: async function(data){
 			return await http.post(`${this.url}add/`, data)
