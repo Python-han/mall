@@ -9,7 +9,7 @@
         <el-header>
             <div class="left-panel">
                 <!-- <el-button type="primary" icon="el-icon-plus" @click="add">新增</el-button> -->
-                <el-button type="danger" plain icon="el-icon-delete" @click="batch_del">批量删除</el-button>
+                <el-button type="danger" plain icon="el-icon-delete" @click="batch_del" :disabled="!ids.length">批量删除</el-button>
             </div>
             <div class="right-panel">
                 <div class="right-panel-search">
@@ -29,7 +29,7 @@
                             <el-col :xs="24" :md="6" :sm="4">
                                 <el-image style="width: 50px; height: 50px" :src="sku.sku_json.img" fit="cover" />
                             </el-col>
-                            <el-col :xs="24" :md="12" :sm="15">
+                            <el-col :xs="24" :md="13" :sm="15">
                                 {{ sku.sku_json.title }}
                                 <span v-for="spec in sku.sku_json.spec_values" :key="spec.id">
                                     |{{ spec.value }}
@@ -59,11 +59,11 @@
                     <template #default="scope">
                         <span v-if="scope.row.status == 1">待付款</span>
                         <span v-if="scope.row.status == 2">待发货</span>
-                        <span v-if="scope.row.paymethod == 3">待收货</span>
-                        <span v-if="scope.row.paymethod == 4">待评价</span>
-                        <span v-if="scope.row.paymethod == 5">已完成</span>
-                        <span v-if="scope.row.paymethod == 6">已关闭</span>
-                        <span v-if="scope.row.paymethod == 7">退款中</span>
+                        <span v-if="scope.row.status == 3">待收货</span>
+                        <span v-if="scope.row.status == 4">待评价</span>
+                        <span v-if="scope.row.status == 5">已完成</span>
+                        <span v-if="scope.row.status == 6">已关闭</span>
+                        <span v-if="scope.row.status == 7">退款中</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="操作" fixed="right" align="right" width="170">
@@ -87,6 +87,64 @@
         </el-main>
     </el-container>
     <save-dialog v-if="dialog.save" ref="saveDialog" @success="handleSaveSuccess" @closed="dialog.save = false"></save-dialog>
+    
+    <el-drawer v-model="drawer" size="40%"  title="订单信息" destroy-on-close>
+        <template #default>
+            <!-- <el-divider content-position="left">收货信息</el-divider> -->
+            <div style="padding: 0 15px;">
+                <div style="font-weight: bold; color: rgb(44, 44, 44);">收货信息</div>
+                <el-row>
+                    <el-col :span="12">用户：{{ drawerData.owner_data }}</el-col>
+                    <el-col :span="12">收货人：{{ drawerData.name }}</el-col>
+                    <el-col :span="12">联系电话：{{ drawerData.phone }}</el-col>
+                    <el-col :span="12">收货地址：{{ drawerData.address }}</el-col>
+                </el-row>
+            </div>
+            <el-divider border-style="dashed" />
+            <div style="padding: 0 15px;">
+                <div style="font-weight: bold; color: rgb(44, 44, 44);">订单信息</div>
+                <el-row>
+                    <el-col :span="12">订单号：{{ drawerData.order_sn }}</el-col>
+                    <el-col :span="12">订单状态：
+                        <span v-if="drawerData.status == 1">待付款</span>
+                        <span v-if="drawerData.status == 2">待发货</span>
+                        <span v-if="drawerData.status == 3">待收货</span>
+                        <span v-if="drawerData.status == 4">待评价</span>
+                        <span v-if="drawerData.status == 5">已完成</span>
+                        <span v-if="drawerData.status == 6">已关闭</span>
+                        <span v-if="drawerData.status == 7">退款中</span>
+                    </el-col>
+                    <el-col :span="12">商品总数：{{ orderSkuCount(drawerData.baykeshopordersku_set) }}</el-col>
+                    <el-col :span="12">商品总价：{{ orderSkuTotalPrice(drawerData.baykeshopordersku_set) }}</el-col>
+                    <el-col :span="12">实际支付：{{ drawerData.total_price }}</el-col>
+                    <el-col :span="12">创建时间：{{ drawerData.add_date }}</el-col>
+                    <el-col :span="12">支付方式：
+                        <span v-if="drawerData.paymethod == 1">支付宝</span>
+                        <span v-if="drawerData.paymethod == 2">微信支付</span>
+                        <span v-if="drawerData.paymethod == 3">余额支付</span>
+                        <span v-else>未支付</span>
+                    </el-col>
+                    <el-col :span="12">支付时间：{{ drawerData.paytime }}</el-col>
+                </el-row>
+            </div>
+            <el-divider border-style="dashed" />
+            <div style="padding: 0 15px;">
+                <div style="font-weight: bold; color: rgb(44, 44, 44);">商品信息</div>
+                <el-row v-for="sku in drawerData.baykeshopordersku_set" :key="sku.id">
+                    <el-col :span="5">
+                        <el-image style="width: 50px; height: 50px" :src="sku.sku_json.img" fit="cover" />
+                    </el-col>
+                    <el-col :span="15">
+                        {{ sku.sku_json.title }}
+                        <span v-for="spec in sku.sku_json.spec_values" :key="spec.id">
+                        |{{ spec.value }}
+                        </span>
+                    </el-col>
+                    <el-col :md="4"><span>¥{{ sku.sku_json.price }}x{{ sku.count }} </span></el-col>
+                </el-row>
+            </div>
+        </template>
+	</el-drawer>
 </template>
 
 <script>
@@ -113,37 +171,30 @@ export default {
                         {
                             label: "待付款",
                             value: "1",
-                            icon: "el-icon-flag"
                         },
                         {
                             label: "待发货",
                             value: "2",
-                            icon: "el-icon-bottom-left"
                         },
                         {
                             label: "待收货",
                             value: "3",
-                            icon: "el-icon-circle-close"
                         },
                         {
                             label: "待评价",
                             value: "4",
-                            icon: "el-icon-checked"
                         },
                         {
                             label: "已完成",
                             value: "5",
-                            icon: "el-icon-checked"
                         },
                         {
                             label: "已关闭",
                             value: "6",
-                            icon: "el-icon-checked"
                         },
                         {
                             label: "退款中",
                             value: "7",
-                            icon: "el-icon-checked"
                         },
                     ]
                 },
@@ -185,7 +236,9 @@ export default {
             search: {
                 keyword: null
             },
-            ids: []
+            ids: [],
+            drawer: false,
+            drawerData: ""
         }
     },
     methods: {
@@ -196,6 +249,10 @@ export default {
         // 新增
         add() {
             console.log('add')
+        },
+        table_show(row){
+            this.drawer = true
+            this.drawerData = row
         },
         //编辑
         table_edit(row) {
@@ -255,9 +312,42 @@ export default {
             } else if (mode == 'edit') {
                 this.$refs.table.refresh()
             }
+        },
+        // 计算商品总数
+        orderSkuCount(skus){
+            let count = 0
+            skus.forEach(el => {
+                count += el.count
+            })
+            return count
+        },
+        // 计算商品总价
+        orderSkuTotalPrice(skus){
+            let total_price = 0
+            skus.forEach(el => {
+                total_price += parseFloat(el.sku_json.price)
+            })
+            return total_price
         }
     }
 }
 </script>
+
+<style>
+.el-drawer__header{
+    border-bottom: solid 1px #eee;
+    padding-bottom: 15px;
+    margin-bottom: 0;
+}
+.el-drawer__body{
+    padding: 10px;
+    font-size: 14px;
+    color: #737373;
+    line-height: 35px;
+}
+/* .order-show-body{
+
+} */
+</style>
 
 
