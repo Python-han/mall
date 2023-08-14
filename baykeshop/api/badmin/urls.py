@@ -31,7 +31,7 @@ router.register('system_extend', viewsets.BaykeSystemExtendViewset, basename='sy
 
 urlpatterns = [
     
-    path('user/<int:pk>/', viewsets.BaykeUserRetrieveAPIView.as_view(), name='user'),
+    path('user/', viewsets.BaykeUserRetrieveAPIView.as_view(), name='user'),
     
     path('perms/', viewsets.PermissionListAPIView.as_view(), name='perms'),
     

@@ -84,9 +84,7 @@
 					this.$TOOL.cookie.set("TOKEN", token.data.access, {
 						expires: this.form.autologin ? 24*60*60 : 0
 					})
-					console.log(token)
-					const user = await this.$API.badmin.user.get({id: token.data.baykeuser_id})
-					console.log(user)
+					const user = await this.$API.badmin.user.get()
 					const dashboardGrid = ["welcome", "ver", "time", "progress", "echarts", "about"]
 					useLocalStorage("USERINFO", user.data)
 					const system = await this.$API.badmin.system.read.get()
@@ -94,28 +92,11 @@
 					this.$TOOL.data.set("PERMISSIONS", user.data.perms)
 					this.$TOOL.data.set("DASHBOARDGRID", dashboardGrid)
 					this.$TOOL.data.set("MENU", user.data.menus)
-
 				}else{
 					this.islogin = false 
 					this.$message.warning(token.data.detail)
 					return false
 				}
-				// 获取当前登录用户信息
-				// const user = await this.$API.badmin.user.get()
-				// if (user.status == 200){
-				// 	const dashboardGrid = ["welcome", "ver", "time", "progress", "echarts", "about"]
-				// 	this.$TOOL.data.set("USER_INFO", userInfo)
-				// 	useLocalStorage("USERINFO", user.data)
-				// 	const system = await this.$API.badmin.system.read.get()
-				// 	useLocalStorage("SYSTEM", system.data)
-				// 	this.$TOOL.data.set("PERMISSIONS", user.data.perms)
-				// 	this.$TOOL.data.set("DASHBOARDGRID", dashboardGrid)
-				// 	this.$TOOL.data.set("MENU", user.data.menus)
-				// }else{
-				// 	this.islogin = false 
-				// 	this.$message.warning(user.data.detail)
-				// 	return false
-				// }
 				this.$router.replace({
 					path: '/'
 				})

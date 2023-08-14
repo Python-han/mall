@@ -64,6 +64,9 @@ class BaykeUserRetrieveAPIView(RetrieveAPIView):
     authentication_classes = [SessionAuthentication, JWTAuthentication]
     queryset = BaykeUser.objects.all()
     
+    def get_object(self):
+        return self.request.user.baykeuser
+    
     def retrieve(self, request, *args, **kwargs):
         response = super().retrieve(request, *args, **kwargs)
         from baykeshop.common.utils import generate_tree
