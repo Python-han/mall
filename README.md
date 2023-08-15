@@ -17,3 +17,8 @@
 5. 查看nginx状态：`service nginx status`
 
 cp bayke /etc/nginx/sites-enabled
+
+
+```
+supervisorctl -c deploy/supervisord.conf stop asgi
+```

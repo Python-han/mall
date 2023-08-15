@@ -139,8 +139,8 @@ dmypy.json
 cython_debug/
 
 node_modules/
-
+deploy/*.pid
 deploy/sock
-deploy/asgi.log
-
+deploy/*.log
+deploy/*.sock
 media/
