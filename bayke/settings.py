@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-qyy=&sjs3fsdn=^j-dyb!kn1bu)r7up^8kkk5spbr!35hb-bcf
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -60,7 +60,7 @@ ROOT_URLCONF = 'bayke.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "fronted/scui/dist"],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -122,10 +122,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / "static"
+# STATIC_ROOT = BASE_DIR / "static"
 STATICFILES_DIRS = [
-    # BASE_DIR / "static",
-    BASE_DIR / "fronted/scui/dist",
+    BASE_DIR / "static",
+    # BASE_DIR / "fronted/scui/dist",
 ]
 
 MEDIA_URL = 'media/'
@@ -146,10 +146,14 @@ REST_FRAMEWORK = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:2800",
     "http://127.0.0.1:2800",
+    "http://localhost:8001",
+    "http://127.0.0.1:8001",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:2800",
+    "http://localhost:8001",
+    "http://127.0.0.1:8001",
 ]
 
 # 配置token的过期时间
@@ -160,3 +164,5 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
 
+# 静态文件跨域
+SECURE_CROSS_ORIGIN_OPENER_POLICY = None
