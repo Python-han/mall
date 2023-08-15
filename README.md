@@ -15,3 +15,5 @@
 3. 重启nginx：`service nginx restart`
 4. 重载配置文件：`service nginx reload`
 5. 查看nginx状态：`service nginx status`
+
+cp bayke /etc/nginx/sites-enabled

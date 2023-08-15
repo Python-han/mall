@@ -140,6 +140,7 @@ cython_debug/
 
 node_modules/
 
-deploy/
+deploy/sock
+deploy/asgi.log
 
 media/
