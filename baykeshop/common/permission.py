@@ -1,12 +1,13 @@
 from django.urls import resolve
 from rest_framework import permissions
+from rest_framework.permissions import SAFE_METHODS
+
 from baykeshop.apps.badmin.models import BaykeFrontedMenus
 
 
 class BaykePermission(permissions.BasePermission):
     
     def has_permission(self, request, view):
-        # print(request.user)
         # 超管不受权限约束
         if request.user.is_superuser:
             return True
@@ -31,7 +32,6 @@ class BaykePermission(permissions.BasePermission):
             if menu.apiname == current_url_name and menu.request_method == request.method:
                 has_perm = True
                 
-        print(request.user.has_perm(info))
         return has_perm and request.user.has_perm(info)
     
     def has_object_permission(self, request, view, obj):
@@ -57,4 +57,8 @@ class BaykePermission(permissions.BasePermission):
         return perms
             
        
-    
+
+class BaykePermissionOrReadOnly(BaykePermission):
+    """ get请求不受限制 """
+    def has_permission(self, request, view):
+        return bool(request.method in SAFE_METHODS)

@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -5,6 +6,7 @@ from rest_framework import serializers
 from rest_framework.permissions import IsAdminUser
 from rest_framework.authentication import SessionAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.utils.serializer_helpers import ReturnDict
 from baykeshop.common import viewsets, pagination, utils, mixins, permission
 from baykeshop.apps.shop.models import (
     BaykeShopCategory, BaykeshopBrand, BaykeShopSPU, BaykeShopSKU,
@@ -42,7 +44,8 @@ class BaykeShopCategoryViewSet(viewsets.ModelViewSet):
     
     def list(self, request, *args, **kwargs):
         response = super().list(request, *args, **kwargs)
-        response.data['results'] = utils.generate_tree(response.data['results'], None)
+        if isinstance(response.data, (OrderedDict, ReturnDict)):
+            response.data['results'] = utils.generate_tree(response.data['results'], None)
         return response
     
 

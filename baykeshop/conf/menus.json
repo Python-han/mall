@@ -67,7 +67,19 @@
             "icon": "el-icon-goods",
             "type": "menu"
           },
-          "component": "shop/goods"
+          "component": "shop/goods",
+          "children":[
+            {
+              "path": "/shop/goods/detail",
+              "name": "goodsDetail",
+              "meta": {
+                "title": "商品详情",
+                "icon": "el-icon-goods",
+                "type": "button"
+              },
+              "component": "shop/goods/detail"
+            }
+          ]
         },
         {
           "path": "/shop/spec",

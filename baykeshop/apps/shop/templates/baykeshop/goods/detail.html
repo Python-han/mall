@@ -1,0 +1,123 @@
+{% extends 'baykeshop/base_site.html' %}
+
+{% load shoptags %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block meta_desc %}{{ desc }}{% endblock %}
+{% block meta_kw %}{{ keywords }}{% endblock %}
+
+{% block breadcrumb %}
+<div class="container">
+	<nav class="breadcrumb is-marginless mt-3 mb-3 is-small" aria-label="breadcrumbs">
+		<ul>
+			<li><a href="{% url 'shop:home' %}">首页</a></li>
+            {% breadcrumbcate category as cates %}
+            {% for cate in cates %}
+            <li>
+                <a href="">{{ cate.name }}</a>
+            </li>
+            {% endfor %}
+			<li class="is-active"><a href="#" aria-current="page">{{ title }}</a></li>
+		</ul>
+	</nav>
+</div>
+{% endblock %}
+
+{% block container %}
+<div class="columns">
+    <div class="column is-3">
+        {% include 'baykeshop/goods/banners.html' with banners=images %}
+    </div>
+    <div class="column">
+        <h1 class="title is-size-4">{{ title }}</h1>
+        <p class="subtitle has-text-grey-dark">{{ subtitle }}</p>
+        {% if skutype %}
+            <!-- 多规格 -->
+            {% include 'baykeshop/goods/multipleSpec.html' %}
+        {% else %}
+            <!-- 单规格 -->
+            {% include 'baykeshop/goods/singleSpec.html' %}
+        {% endif %}
+
+        <!-- 加入购物车按钮及一键购买 -->
+        <div class="box is-radiusless" id="payButton">
+            <b-button 
+                type="is-primary"
+                @click="addCart"
+                :disabled="stock ? false : true">
+                加入购物车
+            </b-button>
+            <b-button 
+                type="is-primary" 
+                :disabled="stock ? false : true"
+                @click="nowBuy"
+                outlined>
+                立即购买
+            </b-button>
+        </div>
+        <!-- 加入购物车按钮及一键购买 -->
+
+        <div class="box is-radiusless mt-3" id="goodsContent">
+            <b-tabs class="block">
+                <b-tab-item label="商品详情">
+                    <div class="content">
+                        {{ content|safe }}
+                    </div>
+                </b-tab-item>
+                <b-tab-item label="商品评价">
+                    <div class="is-flex is-justify-content-space-between p-2">
+                        <div class="">满意度：98%</div>
+                        <div class="is-flex is-align-items-center">
+                            <span> 评分：</span>
+                            <b-rate 
+                                :value="5" 
+                                disabled 
+                                custom-text="5分">
+                            </b-rate>
+                        </div>
+                    </div>
+                </b-tab-item>
+            </b-tabs>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block vue %}
+    <script>
+        var payButton = new Vue({
+            el: "#payButton",
+            delimiters: ['{$', '$}'],
+            data: {
+                skutype: Number('{{ skutype }}')
+            },
+            computed: {
+                stock(){
+                    return this.skutype ? multipleSpec._data.sku.stock : singleSpec._data.sku.stock
+                }
+            },
+            methods: {
+                // 加入购物车
+                addCart(){
+                    console.log('asdasd')
+                },
+                // 立即购买
+                nowBuy(){
+                    console.log('立即额购买')
+                }
+            },
+        })
+
+
+        var goodsContent = new Vue({
+            el: "#goodsContent",
+            delimiters: ['{$', '$}'],
+            data: {
+                
+            },
+        })
+
+    </script>
+{% endblock %}
+    

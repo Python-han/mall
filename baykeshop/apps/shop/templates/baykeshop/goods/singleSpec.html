@@ -1,0 +1,55 @@
+{{ baykeshopsku_set|json_script:"sku-data" }}
+<div id="singleSpec">
+    <div class="box is-marginless is-radiusless has-background-primary-dark has-text-white-ter">
+        <div class="is-flex is-justify-content-space-between is-align-items-center">
+            <div>
+                <span class="is-size-7"> 原价：¥ <del>{$ sku.cost_price $}</del></span>
+                <h1 class="is-size-4">¥ {$ sku.price $}</h1>
+            </div>
+            <div class=" has-text-centered">
+                {$ sku.sales $}
+                <h1>销量</h1>
+            </div>
+        </div>
+    </div>
+    <div class="box is-radiusless is-marginless">
+        <div class=" is-flex is-align-items-center mt-3">
+            <div class=" has-text-grey-light">数量：</div>
+            <div>
+                <b-numberinput 
+                    controls-position="compact" 
+                    min="1" 
+                    :max="sku.stock" 
+                    v-model="num"
+                    size="is-small"
+                    :editable="false">
+                </b-numberinput> 
+            </div>
+            <div class=" has-text-grey-dark ml-3">(库存{$ sku.stock $})</div>
+        </div>
+    </div>
+</div>
+
+<script>
+var skuData = JSON.parse(document.getElementById('sku-data').textContent);
+var singleSpec = new Vue({
+    el: "#singleSpec",
+    delimiters: ['{$', '$}'],
+    data: {
+        skuData,
+        sku: {
+            price: 0,
+            cost_price: 0,
+            sales: 0,
+            stock: 0
+        },
+        num: 1
+    },
+    created() {
+        this.sku.price = skuData[0].price
+        this.sku.cost_price = skuData[0].cost_price
+        this.sku.sales = skuData[0].sales
+        this.sku.stock = skuData[0].stock
+    },
+})
+</script>
