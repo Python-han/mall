@@ -1,7 +1,5 @@
+from collections import OrderedDict
 from django.template import Library
-from rest_framework.utils.serializer_helpers import ReturnList
-
-from baykeshop.apps.shop.views import BaykeShopCategoryView
 from baykeshop.apps.shop.models import BaykeShopCart, BaykeShopCategory
 from baykeshop.common import utils
 
@@ -25,11 +23,18 @@ def cartscount(request):
 @register.inclusion_tag("baykeshop/comp/spubox.html", takes_context=True)
 def spubox(context, spu):
     request = context['request']
-    sku = spu.baykeshopsku_set.order_by("price").first()
-    if sku:
-        spu.price = sku.price
-        spu.sales = sku.sales
-        spu.img = sku.img
+    
+    if isinstance(spu, OrderedDict):
+        sku =  spu['baykeshopsku_set'][0] if spu['baykeshopsku_set'] else {}
+        spu['price'] = sku.get('price', 0)
+        spu['sales'] = sku.get('sales', 0)
+        spu['img'] = sku.get('img', "")
+    else:     
+        sku = spu.baykeshopsku_set.order_by("price").first()
+        if sku:
+            spu.price = sku.price
+            spu.sales = sku.sales
+            spu.img = sku.img
     return {'spu': spu}
 
 
