@@ -6,10 +6,23 @@
 {% endblock %}
 
 {% block breadcrumb %}
-asdad
+{% filtercates request as category %}
+<div class="container">
+	<nav class="breadcrumb is-marginless mt-3 mb-3 is-small" aria-label="breadcrumbs">
+		<ul>
+			<li><a href="{% url 'shop:home' %}">首页</a></li>
+            {% if category.cate.parent %}
+                <li><a href="?category={{ category.cate.parent.id }}">{{ category.cate.parent.name }}</a></li>
+            {% endif %}
+			<li class="is-active"><a href="#" aria-current="page">{% if category.cate %}{{ category.cate.name }}{% elif word %}{{ word }}{% else %}全部商品{% endif %}</a></li>
+		</ul>
+	</nav>
+</div>
 {% endblock %}
 
 {% block container %}
+{% include 'baykeshop/goods/cates.html' %}
+
 <div class="columns is-multiline">
     {% for spu in results %}
         <div class="column is-3">

@@ -1,0 +1,69 @@
+{% load shoptags %}
+{{ request.query_params.category|json_script:"cateData" }}
+<div id="filterCates" class="mb-3">
+    {% filtercates request as category %}
+    <div class="box is-marginless is-radiusless">
+        <a href="{% url 'shop:spu-list' %}" class="mr-2 {% if request.path == '/goods/' and not category.cate %} has-text-danger-dark {% else %} has-text-black {% endif %}">
+            全部分类
+        </a>
+        {% for item in category.cates %}
+            <a class="mr-2 {% if item.id == category.cate.id or item.id == category.cate.parent.id %} has-text-danger-dark {% else %} has-text-black {% endif %}" 
+            href="?category={{ item.id }}&ordering={{ request.query_params.ordering }}">{{ item.name }}</a>
+        {% endfor %}
+    </div>
+    <div class="box is-radiusless">
+        <div>
+            <span class=" has-text-grey-light">分类：</span>
+            {% for item in category.sub_cates %}
+                <a class="mr-2 {% if item.id == category.cate.id %} has-text-danger-dark {% else %} has-text-black {% endif %}" 
+                    href="?category={{ item.id }}&ordering={{ request.query_params.ordering }}">{{ item.name }}</a>
+            {% endfor %}
+        </div>
+        <div class="mt-2">
+            <span class=" has-text-grey-light">排序：</span>
+            
+            {% if request.GET.ordering == '-baykeshopsku__price' %}
+            <a class="mr-2 has-text-black {% if request.GET.ordering == '-baykeshopsku__price' or request.GET.ordering == 'baykeshopsku__price' %} has-text-danger-dark {% endif %}" href="?ordering=baykeshopsku__price&category={{ request.query_params.category }}">价格
+                {% if request.GET.ordering == '-baykeshopsku__price' %}<span class="mdi mdi-arrow-down"></span>{% endif %}
+            </a>
+            {% else %}
+            <a class="mr-2 has-text-black {% if request.GET.ordering == '-baykeshopsku__price' or request.GET.ordering == 'baykeshopsku__price' %} has-text-danger-dark {% endif %}" href="?ordering=-baykeshopsku__price&category={{ request.query_params.category }}">价格
+                {% if request.GET.ordering == 'baykeshopsku__price' %}<span class="mdi mdi-arrow-up"></span>{% endif %}
+            </a>
+            {% endif %}
+    
+            {% if request.GET.ordering == '-baykeshopsku__sales' %}
+            <a class="mr-2 has-text-black {% if request.GET.ordering == '-baykeshopsku__sales' or request.GET.ordering == 'baykeshopsku__sales' %} has-text-danger-dark {% endif %}" href="?ordering=baykeshopsku__sales&category={{ request.query_params.category }}">销量
+                {% if request.GET.ordering == '-baykeshopsku__sales' %}<span class="mdi mdi-arrow-down"></span>{% endif %}
+            </a>
+            {% else %}
+            <a class="mr-2 has-text-black {% if request.GET.ordering == '-baykeshopsku__sales' or request.GET.ordering == 'baykeshopsku__sales' %} has-text-danger-dark {% endif %}" href="?ordering=-baykeshopsku__sales&category={{ request.query_params.category }}">销量
+                {% if request.GET.ordering == 'baykeshopsku__sales' %}<span class="mdi mdi-arrow-up"></span>{% endif %}
+            </a>
+            {% endif %}
+    
+            {% if request.GET.ordering == '-add_date' %}
+            <a class="mr-2 has-text-black {% if request.GET.ordering == '-add_date' or request.GET.ordering == 'add_date' %} has-text-danger-dark {% endif %}" href="?ordering=add_date&category={{ request.query_params.category }}">上架时间
+                {% if request.GET.ordering == '-add_date' %}<span class="mdi mdi-arrow-down"></span>{% endif %}
+            </a>
+            {% else %}
+            <a class="mr-2 has-text-black {% if request.GET.ordering == '-add_date' or request.GET.ordering == 'add_date' %} has-text-danger-dark {% endif %}" href="?ordering=-add_date&category={{ request.query_params.category }}">上架时间
+                {% if request.GET.ordering == 'add_date' %}<span class="mdi mdi-arrow-up"></span>{% endif %}
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    const cateData = JSON.parse(document.querySelector("#cateData").textContent)
+
+    var filterCates = new Vue({
+        el: "#filterCates",
+        delimiters: ['{$', '$}'],
+        data: {},
+        created(){},
+        methods: {}
+    })
+
+</script>

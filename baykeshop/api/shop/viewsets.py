@@ -98,6 +98,7 @@ class BaykeShopSPUViewSet(mixins.ListModelMixin,
     serializer_class = BaykeShopSPUSerializer
     pagination_class = pagination.PageNumberPagination
     filterset_class = filters.BaykeShopSPUFilterSet
+    # ordering_fields = ("baykeshopsku__price", "baykeshopsku__sales",)
     search_fields = ("title", "subtitle")
     
     @action(methods=['delete'], detail=False)
