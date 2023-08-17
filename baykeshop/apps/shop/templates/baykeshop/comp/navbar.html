@@ -34,12 +34,12 @@
             <template #end>
                 {% block navbar_end %}
                 <b-navbar-item tag="div">
-                    <form action="" method="get">
+                    <form action="/goods/" method="get">
                         <div class="field-body">
                           <div class="field is-expanded">
                             <div class="field has-addons">
                               <p class="control is-expanded has-icons-left">
-                                <input class="input" type="search" name="search" id="id_search" value="{{ word }}" placeholder="{{ placeholder }}" maxlength="32">
+                                <input class="input" type="search" name="search" id="id_search" value="{{ words }}" placeholder="请输入商品关键词搜索" maxlength="32">
                                 <span class="icon is-left">
                                     <i class="mdi mdi-magnify"></i>
                                 </span>

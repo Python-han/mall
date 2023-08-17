@@ -15,11 +15,12 @@ def catetags():
     return get_cates().filter(parent__isnull=True)
 
 
-@register.inclusion_tag("baykeshop/comp/navbar.html")
-def navbar():
+@register.inclusion_tag("baykeshop/comp/navbar.html", takes_context=True)
+def navbar(context):
     data = get_cates()
     return {
-        'navs' : utils.generate_tree(data, None) if data else []
+        'navs' : utils.generate_tree(data, None) if data else [],
+        'words': context['request'].GET.get('search', '')
     } 
     
 @register.simple_tag

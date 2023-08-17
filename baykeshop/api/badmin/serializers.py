@@ -1,6 +1,7 @@
 from django.contrib.auth.models import Group, Permission
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
+
 from rest_framework import serializers
 
 from baykeshop.apps.badmin.models import (
@@ -8,7 +9,6 @@ from baykeshop.apps.badmin.models import (
     BaykeUser, BaykePermissionAction, BaykeDictKey, BaykeDictValue,
     BaykeImage, BaykeSystemExtend, BaykeEmailConf, BaykeSystem
 )
-
 from baykeshop.common.serializers import ModelSerializer
 
 
@@ -261,3 +261,4 @@ class BaykeSystemExtendSerializer(ModelSerializer):
     class Meta:
         model = BaykeSystemExtend
         fields = "__all__"
+        

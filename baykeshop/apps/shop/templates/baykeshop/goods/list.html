@@ -14,7 +14,7 @@
             {% if category.cate.parent %}
                 <li><a href="?category={{ category.cate.parent.id }}">{{ category.cate.parent.name }}</a></li>
             {% endif %}
-			<li class="is-active"><a href="#" aria-current="page">{% if category.cate %}{{ category.cate.name }}{% elif word %}{{ word }}{% else %}全部商品{% endif %}</a></li>
+			<li class="is-active"><a href="#" aria-current="page">{% if category.cate %}{{ category.cate.name }}{% elif request.query_params.search %}{{ request.query_params.search }}{% else %}全部商品{% endif %}</a></li>
 		</ul>
 	</nav>
 </div>

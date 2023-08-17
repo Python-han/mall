@@ -9,5 +9,11 @@ urlpatterns = [
     # 验证token post 
     path("verify/", views.TokenVerifyView.as_view(), name="verify"),
     # 退出
-    path("logout/", views.LogoutView.as_view(), name="logout")
+    path("logout/", views.LogoutView.as_view(), name="logout"),
+    # 获取邮箱验证码
+    path('obtain/code/', views.BaykeVerifyCodeObtainAPIView.as_view(), name='obtain-code'),
+    # 效验邮箱验证码 post
+    path('check/code/', views.BaykeVerifyCodeCheckAPIView.as_view(), name='check-code'),
+    # 注册接口 post
+    path("register/", views.BaykeUserRegisterAPIView.as_view(), name="register-api")
 ]

@@ -5,3 +5,4 @@ from .goods import (
     BaykeShopSPU, 
 )
 from .order import BaykeShopOrder, BaykeShopOrderSKU
+from .user import BaykeAddress, BaykeUserBalanceLog
