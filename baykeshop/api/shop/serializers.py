@@ -1,9 +1,12 @@
-from django.db.models import Sum
+from django.db.models import Sum, F
+from django.db.utils import IntegrityError
+
 from rest_framework import serializers
 from baykeshop.common.serializers import ModelSerializer
 from baykeshop.apps.shop.models import (
     BaykeShopCategory, BaykeshopBrand, BaykeShopSPU, BaykeShopSKU,
-    BaykeShopSpec, BaykeShopSpecValue, BaykeShopOrder, BaykeShopOrderSKU
+    BaykeShopSpec, BaykeShopSpecValue, BaykeShopOrder, BaykeShopOrderSKU,
+    BaykeShopCart, BaykeAddress, BaykeUserBalanceLog
 )
 
 
@@ -122,10 +125,12 @@ class BaykeShopOrderSKUSerializer(ModelSerializer):
         model = BaykeShopOrderSKU
         fields = "__all__"
 
+
 class BaykeShopOrderSerializer(ModelSerializer):
     """ 订单 """
     owner_data = serializers.SerializerMethodField()
     baykeshopordersku_set = BaykeShopOrderSKUSerializer(many=True, read_only=True)
+    
     class Meta:
         model = BaykeShopOrder
         fields = "__all__"
@@ -134,3 +139,31 @@ class BaykeShopOrderSerializer(ModelSerializer):
         return f"{obj.owner.username}|{obj.owner.id}|(uid:{obj.owner.baykeuser.id})"
         
 
+
+class BaykeShopCartSerializer(ModelSerializer):
+    """ 购物车 """
+    owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    
+    class Meta:
+        model = BaykeShopCart
+        fields = "__all__"
+        
+    def create(self, validated_data):
+        try:
+            instance = super().create(validated_data)
+        except IntegrityError:
+            carts = BaykeShopCart.objects.filter(owner=self.context['request'].user, sku=validated_data.get('sku'))
+            if carts.exists():
+                carts.update(num=F("num")+validated_data["num"])
+                instance = carts.first()
+        return instance
+    
+
+class BaykeAddressSerializer(ModelSerializer):
+    """ 地址序列化 """
+    owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    
+    class Meta:
+        model = BaykeAddress
+        fields = "__all__"
+    

@@ -1,0 +1,165 @@
+{% extends 'baykeshop/base_site.html' %}
+
+{% load i18n static shoptags %}
+
+{% block title %}订单确认{% endblock %}
+
+{% block breadcrumb %}
+<div class="container">
+	<nav class="breadcrumb is-marginless mt-3 mb-3 is-small" aria-label="breadcrumbs">
+		<ul>
+			<li><a href="{% url 'shop:home' %}">首页</a></li>
+			<li class="is-active"><a href="#" aria-current="page">订单确认</a></li>
+		</ul>
+	</nav>
+</div>
+{% endblock %}
+
+{% block container %}
+<div class="box is-radiusless">
+	<h1 class="is-size-5">收货地址</h1>
+	<img width="100%"
+		src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABLAAAAAECAYAAACeNca/AAAAAXNSR0IArs4c6QAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAEsKADAAQAAAABAAAABAAAAAAdekyeAAABbUlEQVR4Ae2asW3DMBBFSWqGACkzRHprgyCbZASPEHiRjJC4TlYIkD4zWIyPd8WXzcZKw+KpkSCIBPHw+HWimNP5eHj5nae6vNv1pqPW4/fhfr5sW98e51TK9n5TPeanz6t+Ga+Thq9zwAd8cAL4oBzIB3zAB+qHRH0W04B6soHAB3xYvRj4fnMc5AP5sJoYrD8YjoHfF8XGNy2nvZ23Hqcy7bttS+7f7z7cubnUbnvGG6zg20DgAz4EAXxQEOQDPuCDEsAHpUE+4AM+KAF8UBrkAz7ggxLAB6UxQD4U272Sct7puG66Pq/O/bzefVy2aX//0z/6td1Xz19X/TJeJw1f54AP+OAE8EE5kA/4gA/UD/b3lPrMZgL1ZMsDfIhYxAd8CBUcBN+bxoF8CCnIB58WY9cPhd0r4esAq4kxktWJ3W2Bg914DQQ+4IMGBD7gAz4oAXxQGuQDPuCDEsAHpUE+4AM+KAF8UBqj58MfRyl5tp+pqv4AAAAASUVORK5CYII=">
+	{% include 'baykeshop/comp/address.html' with update=True delete=False %}
+</div>
+
+<div class="box is-radiusless is-marginless">
+    <h1 class=" is-size-5">支付方式</h1>
+    <div class="dropdown-divider"></div>
+    {% include 'baykeshop/comp/paymethods.html' %}
+    <!-- <div class="dropdown-divider"></div> -->
+</div>
+
+<div class="box is-marginless is-radiusless">
+	<h1 class="is-size-5">订单商品</h1>
+	<div class=" dropdown-divider"></div>
+	{% for sku in baykeshopordersku_set %}
+	<div class="columns">
+		<div class="column is-2 is-flex is-justify-content-center">
+			<figure class="image is-128x128">
+				<img src="{{ sku.sku_json.img }}" alt="{{ sku.sku_json.title }}">
+			</figure>
+		</div>
+		<div class="column is-flex is-flex-direction-column is-justify-content-center">
+			<h1 class=" has-text-weight-bold">{{ sku.sku_json.title }}</h1>
+			<div class="has-text-grey-light">
+				{% for op in sku.sku_json.spec_values %}
+				<span class="mr-3">{{ op.spec__name }}:{{ op.value }}</span>
+				{% endfor %}
+			</div>
+		</div>
+		<div class="column is-2 is-flex is-justify-content-center is-align-items-center">
+			{{ sku.sku_json.price }}x{{ sku.count }}
+		</div>
+		<div class="column is-2 is-flex is-justify-content-center is-align-items-center">
+			¥{% totalPrice sku %}
+		</div>
+	</div>
+	{% endfor %}
+	<div class="dropdown-divider"></div>
+	<div id="order">
+		<div class="box is-shadowless is-radiusless has-background-light">
+			<div class="field">
+				<label class="label">订单留言</label>
+				<div class="control">
+					<textarea class="textarea" v-model="mark" name="mark" placeholder="请备注说明您的特殊要求..."></textarea>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="box is-radiusless" id="inPayment">
+	{% ordersku baykeshopordersku_set as payorder %}
+	{{ payorder|json_script:"payData" }}
+	<div class="is-flex is-flex-direction-column">
+		<div class="is-flex mb-2">
+			<div class="has-text-right" style="width:85%">{{ payorder.count }} 件商品，总商品金额：</div>
+			<div class="has-text-left" style="width:10%; margin-left:5%;">¥{{ payorder.total }} </div>
+		</div>
+		<div class="is-flex mb-2">
+			<div class="has-text-right" style="width:85%">运费：</div>
+			<div class="has-text-left" style="width:10%;margin-left:5%;">¥{{ payorder.freight }} </div>
+		</div>
+		<div class="is-flex has-text-danger-dark">
+			<div class=" has-text-right is-size-5" style="width:85%">应付总额：</div>
+			<div class=" has-text-left is-size-5" style="width:10%; margin-left:5%;">¥{{ payorder.total_amount }} </div>
+		</div>
+	</div>
+	<div class="dropdown-divider"></div>
+	<div class="has-text-right">
+		<button class="button is-primary mt-2 pl-6 pr-6 is-large" @click="immediatePayment">立即支付</button>
+	</div>
+</div>
+{{ baykeshopordersku_set|json_script:"skus-data" }}
+{% endblock %}
+
+{% block vue %}
+<script>
+	var skusData = JSON.parse(document.getElementById('skus-data').textContent);
+	var payData = JSON.parse(document.querySelector('#payData').textContent)
+
+	var order = new Vue({
+		el: "#order",
+		delimiters: ['{$', '$}'],
+		data: {
+			mark: "",
+			skus: skusData,
+		},
+		methods: {
+			getBaykeorderSKUSet() {
+				let baykeordersku_set = []
+				this.skus.forEach(element => {
+					let item_skus = {}
+					item_skus['sku'] = element.id
+					item_skus['count'] = element.count
+					baykeordersku_set.push(item_skus)
+				});
+				return baykeordersku_set
+			}
+		}
+	})
+
+
+	// 立即支付
+	var inPayment = new Vue({
+		el: "#inPayment",
+		delimiters: ['{$', '$}'],
+		data:{
+
+		},
+		methods: {
+			immediatePayment(){
+				let balance = parseFloat('{{ request.user.baykeuser.balance }}')
+				let total_amount = parseFloat(payData.total_amount)
+				if (payMethod.defaultPay.value == 3 && balance < total_amount) {
+					bayke.toastMessage('is-danger', '余额不足，无法支付！')
+					return
+				}
+
+				console.log('{% url "shop:order-pay" id %}')
+
+				request({
+					url: '{% url "shop:order-pay" id %}',
+					method: 'patch',
+					data: {
+						mark: order._data.mark,
+						name: address._data.formProps.name,
+						address: this.getAddress(),
+						phone: address._data.formProps.phone,
+						paymethod: payMethod.defaultPay.value
+					}
+				}).then(res => {
+					console.log(res)
+				})
+			},
+			getAddress(){
+				let adder = address._data.formProps
+				return `${adder.province}${adder.city}${adder.county}${adder.address}`
+			}
+		},
+		
+	})
+
+</script>
+{% endblock %}

@@ -1,6 +1,7 @@
 from collections import OrderedDict
+from decimal import Decimal
 from django.template import Library
-from baykeshop.apps.shop.models import BaykeShopCart, BaykeShopCategory
+from baykeshop.apps.shop.models import BaykeShopCart, BaykeShopCategory, BaykeShopSKU
 from baykeshop.common import utils
 
 register = Library()
@@ -70,4 +71,20 @@ def filtercates(request):
         'cates': cates,
         'sub_cates': sub_cates,
         'cate': cate
+    }
+    
+@register.simple_tag
+def totalPrice(ordersku):
+    return ordersku['sku_json']['price'] * int(ordersku['count'])
+
+@register.simple_tag
+def ordersku(baykeordersku_set):
+    spus = {BaykeShopSKU.objects.get(id=sku['sku']).spu  for sku in baykeordersku_set}
+    total = sum([sku['count'] * Decimal(sku['sku_json']['price']) for sku in baykeordersku_set])
+    freight = sum([spu.freight for spu in spus])
+    return {
+        'count': sum([sku['count'] for sku in baykeordersku_set]),
+        'total': total,
+        'freight': freight,
+        'total_amount': total + freight
     }

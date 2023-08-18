@@ -211,8 +211,7 @@ class BaykeRoles(BaseModelMixin):
 
 
 class BaykeDictKey(BaseModelMixin):
-    """字典分类
-    """
+    """ 字典分类 """
     name = models.CharField(_("名称"), max_length=50)
     code = models.SlugField(_("字典名称"), max_length=50, unique=True)
     parent = models.ForeignKey(

@@ -46,10 +46,7 @@ var singleSpec = new Vue({
         num: 1
     },
     created() {
-        this.sku.price = skuData[0].price
-        this.sku.cost_price = skuData[0].cost_price
-        this.sku.sales = skuData[0].sales
-        this.sku.stock = skuData[0].stock
+        this.sku = skuData[0]
     },
 })
 </script>

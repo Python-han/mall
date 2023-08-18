@@ -95,16 +95,61 @@
             computed: {
                 stock(){
                     return this.skutype ? multipleSpec._data.stock : singleSpec._data.sku.stock
+                },
+                sku(){
+                    return this.skutype ? multipleSpec._data.sku : singleSpec._data.sku
+                },
+                num(){
+                    return this.skutype ? multipleSpec._data.num : singleSpec._data.num
                 }
             },
             methods: {
                 // 加入购物车
                 addCart(){
-                    console.log('asdasd')
+                    console.log(this.stock)
+                    console.log(this.sku)
+                    console.log(this.num)
+                    request({
+                        url: "{% url 'shop_api:cart-list' %}",
+                        method: 'post',
+                        data:{
+                            sku: this.sku.id,
+                            num: this.num
+                        }
+                    }).then(res => {
+                        if (res.status == 403){
+                            bayke.toastMessage("is-danger", "未登录，请登录后操作！")
+                            return
+                        }
+                        if (res.status == 201) {
+                            bayke._data.cartcount += this.num
+                            bayke.toastMessage('is-success', '加入购物车成功')
+                        }
+                    })
+
                 },
                 // 立即购买
                 nowBuy(){
-                    console.log('立即额购买')
+                    request({
+                        url: '{% url "shop:order-create" %}',
+                        method: 'post',
+                        data: {
+                            baykeshopordersku_set: [
+                                {
+                                    sku: this.sku.id,
+                                    count: this.num
+                                }
+                            ],
+                            total_price: 0
+                        }
+                    }).then(res => {
+                        if (res.status == 201){
+                            location.replace(`/order/${res.data.id}/confirm/`)
+                        }else{
+                            console.error(res)
+                            bayke.toastMessage('is-error', '订单创建失败，请检查')
+                        }
+                    })
                 }
             },
         })
@@ -113,9 +158,7 @@
         var goodsContent = new Vue({
             el: "#goodsContent",
             delimiters: ['{$', '$}'],
-            data: {
-                
-            },
+            data: {},
         })
 
     </script>

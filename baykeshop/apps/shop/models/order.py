@@ -32,10 +32,10 @@ class BaykeShopOrder(BaseModelMixin):
     order_sn = models.CharField(_("订单号"), max_length=100, blank=True)
     total_price = models.DecimalField(_("总价"), max_digits=10, decimal_places=2)
     mark = models.CharField(_("订单备注"), max_length=150, blank=True, default="")
-    name = models.CharField("签收人", max_length=50)
-    phone = models.CharField("手机号", max_length=11)
+    name = models.CharField("签收人", max_length=50, blank=True, default="")
+    phone = models.CharField("手机号", max_length=11, blank=True, default="")
     email = models.EmailField("邮箱", blank=True, default="", max_length=50)
-    address = models.CharField("收货地址", max_length=200)
+    address = models.CharField("收货地址", max_length=200, blank=True, default="")
     pay_time = models.DateTimeField(
         null=True, blank=True, verbose_name="支付时间", help_text="支付时间", editable=False)
 
@@ -104,6 +104,7 @@ class BaykeShopOrderSKU(BaseModelMixin):
             "price": self.sku.price.to_eng_string(),
             "retail_price": self.sku.retail_price.to_eng_string(),
             "unit": self.sku.spu.unit,
+            "freight": self.sku.spu.freight,
             "spec_values": list(self.sku.spec_values.values("id", "spec__id", "spec__name", "value"))
         }
         super().save(*args, **kwargs)

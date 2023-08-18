@@ -54,11 +54,20 @@ class BaykePermission(permissions.BasePermission):
         menus = self.get_user_menus(request)
         for menu in menus:
             perms.extend(list(menu.baykepermissionaction_set.all()))
-        return perms
-            
+        return perms     
        
 
 class BaykePermissionOrReadOnly(BaykePermission):
     """ get请求不受限制 """
     def has_permission(self, request, view):
         return bool(request.method in SAFE_METHODS)
+
+
+class IsOwnerAuthenticated(permissions.IsAuthenticated):
+    """ 仅拥有获取自己个人相关信息的权限 """
+    
+    def has_permission(self, request, view):
+        return super().has_permission(request, view)
+    
+    def has_object_permission(self, request, view, obj):
+        return bool(request.user == obj.owner)

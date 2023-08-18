@@ -48,7 +48,7 @@
             </a>
             {% endif %}
             {% cartscount request as cartcount %}
-            <a class="cart" href="" id="cart">
+            <a class="cart" href="{% url 'shop:cart-list' %}" id="cart">
                 <span class="icon"><i class="mdi mdi-cart-check"></i></span>
                 购物车({$ cartcount $})
             </a>

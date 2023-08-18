@@ -3,19 +3,21 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import serializers
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.utils.serializer_helpers import ReturnDict
 from baykeshop.common import viewsets, pagination, utils, mixins, permission
 from baykeshop.apps.shop.models import (
     BaykeShopCategory, BaykeshopBrand, BaykeShopSPU, BaykeShopSKU,
-    BaykeShopSpec, BaykeShopSpecValue, BaykeShopOrder
+    BaykeShopSpec, BaykeShopSpecValue, BaykeShopOrder, BaykeShopCart,
+    BaykeAddress
 )
 from baykeshop.api.shop.serializers import (
     BaykeShopCategorySerializer, BaykeshopBrandSerializer,
     BaykeShopSPUSerializer, BaykeShopSKUSerializer, BaykeShopSpecSerializer,
-    BaykeShopSpecValueSerializerCRUD, BaykeShopOrderSerializer
+    BaykeShopSpecValueSerializerCRUD, BaykeShopOrderSerializer, BaykeShopCartSerializer,
+    BaykeAddressSerializer
 )
 from . import filters
 
@@ -81,8 +83,6 @@ class BaykeShopSPUViewSet(mixins.ListModelMixin,
     """SKU规格商品增删改查
     list:
         列表
-    create:
-        添加
     retrieve:
         详情
     update:
@@ -98,7 +98,6 @@ class BaykeShopSPUViewSet(mixins.ListModelMixin,
     serializer_class = BaykeShopSPUSerializer
     pagination_class = pagination.PageNumberPagination
     filterset_class = filters.BaykeShopSPUFilterSet
-    # ordering_fields = ("baykeshopsku__price", "baykeshopsku__sales",)
     search_fields = ("title", "subtitle")
     
     @action(methods=['delete'], detail=False)
@@ -114,14 +113,8 @@ class BaykeShopSKUViewSet(mixins.ListModelMixin,
     """商品增删改查
     list:
         列表
-    create:
-        添加
     retrieve:
         详情
-    update:
-        修改
-    partial_update:
-        局部修改
     destroy:
         删除单个数据
     batch_destroy:
@@ -129,6 +122,7 @@ class BaykeShopSKUViewSet(mixins.ListModelMixin,
     """
     queryset = BaykeShopSKU.objects.all()
     serializer_class = BaykeShopSKUSerializer
+    permission_classes = [permission.BaykePermissionOrReadOnly]
     
     @action(methods=['delete'], detail=False)
     def batch_destroy(self, request, *args, **kwargs):
@@ -185,6 +179,7 @@ class BaykeShopSpecValueViewSet(viewsets.ModelViewSet):
         if is_exists:
             raise serializers.ValidationError("当前规格已关联商品，不允许删除")
         return super().perform_destroy(instance)
+    
     
 class BaykeShopSPUCreateOrUpdateAPIView(APIView):
     """ 商品的增加和修改 """
@@ -261,11 +256,58 @@ class BaykeShopSPUCreateOrUpdateAPIView(APIView):
         return Response({'code': 'ok'})
     
 
-class BaykeShopOrderViewSet(viewsets.ModelViewSet):
+class BaykeShopOrderViewSet(mixins.ListModelMixin, 
+                            mixins.RetrieveModelMixin,
+                            mixins.UpdateModelMixin,
+                            mixins.DestroyModelMixin,
+                            mixins.BatchDestroyModelMixin,
+                            viewsets.GenericViewSet
+                        ):
     """ 订单管理 """
     queryset = BaykeShopOrder.objects.all()
     serializer_class = BaykeShopOrderSerializer
     pagination_class = pagination.PageNumberPagination
     filterset_class = filters.BaykeShopOrderFilterSet
     search_fields = ("order_sn", "name", "phone")
+    
+    @action(methods=['delete'], detail=False)
+    def batch_destroy(self, request, *args, **kwargs):
+        return super().batch_destroy(request, *args, **kwargs)
 
+
+class BaykeShopCartViewSet(mixins.ListModelMixin, 
+                           mixins.CreateModelMixin,
+                           mixins.UpdateModelMixin,
+                           mixins.DestroyModelMixin, 
+                           viewsets.GenericViewSet):
+    """ 购物车 """
+    permission_classes = [IsAuthenticated]
+    serializer_class = BaykeShopCartSerializer
+    queryset = BaykeShopCart.objects.all()
+    
+    def get_queryset(self):
+        # 仅允许查看自己的购物车信息
+        return super().get_queryset().filter(owner=self.request.user)
+    
+
+class BaykeAddressViewSet(viewsets.ModelViewSet):
+    """ 地址增删改查 """
+    
+    serializer_class = BaykeAddressSerializer
+    permission_classes = [permission.IsOwnerAuthenticated]
+
+    def get_queryset(self):
+        return BaykeAddress.objects.filter(owner=self.request.user)
+    
+    def perform_create(self, serializer):
+        self.save_only_default(serializer)
+        return super().perform_create(serializer)
+    
+    def perform_update(self, serializer):
+        self.save_only_default(serializer)
+        return super().perform_update(serializer)
+    
+    def save_only_default(self, serializer):
+        # 处理默认收货地址只能有一个
+        if serializer.validated_data['is_default']:
+            self.get_queryset().filter(is_default=True).update(is_default=False)
