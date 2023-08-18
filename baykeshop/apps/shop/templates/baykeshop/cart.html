@@ -4,7 +4,7 @@
 
 {% block title %}购物车{% endblock %}
 
-{% block extrastyle %}
+{% block extrastyle %}{{ block.super }}
 <style>
     .table td {
         vertical-align: middle;
@@ -117,7 +117,7 @@
 {% block vue %}
     <script>
         var cartsData = JSON.parse(document.getElementById('carts-data').textContent);
-        console.log(cartsData)
+        
         var carts = new Vue({
             el: '#carts',
             delimiters: ['{$', '$}'],
@@ -194,10 +194,46 @@
                 // 购物车结算
                 cartBuy(){
                     let cartids = []
+                    let baykeshopordersku_set = []
                     this.checkedRows.forEach(el => {
                         cartids.push(el.id)
+                        sku_dict = {
+                            sku: el.sku,
+                            count: el.num
+                        }
+                        baykeshopordersku_set.push(sku_dict)
                     })
-                    // {# location.href = '{% url "baykeshop:confirm" %}?cartids='+`${cartids.join(',')}` #}
+                    request({
+                        url: '{% url "shop:order-create" %}',
+                        method: 'post',
+                        data: {
+                            baykeshopordersku_set: baykeshopordersku_set,
+                            total_price: 0
+                        }
+                    }).then(res => {
+                        if (res.status == 201){
+                            this.delCarts(cartids)
+                            location.replace(`/order/${res.data.id}/confirm/`)
+                        }else{
+                            console.error(res)
+                            bayke.toastMessage('is-error', '订单创建失败，请检查')
+                        }
+                    })
+                },
+                // 批量删除购物车
+                delCarts(ids){
+                    request({
+                        url: '{% url "shop_api:cart-batch-destroy" %}',
+                        method: 'delete',
+                        data: {ids: ids}
+                    }).then(res => {
+                        if (res.status == 204){
+                            console.log('购物车删除成功')
+                        }else{
+                            console.error(res)
+                            bayke.toastMessage('is-error', '购物车删除失败')
+                        }
+                    })
                 }
             }
         })

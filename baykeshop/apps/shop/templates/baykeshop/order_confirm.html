@@ -103,7 +103,7 @@
 		el: "#order",
 		delimiters: ['{$', '$}'],
 		data: {
-			mark: "",
+			mark: "{{ mark }}",
 			skus: skusData,
 		},
 		methods: {
@@ -136,8 +136,6 @@
 					bayke.toastMessage('is-danger', '余额不足，无法支付！')
 					return
 				}
-
-				console.log('{% url "shop:order-pay" id %}')
 
 				request({
 					url: '{% url "shop:order-pay" id %}',

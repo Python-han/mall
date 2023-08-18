@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
+# from rest_framework.renderers import JSONRenderer
 # Create your views here.
 from baykeshop.common import mixins
 from baykeshop.common.renderers import TemplateHTMLRenderer, JSONRenderer
@@ -23,7 +24,8 @@ from baykeshop.api.shop.viewsets import (
     BaykeShopCartViewSet, BaykeShopOrderViewSet
 )
 from baykeshop.apps.shop.models import (
-    BaykeShopSPU, BaykeShopSKU, BaykeShopSpecValue, BaykeShopOrderSKU
+    BaykeShopSPU, BaykeShopSKU, BaykeShopSpecValue, BaykeShopOrderSKU,
+    BaykeShopOrder
 )
 from baykeshop.common import utils
 from baykeshop.apps.shop.form import LoginForm
@@ -141,7 +143,6 @@ class BaykeShopOrderViewSerializer(BaykeShopOrderSerializer):
     class BaykeShopOrderSKUSerializer(serializers.ModelSerializer):
         class Meta:
             model = BaykeShopOrderSKU
-            # fields = "__all__"
             exclude = ('order',)
     
     owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
@@ -149,6 +150,7 @@ class BaykeShopOrderViewSerializer(BaykeShopOrderSerializer):
     payurl = serializers.SerializerMethodField()
     
     def create(self, validated_data):
+        """ 创建订单 """
         baykeshopordersku_set = validated_data.pop('baykeshopordersku_set')
         total_price = sum([ 
             order_sku.get('sku').price * int(order_sku.get('count', 1))  
@@ -162,6 +164,7 @@ class BaykeShopOrderViewSerializer(BaykeShopOrderSerializer):
         return instance
     
     def update(self, instance, validated_data):
+        """ 立即支付，订单确认，返回支付地址走patch请求 """
         if instance.status > 1:
             raise serializers.ValidationError("该订单已支付或已失效，请重新下单支付！")
         if (not validated_data.get('name')) or (not validated_data.get('phone')) or (not validated_data.get('address')):
@@ -183,6 +186,9 @@ class BaykeShopOrderView(mixins.CreateModelMixin, BaykeShopOrderViewSet):
     def get_queryset(self):
         # 仅允许操作自己的订单
         return super().get_queryset().filter(owner=self.request.user)
+    
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
     
     @action(methods=['GET'], detail=True)
     def orderconfirm(self, request, *args, **kwargs):

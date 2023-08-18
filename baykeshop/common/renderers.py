@@ -1,5 +1,6 @@
 from rest_framework import renderers
 from rest_framework.utils.serializer_helpers import ReturnList
+from django.core.serializers.json import DjangoJSONEncoder
 
 class JSONRenderer(renderers.JSONRenderer):
     

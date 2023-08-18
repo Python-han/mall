@@ -104,7 +104,7 @@ class BaykeShopOrderSKU(BaseModelMixin):
             "price": self.sku.price.to_eng_string(),
             "retail_price": self.sku.retail_price.to_eng_string(),
             "unit": self.sku.spu.unit,
-            "freight": self.sku.spu.freight,
+            "freight": self.sku.spu.freight.to_eng_string(),
             "spec_values": list(self.sku.spec_values.values("id", "spec__id", "spec__name", "value"))
         }
         super().save(*args, **kwargs)

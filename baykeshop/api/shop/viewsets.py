@@ -278,16 +278,21 @@ class BaykeShopOrderViewSet(mixins.ListModelMixin,
 class BaykeShopCartViewSet(mixins.ListModelMixin, 
                            mixins.CreateModelMixin,
                            mixins.UpdateModelMixin,
-                           mixins.DestroyModelMixin, 
+                           mixins.DestroyModelMixin,
+                           mixins.BatchDestroyModelMixin, 
                            viewsets.GenericViewSet):
     """ 购物车 """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permission.IsOwnerAuthenticated]
     serializer_class = BaykeShopCartSerializer
     queryset = BaykeShopCart.objects.all()
     
     def get_queryset(self):
         # 仅允许查看自己的购物车信息
         return super().get_queryset().filter(owner=self.request.user)
+    
+    @action(methods=['delete'], detail=False)
+    def batch_destroy(self, request, *args, **kwargs):
+        return super().batch_destroy(request, *args, **kwargs)
     
 
 class BaykeAddressViewSet(viewsets.ModelViewSet):
