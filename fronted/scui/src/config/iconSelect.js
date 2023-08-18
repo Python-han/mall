@@ -301,7 +301,12 @@ export default {
 				'sc-icon-file-ppt',
 				'sc-icon-organization',
 				'sc-icon-upload',
-				'sc-icon-download'
+				'sc-icon-download',
+				'sc-icon-hammer-line',
+				'sc-icon-shopping-outline',
+				'sc-icon-menu',
+				'sc-icon-alpha-r-box-outline',
+				'sc-icon-django'
 			]
 		}
 	]

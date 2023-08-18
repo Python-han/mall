@@ -14,8 +14,8 @@ export default {
 			data: res.data,
 			rows: res.data.results,		//分析行数据字段结构
 			total: res.data.count,		//分析总数字段结构
-			msg: res.statusText,			//分析描述字段结构
-			code: res.status				//分析状态字段结构
+			msg: res.statusText,		//分析描述字段结构
+			code: res.status			//分析状态字段结构
 		}
 	},
 	request: {
