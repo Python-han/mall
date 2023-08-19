@@ -18,7 +18,7 @@ def validate_phone(value):
     reg = re.compile(bayke_settings.REGEX_PHONE)
     if not reg.search(value):
         raise ValidationError(
-            _("%(value)s is not phone"),
+            _("%(value)s 格式有误"),
             params={"value": value},
         )
         

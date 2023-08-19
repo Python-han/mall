@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Sum
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 
@@ -37,6 +38,22 @@ class BaykeUserBalanceLog(BaseModelMixin):
 
     def __str__(self):
         return f"{self.owner.username}-{self.amount}"
+    
+    @classmethod
+    def balance_queryset(cls, user):
+        return cls.objects.filter(owner=user)
+    
+    @classmethod
+    def add_sum_amount(cls, user):
+        # 累计充值
+        amount__sum = cls.balance_queryset(user).filter(change_status=1).aggregate(Sum('amount')).get('amount__sum')
+        return amount__sum if amount__sum else 0
+    
+    @classmethod
+    def minus_sum_amount(cls, user):
+        # 累计消费
+        amount__sum = cls.balance_queryset(user).filter(change_status=2).aggregate(Sum('amount')).get('amount__sum')
+        return amount__sum if amount__sum else 0
     
 
 class BaykeAddress(BaseModelMixin):

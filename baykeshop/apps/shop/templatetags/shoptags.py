@@ -11,9 +11,9 @@ def get_cates():
     data = BaykeShopCategory.objects.values("id", "name", "icon", "parent", "status")
     return data
 
-@register.simple_tag
-def catetags():
-    return get_cates().filter(parent__isnull=True)
+# @register.simple_tag
+# def catetags():
+#     return get_cates().filter(parent__isnull=True)
 
 
 @register.inclusion_tag("baykeshop/comp/navbar.html", takes_context=True)
@@ -82,9 +82,31 @@ def ordersku(baykeordersku_set):
     spus = {BaykeShopSKU.objects.get(id=sku['sku']).spu  for sku in baykeordersku_set}
     total = sum([sku['count'] * Decimal(sku['sku_json']['price']) for sku in baykeordersku_set])
     freight = sum([spu.freight for spu in spus])
+    is_commented = all([sku['is_commented'] for sku in baykeordersku_set])
     return {
         'count': sum([sku['count'] for sku in baykeordersku_set]),
         'total': total,
         'freight': freight,
-        'total_amount': total + freight
+        'total_amount': total + freight,
+        'is_commented': is_commented
     }
+    
+
+@register.filter
+def paystatus(val):
+    status = "待付款"
+    if val == 1:
+        pass
+    elif val == 2:
+        status = "待发货"
+    elif val == 3:
+        status = "待收货"
+    elif val == 4:
+        status = "待评价"
+    elif val == 5:
+        status = "已完成"
+    elif val == 6:
+        status = "已关闭"
+    elif val == 7:
+        status = "退款中"
+    return status

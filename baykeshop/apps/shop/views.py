@@ -10,23 +10,24 @@ from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
-# from rest_framework.renderers import JSONRenderer
 # Create your views here.
 from baykeshop.common import mixins
 from baykeshop.common.renderers import TemplateHTMLRenderer, JSONRenderer
 from baykeshop.common.permission import BaykePermissionOrReadOnly, IsOwnerAuthenticated
 from baykeshop.api.auth.views import BaykeUserRegisterAPIView
+from baykeshop.api.badmin.viewsets import BaykeUserRetrieveAPIView, BaykeUserViewset
+from baykeshop.api.badmin.serializers import UserSerializer
 from baykeshop.api.shop.serializers import (
     BaykeShopSKUSerializer, BaykeShopSPUSerializer, BaykeShopOrderSerializer
 )
 from baykeshop.api.shop.viewsets import (
-    BaykeShopCategoryViewSet, BaykeShopSPUViewSet,
-    BaykeShopCartViewSet, BaykeShopOrderViewSet
+    BaykeShopCategoryViewSet, BaykeShopSPUViewSet, BaykeShopCartViewSet, 
+    BaykeShopOrderViewSet, BaykeAddressViewSet
 )
 from baykeshop.apps.shop.models import (
-    BaykeShopSPU, BaykeShopSKU, BaykeShopSpecValue, BaykeShopOrderSKU,
-    BaykeShopOrder
+    BaykeShopSPU, BaykeShopSKU, BaykeShopSpecValue, BaykeShopOrderSKU, BaykeUserBalanceLog
 )
+from baykeshop.apps.badmin.models import BaykeUser
 from baykeshop.common import utils
 from baykeshop.apps.shop.form import LoginForm
 
@@ -165,7 +166,7 @@ class BaykeShopOrderViewSerializer(BaykeShopOrderSerializer):
     
     def update(self, instance, validated_data):
         """ 立即支付，订单确认，返回支付地址走patch请求 """
-        if instance.status > 1:
+        if instance.status != 1:
             raise serializers.ValidationError("该订单已支付或已失效，请重新下单支付！")
         if (not validated_data.get('name')) or (not validated_data.get('phone')) or (not validated_data.get('address')):
             raise serializers.ValidationError("收货信息不完整，请检查！")
@@ -187,13 +188,85 @@ class BaykeShopOrderView(mixins.CreateModelMixin, BaykeShopOrderViewSet):
         # 仅允许操作自己的订单
         return super().get_queryset().filter(owner=self.request.user)
     
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-    
     @action(methods=['GET'], detail=True)
     def orderconfirm(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         response = Response(serializer.data)
         response.template_name = "baykeshop/order_confirm.html"
+        return response
+    
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        response.template_name = "baykeshop/orders.html"
+        return response
+    
+    @action(methods=['GET', 'POST'], detail=True)
+    def confirmok(self, request, *args, **kwargs):
+        instance = self.get_object()
+        # 确认收货
+        if request.method == 'POST':
+            instance.status = 4
+            instance.save()
+            messages.add_message(request, messages.SUCCESS, "确认成功！")
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data, template_name="baykeshop/order-detail.html")
+    
+
+class BaykeUserSerializer(serializers.ModelSerializer):
+    owner = UserSerializer(many=False, read_only=True)
+    email = serializers.EmailField(write_only=True, required=False)
+    
+    class Meta:
+        model = BaykeUser
+        fields = "__all__"
+        
+    def update(self, instance, validated_data):
+        # 处理修改邮箱
+        if validated_data.get('email'):
+            user = instance.owner
+            user.email = validated_data.get('email')
+            user.save()
+        return super().update(instance, validated_data)
+
+class BaykeUserView(BaykeUserRetrieveAPIView):
+    """ 用户中心 """
+    renderer_classes = [TemplateHTMLRenderer]
+    permission_classes = [IsOwnerAuthenticated]
+    serializer_class = BaykeUserSerializer
+    
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        response = Response(serializer.data)
+        response.template_name = "baykeshop/menmber.html"
+        return response
+
+
+class BaykeUserUpdateView(BaykeUserViewset):
+    """ 修改用户信息 """
+    renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
+    permission_classes = [IsOwnerAuthenticated]
+    serializer_class = BaykeUserSerializer
+    
+    @action(methods=['GET'], detail=False)
+    def balance(self, request, *args, **kwargs):
+        add_sum_amount = BaykeUserBalanceLog.add_sum_amount(request.user)
+        minus_sum_amount = BaykeUserBalanceLog.minus_sum_amount(request.user)
+        balance_queryset = BaykeUserBalanceLog.balance_queryset(request.user)
+        context = {
+            'add_sum_amount': add_sum_amount,
+            'minus_sum_amount': minus_sum_amount,
+            'balance_queryset': list(balance_queryset.values())
+        }
+        return Response(context, template_name="baykeshop/balance.html")
+    
+
+class BaykeAddressView(BaykeAddressViewSet):
+    """ 用户地址 """
+    renderer_classes = [TemplateHTMLRenderer, ]
+    
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        response.template_name = "baykeshop/address.html"
         return response

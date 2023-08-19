@@ -1,0 +1,146 @@
+<div class="column" id="userinfo">
+    <div class="columns is-align-items-center is-marginless">
+        <div class="column is-2 has-text-grey-light">用户名</div>
+        <div class="column">{{ request.user.username }}</div>
+    </div>
+    <div class="dropdown-divider is-marginless"></div>
+    <div class="columns is-align-items-center is-marginless">
+        <div class="column is-2 has-text-grey-light">手机号</div>
+        <div class="column is-flex is-justify-content-space-between is-align-items-center">
+            <p v-if="!editphone">{$ phone $}</p>
+            <div>
+                <b-input 
+                    v-if="editphone" 
+                    size="is-small" 
+                    v-model="phone" 
+                    @blur="updateUserinfo('phone')">
+                </b-input>
+            </div> 
+            <button class="button is-primary is-small is-outlined" @click="clickUserinfo('phone')">
+                <span class="icon"><i class="mdi mdi-phone-settings-outline"></i></span> 
+                <span class="text">修改</span>
+            </button>
+        </div>
+    </div>
+    <div class="dropdown-divider is-marginless"></div>
+    <div class="columns is-align-items-center is-marginless">
+        <div class="column is-2 has-text-grey-light">邮箱</div>
+        <div class="column is-flex is-justify-content-space-between is-align-items-center">
+            <p v-if="!editemail">{$ email $}</p>
+            <div>
+                <b-input type="email"
+                    v-if="editemail"
+                    size="is-small"
+                    v-model="email"
+                    :has-counter="false"
+                    @blur="updateUserinfo('email')"
+                    maxlength="30">
+                </b-input>
+            </div>
+            <button class="button is-primary is-small is-outlined" @click="clickUserinfo('email')">
+                <span class="icon"><i class="mdi mdi-email-edit-outline"></i></span> 
+                <span class="text">修改</span>
+            </button>
+        </div>
+    </div>
+    <div class="dropdown-divider is-marginless"></div>
+    <div class="columns is-align-items-center is-marginless">
+        <div class="column is-2 has-text-grey-light">余额</div>
+        <div class="column is-flex is-justify-content-space-between is-align-items-center">
+            <p>¥ {{ request.user.baykeuser.balance }}</p>
+            <p>
+                <button class=" button is-primary is-outlined is-small" disabled>
+                    <span class="icon"><i class="mdi mdi-credit-card-settings-outline"></i></span> 
+                    <span class="text">充值</span> 
+                </button>
+            </p>
+        </div>
+    </div>
+    <div class="dropdown-divider is-marginless"></div>
+    
+    <div class="columns is-align-items-center is-marginless">
+        <div class="column is-2 has-text-grey-light">个人简介</div>
+        <div class="column is-flex is-justify-content-space-between is-align-items-center">
+            <p v-if="!editedesc">{$ about $}</p>
+            <div class=" is-flex-grow-1 mr-5">
+                <b-input type="textarea"
+                    v-if="editedesc"
+                    size="is-small"
+                    v-model="about"
+                    :has-counter="false"
+                    @blur="updateUserinfo('about')"
+                    maxlength="150">
+                </b-input>
+            </div>
+            <button class="button is-primary is-small is-outlined" @click="clickUserinfo('about')">
+                <span class="icon"><i class="mdi mdi-account-cog-outline"></i></span> 
+                <span class="text">修改</span>
+            </button>
+
+        </div>
+    </div>
+    <div class="dropdown-divider is-marginless"></div>
+
+</div>
+
+<script>
+    var userinfo = new Vue({
+        el: '#userinfo',
+        delimiters: ['{$', '$}'],
+        data: {
+            phone: '{{ phone }}',
+            email: '{{ owner.email }}',
+            about: '{{ about }}',
+            editphone: false,
+            editemail: false,
+            editedesc: false
+        },
+        methods:{
+            clickUserinfo(name){
+                if (name == 'phone'){
+                    this.editphone = true
+                }else if (name == 'email'){
+                    this.editemail = true
+                }else if (name == 'about'){
+                    this.editedesc = true
+                }
+            },
+            updateUserinfo(name){
+                if (name == 'phone'){
+                    this.editphone = false
+                    if (this.phone !== '{{ phone }}'){
+                        this.patchClientUserinfo({phone:this.phone})
+                    }
+                }else if (name == 'email'){
+                    this.editemail = false
+                    if (this.email !== '{{ email }}'){
+                        this.patchClientUserinfo({email:this.email})
+                    }
+                }else if (name == 'about'){
+                    this.editedesc = false
+                    if (this.about !== '{{ about }}'){
+                        this.patchClientUserinfo({about:this.about})
+                    }
+                }
+            },
+            patchClientUserinfo(data){
+                request({
+                    url: '{% url "shop:user-update" id %}',
+                    method: 'patch',
+                    data: data
+                }).then(res => {
+                    if (res.status == 200){
+                        bayke.toastMessage('is-success', '修改成功！')
+                    }else if (res.status == 400){
+                        if (!this.editphone){
+                            this.editphone = true
+                        }else if (!this.editemail){
+                            this.editemail = true
+                        }
+                        bayke.toastMessage('is-danger', res.data)
+                    }
+                })
+            }
+        }
+    })
+</script>

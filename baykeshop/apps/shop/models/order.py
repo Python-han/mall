@@ -38,7 +38,6 @@ class BaykeShopOrder(BaseModelMixin):
     address = models.CharField("收货地址", max_length=200, blank=True, default="")
     pay_time = models.DateTimeField(
         null=True, blank=True, verbose_name="支付时间", help_text="支付时间", editable=False)
-
     # TODO: Define fields here
 
     class Meta:
@@ -81,6 +80,7 @@ class BaykeShopOrderSKU(BaseModelMixin):
     count = models.PositiveSmallIntegerField(default=1, verbose_name=_("数量"))
     sku_json = models.JSONField(
         verbose_name=_("商品快照"), blank=True, default=dict)
+    is_commented = models.BooleanField(default=False, verbose_name="是否已评价")
 
     # TODO: Define fields here
 

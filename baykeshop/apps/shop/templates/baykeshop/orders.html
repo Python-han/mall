@@ -1,0 +1,67 @@
+{% extends 'baykeshop/menmber.html' %}
+
+{% load shoptags %}
+
+{% block menmber_title %}我的订单{% endblock %}
+
+{% block menmber %}
+<style>
+    .b-tooltip:not(:last-child) {
+        margin-right: .5em
+    }
+    .b-tooltip {
+        margin-bottom: .5em
+    }
+    
+</style>
+<div class="tabs is-boxed is-fullwidth">
+    <ul>
+        <li class="{% if 'status' not in request.get_full_path or status == '' %} is-active {% endif %}" ><a href="{% url 'shop:order-list' %}">全部订单</a></li>
+        <li class="{% if 'status=1' in request.get_full_path %} is-active {% endif %}"><a href="{% url 'shop:order-list' %}?status=1">待付款</a></li>
+        <li class="{% if 'status=2' in request.get_full_path %} is-active {% endif %}"><a href="{% url 'shop:order-list' %}?status=2">待发货</a></li>
+        <li class="{% if 'status=3' in request.get_full_path %} is-active {% endif %}"><a href="{% url 'shop:order-list' %}?status=3">待收货</a></li>
+        <li class="{% if 'status=4' in request.get_full_path %} is-active {% endif %}"><a href="{% url 'shop:order-list' %}?status=4">待评价</a></li>
+        <li class="{% if 'status=5' in request.get_full_path %} is-active {% endif %}"><a href="{% url 'shop:order-list' %}?status=5">已完成</a></li>
+    </ul>
+</div>
+
+<div id="confirmAction" class="mb-3">
+    {% for order in results %}
+    <div class="box has-background-light is-shadowless">
+        <div class="is-flex is-justify-content-space-between">
+            <div class=" has-text-grey-light1">订单日期：{{ order.add_date }}</div>
+            <div class=" has-text-danger-dark">
+                {{ order.status|paystatus }}
+            </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        {% for sku in order.baykeshopordersku_set %}
+        <div class="is-flex is-justify-content-space-between">
+            <div>
+                <figure class=" image is-96x96">
+                    <img src="{{ sku.sku_json.img }}" alt="{{ sku.sku_json.title }}" srcset="">
+                </figure>
+            </div>
+            <div class="has-background-danger1 is-flex is-flex-direction-column is-justify-content-center is-flex-grow-1 pl-3 pr-3">
+                <h1 class="has-text-weight-bold">{{ sku.sku_json.title }}</h1>
+                <div class="is-flex">
+                    {% for op in sku.sku_json.spec_values %}
+                    <span class="mr-3 has-text-grey-light">{{ op.spec__name }}:{{ op.value }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="has-background-danger1 is-flex is-justify-content-center is-align-items-center">
+                <p class="has-text-danger-dark">¥ {{ sku.sku_json.price }} x {{ sku.count }}</p>
+            </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        {% endfor %}
+
+        {% ordersku order.baykeshopordersku_set as payorder %}
+        {% include 'baykeshop/comp/action.html' with order=order payorder=payorder %}
+    </div>
+    {% endfor %}
+    {% include 'baykeshop/comp/pagination.html' with count=count %}
+</div>
+
+{% endblock %}
