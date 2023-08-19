@@ -27,6 +27,7 @@ from baykeshop.api.shop.viewsets import (
 from baykeshop.apps.shop.models import (
     BaykeShopSPU, BaykeShopSKU, BaykeShopSpecValue, BaykeShopOrderSKU, BaykeUserBalanceLog
 )
+from baykeshop.apps.comment.models import BaykeShopComment
 from baykeshop.apps.badmin.models import BaykeUser
 from baykeshop.common import utils
 from baykeshop.apps.shop.form import LoginForm
@@ -190,6 +191,7 @@ class BaykeShopOrderView(mixins.CreateModelMixin, BaykeShopOrderViewSet):
     
     @action(methods=['GET'], detail=True)
     def orderconfirm(self, request, *args, **kwargs):
+        # 订单确认发起支付
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         response = Response(serializer.data)
@@ -197,12 +199,14 @@ class BaykeShopOrderView(mixins.CreateModelMixin, BaykeShopOrderViewSet):
         return response
     
     def list(self, request, *args, **kwargs):
+        # 个人中心订单列表
         response = super().list(request, *args, **kwargs)
         response.template_name = "baykeshop/orders.html"
         return response
     
     @action(methods=['GET', 'POST'], detail=True)
     def confirmok(self, request, *args, **kwargs):
+        # 订单详情get及确认收货接口post
         instance = self.get_object()
         # 确认收货
         if request.method == 'POST':
@@ -211,6 +215,35 @@ class BaykeShopOrderView(mixins.CreateModelMixin, BaykeShopOrderViewSet):
             messages.add_message(request, messages.SUCCESS, "确认成功！")
         serializer = self.get_serializer(instance)
         return Response(serializer.data, template_name="baykeshop/order-detail.html")
+    
+    @action(methods=['GET', 'POST'], detail=True)
+    def ordercomment(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        if request.method == 'POST':
+            from django.contrib.contenttypes.models import ContentType
+            from baykeshop.api.comment.serializers import BaykeShopCommentSerializer
+            content_type = ContentType.objects.get_for_model(BaykeShopSKU)
+            data = request.data
+            data['content_type'] = content_type.id
+            data['owner'] = request.user.id
+            comment_serializer = BaykeShopCommentSerializer(data=data)
+            comment_serializer.is_valid(raise_exception=True)
+            BaykeShopComment.objects.create(**comment_serializer.validated_data)
+            BaykeShopOrderSKU.objects.filter(
+                sku__id=comment_serializer.validated_data['object_id']
+            ).update(is_commented=True)
+            
+            # 判断订单商品是否均已评价
+            is_commented = all(
+                [ordersku.is_commented for ordersku in instance.baykeshopordersku_set.all()]
+            )
+            # 修改订单状态为已完成
+            if is_commented:
+                instance.status = 5
+                instance.save()
+            messages.add_message(request, messages.SUCCESS, "评价成功！")   
+        return Response(serializer.data, template_name="baykeshop/comment.html")
     
 
 class BaykeUserSerializer(serializers.ModelSerializer):

@@ -14,6 +14,7 @@ urlpatterns = [
     path('order/<int:pk>/confirm/', views.BaykeShopOrderView.as_view({'get': 'orderconfirm'}), name="order-confirm"),
     path('order/<int:pk>/pay/', views.BaykeShopOrderView.as_view({'patch': 'partial_update'}), name="order-pay"),
     path('order/<int:pk>/confirmok/', views.BaykeShopOrderView.as_view({'post': 'confirmok', 'get': 'confirmok'}), name="order-confirmok"),
+    path('order/<int:pk>/comment/', views.BaykeShopOrderView.as_view({'get': 'ordercomment', 'post': 'ordercomment'}), name="order-comment"),
     
     path('menmber/', views.BaykeUserView.as_view(), name='menmber'),
     path('user/<int:pk>/patch/', views.BaykeUserUpdateView.as_view({'patch': 'partial_update'}), name='user-update'),

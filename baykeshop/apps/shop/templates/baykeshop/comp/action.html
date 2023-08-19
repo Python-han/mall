@@ -6,7 +6,7 @@
     {% elif order.status == 3 %}
         <button class="button is-primary is-small" @click="confirmProduct">确认收货</button>
     {% elif order.status == 4 and not payorder.is_commented %}
-        <a class=" button is-primary is-small" href="">立即评价</a>
+        <a class=" button is-primary is-small" href="{% url 'shop:order-comment' order.id %}">立即评价</a>
     {% endif %}
     <a href="{% url 'shop:order-confirmok' order.id %}" class="button is-small">订单详情</a>
     </div>
@@ -22,12 +22,7 @@
                     url:'{% url "shop:order-confirmok" order.id %}',
                     method: 'post'
                 }).then(res => {
-                    console.log(res)
-                    // if (res.status==200) {
-                    //     bayke.toastMessage('is-success', "确认收货成功")
-                    //     setTimeout(function(){location.reload()}, 2000)
-                    // }
-                    setTimeout(function(){location.reload()}, 2000)
+                    setTimeout(function(){location.reload()}, 1000)
                 })
             }
         }

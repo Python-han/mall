@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'baykeshop.admin.apps.BaykeAdminConfig',
     'baykeshop.apps.shop',
     'baykeshop.apps.badmin',
+    'baykeshop.apps.comment',
     'rest_framework',
     'django_filters',
 ]
@@ -131,8 +132,6 @@ STATICFILES_DIRS = [
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / "media"
 
-ADMIN_URL = "baykeadmin"
-ADMIN_ROOT = BASE_DIR / "fronted/scui/dist"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

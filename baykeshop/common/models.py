@@ -40,3 +40,16 @@ class BaseModelMixin(models.Model):
     class Meta:
         abstract = True
         
+        
+class ContentTypeAbstract(BaseModelMixin):
+    """ 模型的通用关系 """
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField(blank=True, null=True, unique=True)
+    tag = models.CharField(_('标记'), max_length=80, blank=True, null=True, unique=True)
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    class Meta:
+        abstract = True
+        indexes = [
+            models.Index(fields=["content_type", "object_id"]),
+        ]
