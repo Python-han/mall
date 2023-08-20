@@ -142,7 +142,7 @@
 				}
 			},
 			// 评论回调
-			handleReplySuccess(data){
+			handleReplySuccess(){
 				this.$refs.table.refresh()
 			},
 			// 回复
