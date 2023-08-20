@@ -75,9 +75,9 @@
                                 @click="table_edit(scope.row, scope.$index)">编辑</el-button>
                             <el-button text type="primary" size="small" v-if="scope.row.status == 2"
                                 @click="send_goods(scope.row, scope.$index)">发货</el-button>
-                            <el-popconfirm title="确定删除吗？" @confirm="table_del(scope.row, scope.$index)">
+                            <el-popconfirm title="确定删除吗？" @confirm="table_del(scope.row, scope.$index)" v-if="scope.row.status == 1">
                                 <template #reference>
-                                    <el-button text type="primary" size="small" v-if="scope.row.status == 1">删除</el-button>
+                                    <el-button text type="primary" size="small" >删除</el-button>
                                 </template>
                             </el-popconfirm>
                         </el-button-group>

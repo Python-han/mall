@@ -92,7 +92,14 @@
                             </p>
                             <p class=" is-size-7">{{ comment.add_date }}</p>
                             <p class=" has-text-grey-light">{{ comment.content }}</p>
+                            
+                            {% if comment.reply %}
+                            <div class="box is-shadowless has-background-light">
+                                <span class="has-text-danger-dark">商家回复：</span> {{ comment.reply }}
+                            </div>
+                            {% endif %}
                         </div>
+                        
                     </article>
                     {% endfor %}
                 </b-tab-item>

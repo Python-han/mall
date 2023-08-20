@@ -15,6 +15,7 @@ class BaykeShopComment(ContentTypeAbstract):
         
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, verbose_name="用户")
     content = models.CharField("留言内容", max_length=200)
+    reply = models.CharField("回复内容", max_length=200, blank=True, default="")
     comment_choices = models.PositiveSmallIntegerField(
         default=5,
         choices=CommentChoices.choices,
