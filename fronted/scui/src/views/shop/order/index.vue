@@ -124,7 +124,7 @@
                         <span v-else-if="drawerData.paymethod == 3">余额支付</span>
                         <span v-else>未支付</span>
                     </el-col>
-                    <el-col :span="12">支付时间：{{ drawerData.paytime }}</el-col>
+                    <el-col :span="12">支付时间：{{ drawerData.pay_time }}</el-col>
                 </el-row>
             </div>
             <el-divider border-style="dashed" />

@@ -97,7 +97,7 @@
 			//删除
 			async table_del(row){
 				// var reqData = {id: row.id}
-				var res = await this.$API.shop.category.remove.delete(row.id);
+				var res = await this.$API.comment.comment.remove.delete(row.id);
 				if(res.status == 204){
 					this.$refs.table.refresh()
 					this.$message.success("删除成功")
