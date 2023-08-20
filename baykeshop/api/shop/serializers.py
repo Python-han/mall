@@ -130,10 +130,12 @@ class BaykeShopOrderSerializer(ModelSerializer):
     """ 订单 """
     owner_data = serializers.SerializerMethodField()
     baykeshopordersku_set = BaykeShopOrderSKUSerializer(many=True, read_only=True)
+    pay_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)
     
     class Meta:
         model = BaykeShopOrder
         fields = "__all__"
+        read_only_fields = ('status', 'order_sn')
         
     def get_owner_data(self, obj):
         return f"{obj.owner.username}|{obj.owner.id}|(uid:{obj.owner.baykeuser.id})"

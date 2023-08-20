@@ -136,7 +136,6 @@
 					bayke.toastMessage('is-danger', '余额不足，无法支付！')
 					return
 				}
-
 				request({
 					url: '{% url "shop:order-pay" id %}',
 					method: 'patch',
@@ -149,6 +148,10 @@
 					}
 				}).then(res => {
 					console.log(res)
+					if (res.status == 200) {
+						bayke.toastMessage('is-success', "正在跳转到支付页面...")
+						location.href = res.data.payurl
+					}
 				})
 			},
 			getAddress(){

@@ -29,7 +29,7 @@
         <li>支付状态：{{ status|paystatus }}</li>
 
         {% if status > 1 and status != 6 %}
-        <li>支付方式：{{ paymethod }}</li>
+        <li>支付方式：{{ paymethod|paymethod }}</li>
         {% endif %}
 
         <li>订单金额：¥{{ total_price }}</li>
@@ -81,7 +81,7 @@
             {% elif status == 3 %}
             <button class="button is-primary is-small" @click="confirmProduct">确认收货</button>
             {% elif status == 4 and not payorder.is_commented %}
-            <a class=" button is-primary is-small" href="">立即评价</a>
+            <a class=" button is-primary is-small" href="{% url 'shop:order-comment' id %}">立即评价</a>
             {% endif %}
             <!-- <a href="" class="button is-small">订单详情</a> -->
         </div>

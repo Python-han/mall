@@ -1,0 +1,28 @@
+import logging
+
+from django.conf import settings
+from alipay.aop.api.AlipayClientConfig import AlipayClientConfig
+from alipay.aop.api.DefaultAlipayClient import DefaultAlipayClient
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s %(message)s',
+    filemode='a',)
+
+logger = logging.getLogger('')
+
+_app_id = '2021000122666025'
+_app_private_key = 'MIIEogIBAAKCAQEAh01acelj8GCmJrUVhssOAK09iUOVu8anN3dIDeQYFCatRwKZYNYhnBrvsnlliyFvfJdvUy6TdwIAw3ArxBZRWziLgZtISH1UGKyvMLT3dAuinkG0Y5tGnxPFXe2DVECy3J30pZsNRnTyU1wYIXWOfXg5liT3+Tg77CBMgjgw3lG5Q6Qd/6B1t2b+jDNd4nwEz+wGRHfQ+UlCBlxpKtbLffPIgMxuuMQa7uU9+lQIJezufmxc15aPKmkH3+Gfkcr1X889ESNB2J/HsXeU4fJUBlbK2VDJ3FNIDGKkhA4av7Se4dEgTKr5vTnKfhqlE22I0jdfz2/7DpCyZEG+1HC/ZwIDAQABAoIBAFa7fF4HKZxeqEOp0znMEpbWdtr16xcq+egxW4wkCldoj600elO8EGF8VulGrpQog8oPXTqqYbdpHkoqLrQNRmu+bJdRjl2BkZYbpFYJu5K1HrJqFhO/5t50kxFp/sTUkJOh4cEDCth+gRR0tbdFH2lI10lrO1aT+L2d2s2i7ZilRe2S+LxHREoi2C6XTBTpupNUtZpnFi7MlEGCSkVZ81qUQelpbq7Eo8sdwVpUWKDe74ZKRn2LmZixFOBb6RA15+Kl60SlUPRj/tUlNvFz/eNnKdSFWDnNylXJmSC8RLN9s41TVVpZt0vfdk4jZshGNXJfhMSwg0nFrZBcPNm+NVECgYEAwCqxpRAaIeYYYWqBBugq88hLSVH1MtQeQadt8W1kPjz1yCNGr+Xfce6TpcuYJFrXFYwoYyZzV0NF1PfEC10pFxPuPlKLCL8lrx+XCJ1+MdoWpR33i9cgrLsJcFlf2SdHLURNXL0lHq7Kz7Q8QU4Jf23Ad/WGtLhVCgD91DBJFEkCgYEAtD8Osj6szig+h95GDsdvl7q5cS2jg4XTp6QJQ0g0VmVLXQJMbAQdnS/prs04HwQeTyGT6cCHkU6Y6ZEpGwO2dUshbHaTjsi0vWVZwYpAKKLD+EA1DC3zrUQgKvUKwtrv6h3tPZ/SrJ6GdqTuS2w/NuocRilHefwdR2avXt2J1i8CgYAZzmH22be4r668flH/fHQwMsixevkjr0q05GgmUNtyZDtZeitG+ebM5Q4c6L9wumZB9YWC8ynwIQ+irvc703HuMHYBFpKnRQwpfWOJ+6Rzy2bZG7IfrG8t4xw8YzQ09EphsNd2ycvPWAfSZtDksDckTrfXJDjH0i1RX5q2wRk/SQKBgARJp7jXwtaYoHws7m+1kNMELxshIc2kJlfLkCjYk94mRLeusVC0fFvb4uw0l4wtVec9/j3GRbNQMlUEDf1Fhlad9eqVm4b/AUWsHol7F3GgBZdnN5vVkAFkKHu9HodqG+Du21Dm92UB1GMII18J8SsGQKvumXOuaqfjKnLQRFIjAoGASjqII+Cw6QfbL/Dp3Tnhpwc8MyxUDugkwRJHqdAbyNWu1XI7RdjMg4Xe8P67lxcXq7FXnWRqKw4peZGAv4XeHEG+e1iLSUNmzg7b5/o5hqWvNIm7X+eSZLCEGA391cyrMpnN0XufVkyMTqZZ8/ibADkO+dsuMRc9+l3axkOBFB0='
+_alipay_public_key = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnGm4s+aI1LsCwL9i67GSqEICxqfkyzydk6TIA57M9++EHBUAsXHa5mpgUIQwlYKetzsdPnYK8rS7Pkn6RFogF639zoaRBIpCu8K/lazUB2PqykLdV+XH8DqtH3k6lz1hFRAOHDIn3wVqIUOC0H/G4TFsp8Cd/cgLYAFr12Fgm20/OW8GZNnhfZmmcbHc4el9CqWuEt1xRQLAgLiaDjTZ5RrgSwHem2p1kYKjcs0jw1M+IyKIZK0k6s/KwwqsSlG28ysP94nBI1v3vSIL0e25rvv5irYXi78hfmmO8+sBdYxBzkaF7tndTctTxTYMcnk/+1jKijahDW/72zTI0AwSxwIDAQAB'
+_server_url = 'https://openapi-sandbox.dl.alipaydev.com/gateway.do' if settings.DEBUG else 'https://openapi.alipay.com/gateway.do'
+
+
+def client(app_id=_app_id, app_private_key=_app_private_key, alipay_public_key=_alipay_public_key):
+    """ 构造一个支付宝请求客户端 """
+    alipay_client_config = AlipayClientConfig(sandbox_debug=settings.DEBUG)
+    alipay_client_config.app_id = app_id
+    alipay_client_config.app_private_key = app_private_key
+    alipay_public_key = alipay_public_key
+    alipay_client_config.server_url = _server_url
+    return DefaultAlipayClient(alipay_client_config=alipay_client_config, logger=logger)
+    

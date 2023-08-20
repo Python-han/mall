@@ -56,7 +56,6 @@
             </b-button>
         </div>
         <!-- 加入购物车按钮及一键购买 -->
-
         <div class="box is-radiusless mt-3" id="goodsContent">
             <b-tabs class="block">
                 <b-tab-item label="商品详情">
@@ -64,18 +63,38 @@
                         {{ content|safe }}
                     </div>
                 </b-tab-item>
+                {% comments baykeshopsku_set as spucomments %}
                 <b-tab-item label="商品评价">
                     <div class="is-flex is-justify-content-space-between p-2">
-                        <div class="">满意度：98%</div>
+                        <div class="">满意度：{{ spucomments.rate }}%</div>
                         <div class="is-flex is-align-items-center">
                             <span> 评分：</span>
                             <b-rate 
-                                :value="5" 
+                                :value="{{ spucomments.comment_choices__avg }}" 
                                 disabled 
-                                custom-text="5分">
+                                custom-text="{{ spucomments.comment_choices__avg }}分">
                             </b-rate>
                         </div>
                     </div>
+                    <div class=" dropdown-divider"></div>
+                    
+                    {% for comment in spucomments.comments %}
+                    <article class="media">
+                        <figure class="media-left">
+                            <p class="image is-32x32">
+                                <img class="is-rounded" src="{{ comment.owner.baykeuser.avatar }}">
+                            </p>
+                        </figure>
+                        <div class="media-content">
+                            <p>
+                                {{ comment.owner.username }}
+                                <b-rate size="is-small" :value="{{ comment.comment_choices }}" disabled custom-text="{{ comment.comment_choices }}分"></b-rate>
+                            </p>
+                            <p class=" is-size-7">{{ comment.add_date }}</p>
+                            <p class=" has-text-grey-light">{{ comment.content }}</p>
+                        </div>
+                    </article>
+                    {% endfor %}
                 </b-tab-item>
             </b-tabs>
         </div>
@@ -106,9 +125,6 @@
             methods: {
                 // 加入购物车
                 addCart(){
-                    console.log(this.stock)
-                    console.log(this.sku)
-                    console.log(this.num)
                     request({
                         url: "{% url 'shop_api:cart-list' %}",
                         method: 'post',

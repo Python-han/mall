@@ -1,7 +1,10 @@
 from collections import OrderedDict
 from decimal import Decimal
 from django.template import Library
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Avg
 from baykeshop.apps.shop.models import BaykeShopCart, BaykeShopCategory, BaykeShopSKU
+from baykeshop.apps.comment.models import BaykeShopComment
 from baykeshop.common import utils
 
 register = Library()
@@ -110,3 +113,31 @@ def paystatus(val):
     elif val == 7:
         status = "退款中"
     return status
+
+
+@register.filter
+def paymethod(val):
+    method = ""
+    if val == 1:
+        method = "支付宝支付"
+    elif val == 2:
+        method = "微信支付"
+    elif val == 3:
+        method = "余额支付"
+    return method
+
+
+@register.simple_tag
+def comments(baykeshopsku_set):
+    """ 商品详情页评价 """
+    sku_ids = [sku['id'] for sku in baykeshopsku_set]
+    content_type = ContentType.objects.get_for_model(BaykeShopSKU)
+    comments = BaykeShopComment.objects.filter(object_id__in=sku_ids, content_type=content_type)
+    gte_3 = comments.filter(comment_choices__gte=3).count()
+    rate = gte_3 / comments.count() if comments.count() else 0.98
+    comment_choices__avg = comments.aggregate(Avg('comment_choices')).get('comment_choices__avg', 4.8)
+    return {
+        'comments': comments,
+        'rate': rate * 100,
+        'comment_choices__avg': round(comment_choices__avg, 1)
+    }

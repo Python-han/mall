@@ -1,3 +1,14 @@
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+'''
+@文件    :views.py
+@说明    :pc端商城页面视图
+@时间    :2023/08/20 00:04:02
+@作者    :幸福关中&轻编程
+@版本    :1.0
+@微信    :baywanyun
+'''
+
 from django.views.generic import TemplateView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
@@ -6,6 +17,7 @@ from django.contrib.auth.views import (
     LogoutView as BaseLogoutView
 )
 from rest_framework import serializers
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.decorators import action
@@ -25,7 +37,8 @@ from baykeshop.api.shop.viewsets import (
     BaykeShopOrderViewSet, BaykeAddressViewSet
 )
 from baykeshop.apps.shop.models import (
-    BaykeShopSPU, BaykeShopSKU, BaykeShopSpecValue, BaykeShopOrderSKU, BaykeUserBalanceLog
+    BaykeShopSPU, BaykeShopSKU, BaykeShopSpecValue, BaykeShopOrderSKU, BaykeUserBalanceLog,
+    BaykeShopOrder
 )
 from baykeshop.apps.comment.models import BaykeShopComment
 from baykeshop.apps.badmin.models import BaykeUser
@@ -154,6 +167,7 @@ class BaykeShopOrderViewSerializer(BaykeShopOrderSerializer):
     def create(self, validated_data):
         """ 创建订单 """
         baykeshopordersku_set = validated_data.pop('baykeshopordersku_set')
+        # 创建订单时计算总价，这里只是粗略计算，未计算运费
         total_price = sum([ 
             order_sku.get('sku').price * int(order_sku.get('count', 1))  
             for order_sku in baykeshopordersku_set
@@ -176,7 +190,17 @@ class BaykeShopOrderViewSerializer(BaykeShopOrderSerializer):
         return super().update(instance, validated_data)
     
     def get_payurl(self, obj):
-        return ''
+        payurl = ""
+        paymethod = obj.paymethod
+        # 支付宝支付
+        if paymethod == 1:
+            from baykeshop.pay.alipay.trade_page_pay import trade_page_pay
+            response = trade_page_pay(
+                out_trade_no=obj.order_sn, total_amount=obj.total_price.to_eng_string(),
+                subject=obj.order_sn, body=f"alipay{obj.order_sn}"
+            )
+            payurl = response
+        return payurl
 
 
 class BaykeShopOrderView(mixins.CreateModelMixin, BaykeShopOrderViewSet):
@@ -230,10 +254,10 @@ class BaykeShopOrderView(mixins.CreateModelMixin, BaykeShopOrderViewSet):
             comment_serializer = BaykeShopCommentSerializer(data=data)
             comment_serializer.is_valid(raise_exception=True)
             BaykeShopComment.objects.create(**comment_serializer.validated_data)
-            BaykeShopOrderSKU.objects.filter(
+            order_skus = BaykeShopOrderSKU.objects.filter(
                 sku__id=comment_serializer.validated_data['object_id']
-            ).update(is_commented=True)
-            
+            )
+            order_skus.update(is_commented=True)
             # 判断订单商品是否均已评价
             is_commented = all(
                 [ordersku.is_commented for ordersku in instance.baykeshopordersku_set.all()]
@@ -303,3 +327,39 @@ class BaykeAddressView(BaykeAddressViewSet):
         response = super().list(request, *args, **kwargs)
         response.template_name = "baykeshop/address.html"
         return response
+    
+
+class AliPayCallBackView(APIView):
+    """ 支付宝支付成功回调 """
+    renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
+    
+    def get(self, request, *args, **kwargs):
+        # 验签通过处理逻辑
+        data = request.query_params.dict()
+        if self.has_verify_sign(data):
+            from django.utils import timezone
+            order_queryset = BaykeShopOrder.objects.filter(order_sn=data['out_trade_no'])
+            order_queryset.update(pay_time=timezone.now(), total_price=data['total_amount'],paymethod=1,status=2)
+            instance = order_queryset.first()
+            serializer = BaykeShopOrderSerializer(instance, many=False)
+            return Response(serializer.data, template_name="baykeshop/payok.html")
+    
+    def post(self, request, *args, **kwargs):
+        data = request.data.dict()
+        if self.has_verify_sign(data):
+            from django.utils import timezone
+            order_queryset = BaykeShopOrder.objects.filter(order_sn=data['out_trade_no'])
+            order_queryset.update(pay_time=timezone.now(), total_price=data['total_amount'],paymethod=1,status=2)
+            return Response("success")
+    
+    def has_verify_sign(self, data):
+        """ 验签 """
+        from baykeshop.pay.alipay.client import _alipay_public_key
+        from alipay.aop.api.util.SignatureUtils import verify_with_rsa
+        sign = data.pop('sign')
+        sign_type = data.pop('sign_type')
+        alipay_public_key = _alipay_public_key
+        # 去除sign和sign_type参数之后进行升序排列，拼装请求参数用支付宝公钥进行验签
+        message='&'.join([f"{k}={v}" for k, v in dict(sorted(data.items(), key=lambda d: d[0], reverse=False)).items()])
+        flag = verify_with_rsa(alipay_public_key, message.encode('UTF-8','strict'), sign)
+        return flag
