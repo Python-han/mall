@@ -1,12 +1,13 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 
 from rest_framework.response import Response
-from rest_framework.permissions import IsAdminUser
 from rest_framework.authentication import SessionAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.views import APIView
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
@@ -22,7 +23,7 @@ from .serializers import (
     BaykePermissionActionSerializer, BaykeRolesSerializer, UserCreateSerializer,
     BaykeUserModelSerializer, PermissionSerializer, BaykeDictValueSerializer, 
     BaykeDictKeySerializer, BaykeImageSerializer, BaykeEmailConfSerializer,
-    BaykeSystemSerializer, BaykeSystemExtendSerializer
+    BaykeSystemSerializer, BaykeSystemExtendSerializer, ContentTypeSerializer
 )
 from .filters import (
     BaykeDepartmentFilterSet, BaykeUserFilterSet, BaykeDictValueFilterSet
@@ -109,11 +110,24 @@ class BaykeRolesViewSet(viewsets.ModelViewSet):
         self.get_object().group.permissions.set(validated_data.get('perm_ids', []))
         return super().perform_update(serializer)
 
+
 class BaykePermissionActionViewSet(viewsets.ModelViewSet):
     """ 菜单权限关系分配 """
     queryset = BaykePermissionAction.objects.all()
     serializer_class = BaykePermissionActionSerializer
+    pagination_class = pagination.PageNumberPagination
     
+    def perform_destroy(self, instance):
+        # 重写删除
+        instance.permission.delete()
+        
+    def perform_batch_destroy(self, serializer):
+        # 重写批量删除
+        ids = serializer.data.get('ids', [])
+        actions = self.get_queryset().filter(id__in=ids)
+        for action in actions:
+            action.permission.delete()
+
     
 class PermissionListAPIView(ListAPIView):
     """ 权限列表 
@@ -244,7 +258,15 @@ class BaykeEmailConfViewset(mixins.RetrieveModelMixin,
 
 class BaykeSystemExtendViewset(viewsets.ModelViewSet):
     """ 站点扩展配置 """
-
     queryset = BaykeSystemExtend.objects.all()
     serializer_class = BaykeSystemExtendSerializer
+    
+    
+class ContentTypeViewset(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """ 应用接口视图 """
+    queryset = ContentType.objects.all()
+    serializer_class = ContentTypeSerializer
 
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        return response

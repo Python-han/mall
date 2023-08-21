@@ -1,4 +1,5 @@
 from django.contrib.auth.models import Group, Permission
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 
@@ -204,10 +205,19 @@ class BaykeRolesSerializer(ModelSerializer):
         group = Group.objects.create(name=name)
         validated_data['group'] = group
         return super().create(validated_data)
-    
+
+
+class ContentTypeSerializer(ModelSerializer):
+    """ 应用序列化 """
+    class Meta:
+        model = ContentType
+        fields = "__all__"
+
 
 class PermissionSerializer(ModelSerializer):
     """ django自带权限序列化 """
+    content_type = ContentTypeSerializer(many=False, read_only=True)
+    
     class Meta:
         model = Permission
         fields = ("id", "name", "codename", "content_type")
@@ -216,10 +226,37 @@ class PermissionSerializer(ModelSerializer):
 class BaykePermissionActionSerializer(ModelSerializer):
     """ 菜单权限操作表 """
     permission = PermissionSerializer(many=False)
+    content_type_id = serializers.IntegerField(min_value=1, required=True, write_only=True)
 
     class Meta:
         model = BaykePermissionAction
         fields = "__all__"
+
+    def create(self, validated_data):
+        permission = validated_data.pop('permission')
+        content_type_id = validated_data.pop('content_type_id')
+        content_type = ContentType.objects.get(id=content_type_id)
+        # 存在就获取，否则新增
+        perm_obj, iscreated = Permission.objects.get_or_create(
+            content_type=content_type,
+            codename = permission['codename'], 
+            defaults={'content_type': content_type, **permission}
+        )
+        validated_data['permission'] = perm_obj
+        return super().create(validated_data)
+    
+    def update(self, instance, validated_data):
+        content_type_id = validated_data.pop('content_type_id')
+        perm_dict = validated_data.pop('permission')
+        # 这里先要处理修改权限
+        permission = instance.permission
+        content_type = ContentType.objects.get(id=content_type_id)
+        permission.name = perm_dict['name']
+        permission.codename = perm_dict['codename']
+        permission.content_type = content_type
+        permission.save()
+        return super().update(instance, validated_data)
+
 
 class BaykeDictKeySerializer(ModelSerializer):
     """ 字典键 """

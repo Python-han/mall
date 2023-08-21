@@ -29,12 +29,15 @@ router.register('emailconf', viewsets.BaykeEmailConfViewset, basename='emailconf
 
 router.register('system_extend', viewsets.BaykeSystemExtendViewset, basename='system_extend')
 
+router.register('content_type', viewsets.ContentTypeViewset, basename='content_type')
+
 urlpatterns = [
     
     path('user/', viewsets.BaykeUserRetrieveAPIView.as_view(), name='user'),
     
+    # django的权限列表
     path('perms/', viewsets.PermissionListAPIView.as_view(), name='perms'),
-    
+        
     path('readsystem/<str:field_name>/', viewsets.BaykeSystemViewset.as_view({'get': 'readsystem'}), name='readsystem'),
     
     *router.urls

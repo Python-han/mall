@@ -55,6 +55,16 @@ export default {
 		}
 	},
 
+	content_type: {
+		list:{
+			url: `${config.API_URL}/badmin/content_type/`,
+			name: "应用列表视图",
+			get: async function(params={}){
+				return await http.get(this.url, params)
+			},
+		},
+	},
+
 	dept: {
 		list: {
 			url: `${config.API_URL}/badmin/dept/`,
@@ -211,12 +221,36 @@ export default {
 				return await http.get(this.url, params);
 			}
 		},
+		create: {
+			url: `${config.API_URL}/badmin/action/`,
+			name: "创建新增",
+			post: async function(data){
+				return await http.post(this.url, data)
+			}
+		},
+		update: {
+			url: `${config.API_URL}/badmin/action/`,
+			name: "修改",
+			put: async function(id, data){
+				return await http.put(`${this.url}${id}/`, data)
+			}
+		},
+		partial_update: {
+			url: `${config.API_URL}/badmin/action/`,
+			name: "局部修改",
+			patch: async function(id, data){
+				return await http.patch(`${this.url}${id}/`, data)
+			}
+		},
 		remove: {
 			url: `${config.API_URL}/badmin/action/`,
 			name: "删除菜单权限操作",
 			delete: async function(id, data){
 				return await http.delete(`${this.url}${id}/`, data)
 			},
+			batch_delete: async function(data){
+				return await http.delete(`${this.url}batch_destroy/`, data)
+			}
 		},
 
 	},

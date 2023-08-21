@@ -96,7 +96,7 @@ class BaykePermissionAction(BaseModelMixin):
         DELETE = "DELETE", _("删除")
     
     permission = models.OneToOneField(Permission, on_delete=models.CASCADE, verbose_name=_("权限"))
-    menus = models.ForeignKey(BaykeFrontedMenus, on_delete=models.CASCADE, verbose_name=_("菜单"))
+    menus = models.ForeignKey(BaykeFrontedMenus, on_delete=models.CASCADE, verbose_name=_("菜单"), blank=True, null=True)
     apiname = models.CharField(_("api接口name"), max_length=50, blank=True, default="", help_text="url的name别名，用来反解url")
     request_method = models.CharField(choices=RequestMethod.choices, max_length=10, blank=True, default="GET")
     mark = models.CharField(_("备注"), max_length=150, blank=True, default="")
