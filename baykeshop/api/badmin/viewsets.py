@@ -61,7 +61,7 @@ class BaykeDepartmentViewSet(viewsets.ModelViewSet):
 class BaykeUserRetrieveAPIView(RetrieveAPIView):
     """ 获取当前登录用户信息 """
     serializer_class = BaykeUserSerializer
-    permission_classes = [permission.BaykePermission]
+    permission_classes = [permission.BaykePermissionOrReadOnly]
     authentication_classes = [SessionAuthentication, JWTAuthentication]
     queryset = BaykeUser.objects.all()
     
@@ -104,11 +104,6 @@ class BaykeRolesViewSet(viewsets.ModelViewSet):
     serializer_class = BaykeRolesSerializer
     pagination_class = pagination.PageNumberPagination
     search_fields = ("group__name", "codename")
-    
-    def perform_update(self, serializer):
-        validated_data = serializer.validated_data
-        self.get_object().group.permissions.set(validated_data.get('perm_ids', []))
-        return super().perform_update(serializer)
 
 
 class BaykePermissionActionViewSet(viewsets.ModelViewSet):
@@ -216,6 +211,7 @@ class BaykeSystemViewset(mixins.RetrieveModelMixin,
     """站点配置 """
     queryset = BaykeSystem.objects.all()
     serializer_class = BaykeSystemSerializer
+    permission_classes = [permission.BaykePermissionOrReadOnly]
     
     def get_object(self):
         cache.set('SYSTEM', self.get_queryset().first())

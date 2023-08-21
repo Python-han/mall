@@ -31,9 +31,9 @@
 						<el-select v-model="apiPermModel" placeholder="请选择" multiple style="width: 100%;">
 							<el-option
 								v-for="item in data.apiPerms"
-								:key="item.permission.id"
+								:key="item.id"
 								:label="item.permission.name"
-								:value="item.permission.id"
+								:value="item.id"
 							/>
 						</el-select>
 					</el-form-item>
@@ -243,10 +243,9 @@
 			async getApiPerms(){
 				// 接口权限列表
 				const res = await this.$API.badmin.action.list.get()
-				this.data.apiPerms = res.data
+				this.data.apiPerms = res.data.results
 				// 当前用户拥有的权限
-				const user = await this.$API.badmin.user.get()
-				this.apiPermModel = user.data.permids
+				this.apiPermModel = this.$parent.selection[0].actions
 			}
 		}
 	}

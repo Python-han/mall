@@ -20,38 +20,73 @@ class BaykeDepartmentSerializer(ModelSerializer):
         fields = "__all__"
 
 
+class ContentTypeSerializer(ModelSerializer):
+    """ 应用序列化 """
+    class Meta:
+        model = ContentType
+        fields = "__all__"
+
+
+class PermissionSerializer(ModelSerializer):
+    """ django自带权限序列化 """
+    content_type = ContentTypeSerializer(many=False, read_only=True)
+    
+    class Meta:
+        model = Permission
+        fields = ("id", "name", "codename", "content_type")
+
+
+class BaykePermissionActionSerializer(ModelSerializer):
+    """ 菜单权限操作表 """
+    permission = PermissionSerializer(many=False)
+    content_type_id = serializers.IntegerField(min_value=1, required=True, write_only=True)
+
+    class Meta:
+        model = BaykePermissionAction
+        fields = "__all__"
+
+    def create(self, validated_data):
+        permission = validated_data.pop('permission')
+        content_type_id = validated_data.pop('content_type_id')
+        content_type = ContentType.objects.get(id=content_type_id)
+        # 存在就获取，否则新增
+        perm_obj, iscreated = Permission.objects.get_or_create(
+            content_type=content_type,
+            codename = permission['codename'], 
+            defaults={'content_type': content_type, **permission}
+        )
+        validated_data['permission'] = perm_obj
+        return super().create(validated_data)
+    
+    def update(self, instance, validated_data):
+        content_type_id = validated_data.pop('content_type_id')
+        perm_dict = validated_data.pop('permission')
+        # 这里先要处理修改权限
+        permission = instance.permission
+        content_type = ContentType.objects.get(id=content_type_id)
+        permission.name = perm_dict['name']
+        permission.codename = perm_dict['codename']
+        permission.content_type = content_type
+        permission.save()
+        return super().update(instance, validated_data)
+
+
 class BaykeFrontedMenusSerializer(ModelSerializer):
     """ 前端菜单 """
-    
-    apiList = serializers.SerializerMethodField()
+    # apiList = serializers.SerializerMethodField()
+    baykepermissionaction_set = BaykePermissionActionSerializer(many=True, read_only=True)
+    actions = serializers.ListField(required=False, write_only=True)
     
     class Meta:
         model = BaykeFrontedMenus
         fields = "__all__"
     
-    def get_apiList(self, obj):
-        actions = obj.baykepermissionaction_set.values('id', 'permission__id', 'apiname', 'request_method', 'mark')
-        return [{'id':perm['id'], 
-                 'code': perm['permission__id'], 
-                 'url': perm['apiname'], 
-                 'mark': perm['mark'],
-                 'request_method': perm['request_method']} for perm in actions]
-        
     def update(self, instance, validated_data):
-        super().update(instance, validated_data)
-        apiList = self.context['request'].data.get('apiList', [])
-        if apiList:
-            for perm in apiList:
-                if perm.get('code'):
-                    obj, created = instance.baykepermissionaction_set.update_or_create(
-                        permission__id=perm.get('code'),
-                        defaults = {
-                            "permission": Permission.objects.get(id=perm.get('code')),
-                            "apiname": perm.get('url', ''),
-                            "request_method": perm.get('request_method', '')
-                        }
-                    )
-                    instance = obj.menus
+        instance = super().update(instance, validated_data)
+        actions = validated_data.pop('actions')
+        if actions:
+            for action in actions:
+                BaykePermissionAction.objects.filter(id=action['id']).update(menus=instance)  
         return instance
         
 
@@ -182,20 +217,30 @@ class BaykeRolesSerializer(ModelSerializer):
     name = serializers.CharField(write_only=True, label="角色名")
     group = GroupModelSerializer(many=False, read_only=True)
     perm_ids = serializers.ListField(
-        write_only=True, label="权限id", child=serializers.IntegerField(min_value=1), 
-        allow_empty=True, 
+        write_only=True, label="权限id", allow_empty=True, required=False
     )
+    actions = serializers.SerializerMethodField()
      
     class Meta:
         model = BaykeRoles
         fields = "__all__"
 
     def update(self, instance, validated_data):
-        try:
+        try:    
             name = validated_data.pop('name')
             group = instance.group
             group.name = name
             group.save()
+        except KeyError:
+            pass
+        
+        try:
+            actions = validated_data.pop('perm_ids')
+            print(actions)
+            print(instance.group.permissions)
+            if actions:
+                permids = [BaykePermissionAction.objects.get(id=action).permission.id for action in actions]
+                instance.group.permissions.set(permids)
         except KeyError:
             pass
         return super().update(instance, validated_data)
@@ -205,57 +250,10 @@ class BaykeRolesSerializer(ModelSerializer):
         group = Group.objects.create(name=name)
         validated_data['group'] = group
         return super().create(validated_data)
-
-
-class ContentTypeSerializer(ModelSerializer):
-    """ 应用序列化 """
-    class Meta:
-        model = ContentType
-        fields = "__all__"
-
-
-class PermissionSerializer(ModelSerializer):
-    """ django自带权限序列化 """
-    content_type = ContentTypeSerializer(many=False, read_only=True)
     
-    class Meta:
-        model = Permission
-        fields = ("id", "name", "codename", "content_type")
-
-
-class BaykePermissionActionSerializer(ModelSerializer):
-    """ 菜单权限操作表 """
-    permission = PermissionSerializer(many=False)
-    content_type_id = serializers.IntegerField(min_value=1, required=True, write_only=True)
-
-    class Meta:
-        model = BaykePermissionAction
-        fields = "__all__"
-
-    def create(self, validated_data):
-        permission = validated_data.pop('permission')
-        content_type_id = validated_data.pop('content_type_id')
-        content_type = ContentType.objects.get(id=content_type_id)
-        # 存在就获取，否则新增
-        perm_obj, iscreated = Permission.objects.get_or_create(
-            content_type=content_type,
-            codename = permission['codename'], 
-            defaults={'content_type': content_type, **permission}
-        )
-        validated_data['permission'] = perm_obj
-        return super().create(validated_data)
-    
-    def update(self, instance, validated_data):
-        content_type_id = validated_data.pop('content_type_id')
-        perm_dict = validated_data.pop('permission')
-        # 这里先要处理修改权限
-        permission = instance.permission
-        content_type = ContentType.objects.get(id=content_type_id)
-        permission.name = perm_dict['name']
-        permission.codename = perm_dict['codename']
-        permission.content_type = content_type
-        permission.save()
-        return super().update(instance, validated_data)
+    def get_actions(self, obj):
+        actions = obj.group.permissions.values_list('baykepermissionaction__id', flat=True)
+        return list(actions)
 
 
 class BaykeDictKeySerializer(ModelSerializer):

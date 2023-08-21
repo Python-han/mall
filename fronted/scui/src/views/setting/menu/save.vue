@@ -68,27 +68,12 @@
 			</el-col>
 			<el-col :lg="12" class="apilist">
 				<h2>接口权限</h2>
-				<sc-form-table ref="reft" v-model="form.apiList" :addTemplate="apiListAddTemplate" @rowDel="rowDel"
-					placeholder="暂无匹配接口权限">
-					<el-table-column prop="request_method" label="请求方式" width="200">
+				<sc-form-table ref="reft" v-model="form.baykepermissionaction_set" :addTemplate="apiListAddTemplate" @rowDel="rowDel" placeholder="暂无匹配接口权限">
+					<el-table-column prop="id" label="权限标识">
 						<template #default="scope">
-							<el-select v-model="scope.row.request_method" value-key="value" filterable
-								placeholder="请选择请求方式">
-								<el-option v-for="item in requestMethodOptions" :key="item.value" :label="item.label"
-									:value="item.value" />
+							<el-select v-model="scope.row.id" value-key="id" filterable placeholder="请选择权限" style="width: 100%;">
+								<el-option v-for="item in options" :key="item.id" :label="item.permission.name" :value="item.id" />
 							</el-select>
-						</template>
-					</el-table-column>
-					<el-table-column prop="code" label="权限标识" width="200">
-						<template #default="scope">
-							<el-select v-model="scope.row.code" value-key="id" filterable placeholder="请选择权限">
-								<el-option v-for="item in options" :key="item.id" :label="item.codename" :value="item.id" />
-							</el-select>
-						</template>
-					</el-table-column>
-					<el-table-column prop="url" label="Api name">
-						<template #default="scope">
-							<el-input v-model="scope.row.url" placeholder="请输入内容"></el-input>
 						</template>
 					</el-table-column>
 				</sc-form-table>
@@ -125,7 +110,7 @@ export default {
 					fullpage: false,
 					tag: "",
 				},
-				apiList: []
+				baykepermissionaction_set: []
 			},
 			menuOptions: [],
 			menuProps: {
@@ -144,10 +129,7 @@ export default {
 			],
 			rules: [],
 			apiListAddTemplate: {
-				id: "",
-				code: "",
-				url: "",
-				request_method: ""
+				id: ""
 			},
 			loading: false,
 			options: [],
@@ -184,9 +166,9 @@ export default {
 		}
 	},
 	mounted() {
-		this.$API.badmin.perms.list.get().then(res => {
+		this.$API.badmin.action.list.get({pageSize: 500}).then(res => {
 			if (res.status == 200) {
-				this.options = res.data
+				this.options = res.data.results
 			}
 		})
 	},
@@ -226,7 +208,7 @@ export default {
 		//表单注入数据
 		setData(data, pid) {
 			this.form = data
-			this.form.apiList = data.apiList || []
+			this.form.actions = data.baykepermissionaction_set || []
 			this.form.parentId = pid
 		},
 		rowDel(row, index) {
