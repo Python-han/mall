@@ -14,10 +14,21 @@ def get_cates():
     data = BaykeShopCategory.objects.values("id", "name", "icon", "parent", "status")
     return data
 
-# @register.simple_tag
-# def catetags():
-#     return get_cates().filter(parent__isnull=True)
-
+def skurate(baykeshopsku_set):
+    # 计算商品评分及评价内容
+    if isinstance(baykeshopsku_set, list):
+        sku_ids = [sku['id'] for sku in baykeshopsku_set]
+        content_type = ContentType.objects.get_for_model(BaykeShopSKU)
+        comments = BaykeShopComment.objects.filter(object_id__in=sku_ids, content_type=content_type)
+        gte_3 = comments.filter(comment_choices__gte=3).count()
+        rate = gte_3 / comments.count() if comments.count() else 0.98
+        comment_choices__avg = comments.aggregate(Avg('comment_choices')).get('comment_choices__avg', 4.8)
+        return {
+            'comments': comments,
+            'rate': rate * 100,
+            'comment_choices__avg': round(comment_choices__avg, 1) if comment_choices__avg else 4.8
+        }
+    
 
 @register.inclusion_tag("baykeshop/comp/navbar.html", takes_context=True)
 def navbar(context):
@@ -27,27 +38,36 @@ def navbar(context):
         'words': context['request'].GET.get('search', '')
     } 
     
+    
 @register.simple_tag
 def cartscount(request):
     # 购物车商品数量
     return BaykeShopCart.get_cart_count(request.user) if request.user.is_authenticated else 0
 
 
-@register.inclusion_tag("baykeshop/comp/spubox.html", takes_context=True)
-def spubox(context, spu):
-    request = context['request']
-    
+@register.inclusion_tag("baykeshop/comp/spubox.html", takes_context=False)
+def spubox(spu):
     if isinstance(spu, OrderedDict):
+        rate = skurate(spu['baykeshopsku_set'])
         sku =  spu['baykeshopsku_set'][0] if spu['baykeshopsku_set'] else {}
         spu['price'] = sku.get('price', 0)
         spu['sales'] = sku.get('sales', 0)
         spu['img'] = sku.get('img', "")
-    else:     
+        spu['rate'] = rate['rate']
+        spu['comment_choices__avg'] = rate['comment_choices__avg']
+    else:
+        sku_ids = spu.baykeshopsku_set.values_list("id", flat=True)
+        content_type = ContentType.objects.get_for_model(BaykeShopSKU)
+        comments = BaykeShopComment.objects.filter(object_id__in=sku_ids, content_type=content_type)
+        gte_3 = comments.filter(comment_choices__gte=3).count()
+        rate = gte_3 / comments.count() if comments.count() else 0.98
+        comment_choices__avg = comments.aggregate(Avg('comment_choices')).get('comment_choices__avg', 4.8)
         sku = spu.baykeshopsku_set.order_by("price").first()
         if sku:
             spu.price = sku.price
             spu.sales = sku.sales
             spu.img = sku.img
+            spu.comment_choices__avg = round(comment_choices__avg, 1) if comment_choices__avg else 4.8
     return {'spu': spu}
 
 
@@ -130,14 +150,4 @@ def paymethod(val):
 @register.simple_tag
 def comments(baykeshopsku_set):
     """ 商品详情页评价 """
-    sku_ids = [sku['id'] for sku in baykeshopsku_set]
-    content_type = ContentType.objects.get_for_model(BaykeShopSKU)
-    comments = BaykeShopComment.objects.filter(object_id__in=sku_ids, content_type=content_type)
-    gte_3 = comments.filter(comment_choices__gte=3).count()
-    rate = gte_3 / comments.count() if comments.count() else 0.98
-    comment_choices__avg = comments.aggregate(Avg('comment_choices')).get('comment_choices__avg', 4.8)
-    return {
-        'comments': comments,
-        'rate': rate * 100,
-        'comment_choices__avg': round(comment_choices__avg, 1)
-    }
+    return skurate(baykeshopsku_set)

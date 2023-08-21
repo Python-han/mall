@@ -382,3 +382,4 @@ class BaykeVerifyCode(BaseModelMixin):
             auth_user=email_conf.email_host_user,
             auth_password=email_conf.email_host_password
         )
+        

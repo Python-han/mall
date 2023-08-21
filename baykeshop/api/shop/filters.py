@@ -1,5 +1,5 @@
 from django_filters import rest_framework
-from baykeshop.apps.shop.models import BaykeShopSPU, BaykeShopOrder
+from baykeshop.apps.shop.models import BaykeShopSPU, BaykeShopOrder, BaykeShopCategory
 
 
 class BaykeShopSPUFilterSet(rest_framework.FilterSet):
@@ -42,9 +42,16 @@ class BaykeShopSPUFilterSet(rest_framework.FilterSet):
     def category_filter(self, queryset, name, value):
         # 按分类多选筛选
         ids = value.split(',')
-        if len(ids) >= 1 and ids[0] != '0':
+        if len(ids) > 1:
             ids = [int(i) for i in value.split(',')]
             queryset = queryset.filter(category__id__in=ids).distinct()
+        elif len(ids) == 1 and ids[0] != '0':
+            parent_cate = BaykeShopCategory.objects.filter(id=int(ids[0]), parent__isnull=True).first()
+            if parent_cate:
+                subcate_ids = parent_cate.baykeshopcategory_set.values_list('id', flat=True)
+                queryset = queryset.filter(category__id__in=list(subcate_ids)).distinct()
+            else:
+                queryset = queryset.filter(category__id=int(ids[0])).distinct()
         return queryset
     
 

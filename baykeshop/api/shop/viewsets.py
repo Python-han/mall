@@ -11,13 +11,13 @@ from baykeshop.common import viewsets, pagination, utils, mixins, permission
 from baykeshop.apps.shop.models import (
     BaykeShopCategory, BaykeshopBrand, BaykeShopSPU, BaykeShopSKU,
     BaykeShopSpec, BaykeShopSpecValue, BaykeShopOrder, BaykeShopCart,
-    BaykeAddress
+    BaykeAddress, BaykeShopBanner
 )
 from baykeshop.api.shop.serializers import (
     BaykeShopCategorySerializer, BaykeshopBrandSerializer,
     BaykeShopSPUSerializer, BaykeShopSKUSerializer, BaykeShopSpecSerializer,
     BaykeShopSpecValueSerializerCRUD, BaykeShopOrderSerializer, BaykeShopCartSerializer,
-    BaykeAddressSerializer
+    BaykeAddressSerializer, BaykeShopBannerSerializer
 )
 from . import filters
 
@@ -316,3 +316,11 @@ class BaykeAddressViewSet(viewsets.ModelViewSet):
         # 处理默认收货地址只能有一个
         if serializer.validated_data['is_default']:
             self.get_queryset().filter(is_default=True).update(is_default=False)
+            
+
+class BaykeShopBannerViewSet(viewsets.ModelViewSet):
+    """ 轮播图增删改查 """
+    queryset = BaykeShopBanner.objects.all()
+    serializer_class = BaykeShopBannerSerializer
+    pagination_class = pagination.PageNumberPagination
+    permission_classes = [permission.BaykePermissionOrReadOnly]

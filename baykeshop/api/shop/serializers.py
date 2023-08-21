@@ -6,7 +6,7 @@ from baykeshop.common.serializers import ModelSerializer
 from baykeshop.apps.shop.models import (
     BaykeShopCategory, BaykeshopBrand, BaykeShopSPU, BaykeShopSKU,
     BaykeShopSpec, BaykeShopSpecValue, BaykeShopOrder, BaykeShopOrderSKU,
-    BaykeShopCart, BaykeAddress, BaykeUserBalanceLog
+    BaykeShopCart, BaykeAddress, BaykeUserBalanceLog, BaykeShopBanner
 )
 
 
@@ -36,6 +36,7 @@ class BaykeShopSPUSerializer(ModelSerializer):
     baykeshopsku_set = BaykeShopSKUSerializer(many=True, read_only=True)
     skuSpecs = serializers.SerializerMethodField()
     specs = serializers.SerializerMethodField()
+    # detailurl = serializers.SerializerMethodField()
     
     class Meta:
         model = BaykeShopSPU
@@ -71,7 +72,6 @@ class BaykeShopSPUSerializer(ModelSerializer):
             }
             specs.append(spec_dict)
         return specs
-
 
 
 class BaykeShopSpecValueSerializerCRUD(ModelSerializer):
@@ -168,4 +168,10 @@ class BaykeAddressSerializer(ModelSerializer):
     class Meta:
         model = BaykeAddress
         fields = "__all__"
-    
+
+
+class BaykeShopBannerSerializer(ModelSerializer):
+    """ 轮播图序列 """
+    class Meta:
+        model = BaykeShopBanner
+        fields = "__all__"

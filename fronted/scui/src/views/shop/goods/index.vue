@@ -75,6 +75,7 @@
 			</scTable>
 		</el-main>
 	</el-container>
+
 </template>
 
 <script>
@@ -89,8 +90,10 @@
 		data() {
 			return {
 				dialog: {
-					save: false
+					save: false,
+					drawer: false
 				},
+				drawerData: "",
 				apiObj: this.$API.shop.spu.list,
 				selection: [],
 				search: {
@@ -168,9 +171,12 @@
 			},
 			//查看
 			table_show(row){
-				this.dialog.save = true
-				this.$nextTick(() => {
-					this.$refs.saveDialog.open('show').setData(row)
+				this.$router.push({
+					path: '/shop/goods/detail',
+					query: {
+						id: row.id,
+						mode: 'show'
+					}
 				})
 			},
 			//删除

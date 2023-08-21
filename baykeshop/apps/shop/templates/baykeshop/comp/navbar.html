@@ -16,9 +16,9 @@
                 <b-navbar-item href="{% url 'shop:spu-list' %}">
                     全部分类
                 </b-navbar-item>
-                <b-navbar-item href="">
+                <!-- <b-navbar-item href="">
                     商城资讯
-                </b-navbar-item>
+                </b-navbar-item> -->
                 {% for cate in navs %}
                 <b-navbar-dropdown label="{{ cate.name }}">
                     {% for sub_cate in cate.children %}

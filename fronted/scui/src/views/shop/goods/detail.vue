@@ -1,5 +1,5 @@
 <template>
-	<sc-page-header :title="form.id ? '编辑商品':'新增商品'" description="" icon="el-icon-goods">
+	<sc-page-header :title="$route.query.mode ? '查看商品':'新增/编辑商品'" description="" icon="el-icon-goods">
 		<template #main>
 			<router-link :to="{name: 'shopGoods'}">
 				<el-button size="small" icon="el-icon-back">返回</el-button> 
@@ -9,7 +9,7 @@
 
 	<el-main>
 		<el-card shadow="never">
-			<el-form ref="form" :model="form" :rules="rules" label-width="100px">
+			<el-form ref="form" :model="form" :rules="rules" label-width="100px" :disabled="$route.query.mode == 'show' ? true : false">
 				<el-tabs v-model="activeName">
 					<el-tab-pane label="基础信息" name="base">
 						<el-row>
@@ -61,6 +61,7 @@
 										v-model="form.images" 
 										draggable 
 										:limit="10"
+										:disabled="$route.query.mode == 'show' ? true : false"
 										tip="最多上传10个文件,单个文件不要超过10M,请上传图像格式文件">
 									</sc-upload-multiple>
 								</el-form-item>
@@ -103,7 +104,7 @@
 								</el-form-item>
 								<div v-if="!form.skutype">
 									<el-form-item label="图片">
-										<sc-upload ref="uploadRef" v-model="form.img" :width="80" :height="80"></sc-upload>
+										<sc-upload ref="uploadRef" v-model="form.img" :width="80" :height="80" :disabled="$route.query.mode == 'show' ? true : false"></sc-upload>
 									</el-form-item>
 									<el-form-item label="售价">
 										<el-input-number v-model="form.price" controls-position="right" :min="0" :precision="2" :step="1" style="width: 100%;"></el-input-number>
@@ -150,9 +151,10 @@
 												<el-tag
 													v-for="tag, indexn in item.baykeshopspecvalue_set"
 													:key="tag.id"
-													closable
+													:closable="$route.query.mode == 'show' ? false : true"
 													:disable-transitions="false"
 													style="margin-right: 5px;"
+													:disabled="$route.query.mode == 'show' ? true : false"
 													@close="handleClose(item.baykeshopspecvalue_set, tag, indexn)"
 												>
 													{{ tag.value }}
@@ -162,6 +164,7 @@
 														ref="tagInputRef"
 														v-model="inputValue[index]"
 														size="small"
+														:disabled="$route.query.mode == 'show' ? true : false"
 														@keyup.enter="handleInputConfirm(index)"
 														@blur="handleInputConfirm(index, item)"
 														style="width: auto;"
@@ -241,7 +244,7 @@
 					</el-tab-pane>
 					<el-tab-pane label="商品详情" name="content">
 						<el-form-item label="详情" prop="content">
-							<sc-editor v-model="form.content" placeholder="请输入" :templates="templates" :height="800"></sc-editor>
+							<sc-editor v-model="form.content" placeholder="请输入" :templates="templates" :height="800" ></sc-editor>
 						</el-form-item>
 						<!-- <el-form-item>
 							<el-button @click="activeName='sku'">上一步</el-button>

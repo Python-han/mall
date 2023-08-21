@@ -144,3 +144,24 @@ class BaykeShopSKU(BaseModelMixin):
     def __str__(self):
         """Unicode representation of BaykeShopSKU."""
         return self.spu.title
+
+
+class BaykeShopBanner(BaseModelMixin):
+    """Model definition for BaykeShopBanner."""
+    img = models.ImageField(upload_to='banner', max_length=100)
+    desc = models.CharField(_("描述"), max_length=150, blank=True, default="")
+    target = models.URLField(_("跳转链接"), max_length=200, blank=True, null=True)
+    sort = models.PositiveSmallIntegerField(default=1)
+    status = models.BooleanField(default=True)
+    
+    # TODO: Define fields here
+
+    class Meta:
+        """Meta definition for BaykeShopBanner."""
+        ordering = ['sort', '-add_date']
+        verbose_name = 'BaykeShopBanner'
+        verbose_name_plural = 'BaykeShopBanners'
+
+    def __str__(self):
+        """Unicode representation of BaykeShopBanner."""
+        return self.desc

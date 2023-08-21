@@ -60,6 +60,9 @@ class BaykePermission(permissions.BasePermission):
 class BaykePermissionOrReadOnly(BaykePermission):
     """ get请求不受限制 """
     def has_permission(self, request, view):
+        # 超管不授限制
+        if request.user.is_superuser:
+            return True
         return bool(request.method in SAFE_METHODS)
 
 
