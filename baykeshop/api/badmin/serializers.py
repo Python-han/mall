@@ -83,10 +83,13 @@ class BaykeFrontedMenusSerializer(ModelSerializer):
     
     def update(self, instance, validated_data):
         instance = super().update(instance, validated_data)
-        actions = validated_data.pop('actions')
-        if actions:
-            for action in actions:
-                BaykePermissionAction.objects.filter(id=action['id']).update(menus=instance)  
+        try:
+            actions = validated_data.pop('actions')
+            if actions:
+                for action in actions:
+                    BaykePermissionAction.objects.filter(id=action['id']).update(menus=instance)
+        except KeyError:
+            pass     
         return instance
         
 

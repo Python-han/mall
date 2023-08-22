@@ -48,13 +48,14 @@ MEDIA_ROOT = settings.BASE_DIR / "media"
 
 # 配置允许跨域访问的站点列表
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:2800",
-    "http://127.0.0.1:2800",
+    'http://192.168.31.174',
+    'http://127.0.0.1:2800'
 ]
 
 # csrf可信来源
 CSRF_TRUSTED_ORIGINS = [
-    "http://127.0.0.1:2800",
+    'http://192.168.31.174',
+    'http://127.0.0.1:2800'
 ]
 
 # drf默认全局配置

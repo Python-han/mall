@@ -7,7 +7,6 @@
 				</el-header>
 				<el-main class="nopadding">
 					<el-tree ref="menu" class="menu" node-key="id" :data="menuList" :props="menuProps" draggable highlight-current :expand-on-click-node="false" check-strictly show-checkbox :filter-node-method="menuFilterNode" @node-click="menuClick" @node-drop="nodeDrop">
-
 						<template #default="{node, data}">
 							<span class="custom-tree-node">
 								<span class="label">
@@ -87,7 +86,7 @@
 			//树拖拽
 			nodeDrop(draggingNode, dropNode, dropType){
 				this.$refs.save.setData({})
-				let sort = dropType == 'before' ? draggingNode.data.sort - 1 : draggingNode.data.sort + 1
+				let sort = dropType == 'before' ? dropNode.data.sort - 1 : dropNode.data.sort + 1
 				this.$API.badmin.menus.partial_update.patch(draggingNode.data.id, {sort: sort}).then(res => {
 					if (res.status == 200){
 						this.$message.success("顺序修改成功，重新登录后生效！")
