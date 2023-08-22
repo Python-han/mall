@@ -1,0 +1,1 @@
+[{"model": "badmin.baykeemailconf", "pk": 1, "fields": {"add_date": "2023-08-22T07:42:53.864Z", "pub_date": "2023-08-22T07:42:53.864Z", "is_delete": false, "email_host": "smtp.qq.com", "email_host_user": "baykeshop@qq.com", "email_host_password": "123456", "email_port": 465, "email_use_ssl": true, "default_from_email": "baykeshop@qq.com", "status": true}}]

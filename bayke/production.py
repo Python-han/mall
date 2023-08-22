@@ -23,7 +23,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'OPTIONS': {
-            'read_default_file': settings.BASE_DIR / 'mysql.cnf',
+            'read_default_file': f"{settings.BASE_DIR}/mysql.cnf",
             'charset': 'utf8mb4',
         },
     }

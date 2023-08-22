@@ -15,7 +15,7 @@ from datetime import timedelta
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-x8wk&q%a26xd6jal@%**(mp-z@00zkldt!wn0_0akvxo573hj3'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # sqlite3数据库
 DATABASES = {
