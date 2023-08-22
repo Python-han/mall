@@ -169,6 +169,7 @@
 				}
 			},
 			deptChange(val){
+				console.log(val)
 				// 响应式改变选择,只能选择最后一级
 				const deptref = this.$refs.deptRef
 				if (deptref.getCheckedNodes(true).length){

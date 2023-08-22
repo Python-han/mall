@@ -40,12 +40,15 @@
 		},
 		methods: {
 			godoc(){
-				window.open("https://lolicode.gitee.io/scui-doc/")
+				window.open("http://bayke.shop")
 			},
 		},
 		created(){
-			let system = useLocalStorage("SYSTEM").value
-			this.config = JSON.parse(system)
+			let system = JSON.parse(useLocalStorage("SYSTEM").value)
+			if (!system.logo_url){
+				system.logo_url = 'img/logo.png'
+			}
+			this.config = system
 		}
 	}
 </script>

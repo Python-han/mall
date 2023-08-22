@@ -245,8 +245,11 @@
 			this.menu = this.filterUrl(menu);
 			this.showThis()
 
-			this.system = JSON.parse(useLocalStorage("SYSTEM").value)
-			
+			let system = JSON.parse(useLocalStorage("SYSTEM").value)
+			if (!system.logo_url){
+				system.logo_url = 'img/logo.png'
+			}
+			this.system = system
 		},
 		watch: {
 			$route() {
