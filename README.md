@@ -18,7 +18,10 @@
 
 cp bayke /etc/nginx/sites-enabled
 
-
 ```
 supervisorctl -c deploy/supervisord.conf stop asgi
 ```
+
+备份菜单数据：python manage.py dumpdata badmin.baykefrontedmenus > baykeshop/conf/baykefrontedmenus.json
+
+备份权限数据：python manage.py dumpdata badmin.baykepermissionaction > baykeshop/conf/baykepermissionaction.json
