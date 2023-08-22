@@ -7,11 +7,11 @@ from baykeshop.apps.badmin.models import BaykePermissionAction
 
 class BaykePermission(permissions.BasePermission):
     
+    authenticated_users_only = False
+    is_authenticated = False
+    
     def has_permission(self, request, view):
-        # 超管不受权限约束
-        if request.user.is_superuser:
-            return True
-        is_auth = bool(request.user and request.user.is_authenticated)
+        is_auth = self.is_authenticated if self.is_authenticated else bool(request.user and request.user.is_authenticated)
         # 反向解析当前访问的接口
         resolver_match = resolve(request.path)
         # 获取当前访问的接口url_name
@@ -20,6 +20,15 @@ class BaykePermission(permissions.BasePermission):
         has_perm = False
         # 循环执行菜单权限比对
         perms = request.user.get_all_permissions()
+        
+        # 是否开放get权限不受控制    
+        if self.authenticated_users_only and is_auth and (request.method in SAFE_METHODS):
+            return True
+    
+        # 超管不受权限约束
+        if request.user.is_superuser:
+            return True
+        
         for perm in perms:
             perm_split = perm.split('.')
             actions = BaykePermissionAction.objects.filter(
@@ -41,12 +50,15 @@ class BaykePermission(permissions.BasePermission):
        
 
 class BaykePermissionOrReadOnly(BaykePermission):
-    """ get请求不受限制 """
-    def has_permission(self, request, view):
-        # 超管不授限制
-        if request.user.is_superuser:
-            return True
-        return bool(request.method in SAFE_METHODS)
+    """ get请求不受任何限制,且无需登录 """
+    authenticated_users_only = True
+    is_authenticated = True
+    
+    
+class BaykePermissionAuthReadOnly(BaykePermission):
+    """ get请求仅接受登录访问，不受权限系统控制 """
+    authenticated_users_only = True
+    is_authenticated = False
 
 
 class IsOwnerAuthenticated(permissions.IsAuthenticated):

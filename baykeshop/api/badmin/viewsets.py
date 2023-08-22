@@ -61,7 +61,7 @@ class BaykeDepartmentViewSet(viewsets.ModelViewSet):
 class BaykeUserRetrieveAPIView(RetrieveAPIView):
     """ 获取当前登录用户信息 """
     serializer_class = BaykeUserSerializer
-    permission_classes = [permission.BaykePermissionOrReadOnly]
+    permission_classes = [permission.IsOwnerAuthenticated]
     authentication_classes = [SessionAuthentication, JWTAuthentication]
     queryset = BaykeUser.objects.all()
     
@@ -84,18 +84,12 @@ class UserCreateViewset(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
 
 class BaykeUserViewset(viewsets.ModelViewSet):
-    """ 用户列表 """
+    """ 用户增删改查 """
     queryset = BaykeUser.objects.all()
     serializer_class = BaykeUserModelSerializer
     pagination_class = pagination.PageNumberPagination
-    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter) # DRF自带的过滤器
-    search_fields = ('name', )
-    ordering_fields = "__all__"
     filterset_class = BaykeUserFilterSet
-    
-    @action(methods=['delete'], detail=False)
-    def batch_destroy(self, request, *args, **kwargs):
-        return super().batch_destroy(request, *args, **kwargs)
+    search_fields = ('name', )
     
 
 class BaykeRolesViewSet(viewsets.ModelViewSet):
@@ -211,7 +205,7 @@ class BaykeSystemViewset(mixins.RetrieveModelMixin,
     """站点配置 """
     queryset = BaykeSystem.objects.all()
     serializer_class = BaykeSystemSerializer
-    permission_classes = [permission.BaykePermissionOrReadOnly]
+    permission_classes = [permission.BaykePermissionAuthReadOnly]
     
     def get_object(self):
         cache.set('SYSTEM', self.get_queryset().first())

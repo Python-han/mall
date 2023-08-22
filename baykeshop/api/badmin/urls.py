@@ -17,9 +17,9 @@ router.register('user/add', viewsets.UserCreateViewset, basename='user_add')
 
 router.register('action', viewsets.BaykePermissionActionViewSet, basename='action')
 
-router.register('dictkey', viewsets.BaykeDictKeyViewSet, basename='dict_key')
+router.register('dictkey', viewsets.BaykeDictKeyViewSet, basename='dictkey')
 
-router.register('dictvalue', viewsets.BaykeDictValueViewSet, basename='dict_value')
+router.register('dictvalue', viewsets.BaykeDictValueViewSet, basename='dictvalue')
 
 router.register('imgs', viewsets.BaykeImageViewset, basename='imgs')
 

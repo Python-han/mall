@@ -242,7 +242,7 @@
 			// 获取接口权限
 			async getApiPerms(){
 				// 接口权限列表
-				const res = await this.$API.badmin.action.list.get()
+				const res = await this.$API.badmin.action.list.get({pageSize: 10000})
 				this.data.apiPerms = res.data.results
 				// 当前用户拥有的权限
 				this.apiPermModel = this.$parent.selection[0].actions

@@ -170,7 +170,6 @@
 			},
 			deptChange(val){
 				// 响应式改变选择,只能选择最后一级
-				console.log(val)
 				const deptref = this.$refs.deptRef
 				if (deptref.getCheckedNodes(true).length){
 					this.form.dept = this.$refs.deptRef.getCheckedNodes(false)[0].value
