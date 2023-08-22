@@ -30,5 +30,19 @@ export default {
 		post: async function(){
 			return await http.post(this.url);
 		}
-	}
+	},
+	user: {
+		url: `${config.API_URL}/auth/user/changepassword/`,
+		name: "修改自己的密码",
+		post: async function(data){
+			return await http.post(this.url, data)
+		}
+	},
+	owner: {
+		url: `${config.API_URL}/auth/owner/changepassword/`,
+		name: "修改指定用户的密码",
+		post: async function(data){
+			return await http.post(this.url, data)
+		}
+	},
 }

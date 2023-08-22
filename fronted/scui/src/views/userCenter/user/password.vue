@@ -59,14 +59,23 @@
 			save(){
 				this.$refs.form.validate(valid => {
 					if (valid) {
-						this.$alert("密码修改成功，是否跳转至登录页使用新密码登录", "修改成功", {
-							type: 'success',
-							center: true
-						}).then(() => {
-							this.$router.replace({
-								path: '/login'
-							})
-						}).catch(() => {})
+						let data = {
+							user_password: this.form.userPassword,
+							new_password: this.form.newPassword,
+							confirm_new_password: this.form.confirmNewPassword
+						}
+						this.$API.auth.user.post(data).then(res => {
+							if (res.status == 200){
+								this.$alert("密码修改成功，是否跳转至登录页使用新密码登录", "修改成功", {
+									type: 'success',
+									center: true
+								}).then(() => {
+									this.$router.replace({
+										path: '/login'
+									})
+								}).catch(() => {})
+							}
+						})
 					}else{
 						return false
 					}

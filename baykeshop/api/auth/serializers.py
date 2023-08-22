@@ -1,11 +1,12 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from rest_framework.fields import empty
 from rest_framework.validators import UniqueValidator
+
 
 from baykeshop.common.serializers import ModelSerializer, Serializer
 from baykeshop.apps.badmin.models import BaykeVerifyCode
 from baykeshop.conf import bayke_settings
-
 
 
 class ObtainEmailCodeSerializer(ModelSerializer):
@@ -29,7 +30,6 @@ class ObtainEmailCodeSerializer(ModelSerializer):
         code = BaykeVerifyCode.objects.filter(email=data['email']).first()
 
         if code:
-            # nd = timezone.now() - datetime.timedelta(seconds=60)
             nd = timezone.now() - bayke_settings.EMAIL_CODE_EXP
             # 判断是否过期，刷新验证码
             if nd > code.pub_date:
@@ -90,3 +90,26 @@ class RegisterSerializer(CheckEmailCodeSerializer):
         super().validate(attrs)  # 邮箱验证 
         del attrs["code"]
         return attrs
+    
+    
+class UpdateUserSerializer(Serializer):
+    """ 修改密码序列化 """
+    
+    def __init__(self, instance=None, data=empty, user=None, **kwargs):
+        self.user = user
+        super().__init__(instance, data, **kwargs)
+    
+    owner = serializers.IntegerField(min_value=1, required=False)
+    user_password = serializers.CharField(min_length=3, max_length=64)
+    new_password = serializers.CharField(min_length=3, max_length=64)
+    confirm_new_password = serializers.CharField(min_length=3, max_length=64)
+    
+    def validate_user_password(self, user_password):
+        if not self.user.check_password(user_password):
+            raise serializers.ValidationError("当前密码不正确！")
+        return user_password
+    
+    def validate_new_password(self, new_password):
+        if new_password != self.initial_data.get('confirm_new_password'):
+            raise serializers.ValidationError("两次密码输入不一致！")
+        return new_password

@@ -72,7 +72,7 @@
 					this.form.name = res.data.name
 					this.form.sex = res.data.sex
 					this.form.about = res.data.about
-					this.form.avatar = res.data.avatar
+					this.form.avatar = res.data.avatar ? res.data.avatar : 'img/avatar2.gif'
 					this.loading = false
 				}
 			})	

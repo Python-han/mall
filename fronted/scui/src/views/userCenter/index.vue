@@ -142,7 +142,7 @@
 			this.user.id = userinfo.id
 			this.user.username = userinfo.owner.username
 			this.user.role = userinfo.roles.join('/')
-			this.user.avatar = userinfo.avatar
+			this.user.avatar = userinfo.avatar ? userinfo.avatar : 'img/avatar2.gif'
 		}
 	}
 </script>

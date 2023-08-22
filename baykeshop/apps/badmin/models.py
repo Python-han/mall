@@ -159,7 +159,7 @@ class BaykeUser(BaseModelMixin):
     user_type = models.CharField(choices=UserType.choices, default=UserType.SYSTEM, max_length=50, verbose_name=_("用户类型"))
     sex = models.PositiveSmallIntegerField(choices=((0, "未知"), (1, "男"), (2, "女")), default=0, verbose_name=_("性别"))
     about = models.CharField(_("简介"), max_length=150, default="我喜欢baykeshop这个程序！", blank=True)
-    avatar = models.CharField(_("头像地址"), max_length=150, blank=True, default="/media/avatar.png")
+    avatar = models.ImageField(_("头像"), upload_to="avatar/", max_length=200, blank=True, null=True)
     balance = models.DecimalField(_("余额"), max_digits=8, decimal_places=2, blank=True, default=0)
     
     # TODO: Define fields here

@@ -18,13 +18,18 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView, 
     TokenVerifyView
 )
+from rest_framework import serializers
 from rest_framework_simplejwt.serializers import (
     TokenObtainPairSerializer as BaseTokenObtainPairSerializer
 )
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.settings import api_settings
 from rest_framework.generics import CreateAPIView, GenericAPIView
+from rest_framework.views import APIView
+from rest_framework.authentication import SessionAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from baykeshop.common import permission
 from baykeshop.apps.badmin.models import BaykeVerifyCode
 from baykeshop.common.mixins import CheckVerifyCodeMixin, CreateModelMixin
 
@@ -102,3 +107,36 @@ class BaykeUserRegisterAPIView(CreateModelMixin, GenericAPIView):
     
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
+    
+
+class UpdateUserPasswordView(APIView):
+    """ 修改自己的密码 """
+    permission_classes = [permission.BaykePermission]
+    authentication_classes = [JWTAuthentication, SessionAuthentication]
+    
+    def get_user(self, request):
+        return request.user
+    
+    def post(self, request, *args, **kwargs):
+        from .serializers import UpdateUserSerializer
+        serializer = UpdateUserSerializer(data=request.data, user=self.get_user(request))
+        serializer.is_valid(raise_exception=True)
+        validated_data = serializer.validated_data
+        user = self.get_user(request)
+        user.set_password(validated_data['new_password'])
+        user.save()
+        return Response({'code': 'ok', 'message': '修改成功！'})
+
+
+class UpdateOwnerPasswordView(UpdateUserPasswordView):
+    """ 修改指定用户密码 """
+    def get_user(self, request):
+        if not request.data.get('owner'):
+            raise serializers.ValidationError("请向owner字段传递有效的用户id")
+        try:
+            user = get_user_model().objects.get(id=int(request.data.get('owner')))
+            return user
+        except get_user_model().DoesNotExist:
+            raise serializers.ValidationError("用户不存在！")
+        
+    
