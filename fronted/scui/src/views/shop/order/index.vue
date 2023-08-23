@@ -264,7 +264,8 @@ export default {
         // 发货
         send_goods(row) {
             // console.log(row)
-            this.$API.shop.order.partial_update.patch(row.id, {status:3}).then(res => {
+            this.$API.shop.order.sendgoods.post(row).then(res => {
+                console.log(res)
                 if (res.status == 200) {
                     this.$message.success("发货成功")
                     this.$refs.table.refresh()

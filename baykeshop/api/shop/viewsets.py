@@ -276,6 +276,14 @@ class BaykeShopOrderViewSet(mixins.ListModelMixin,
     @action(methods=['delete'], detail=False)
     def batch_destroy(self, request, *args, **kwargs):
         return super().batch_destroy(request, *args, **kwargs)
+    
+    @action(methods=["POST"], detail=True)
+    def sendgoods(self, request, *args, **kwargs):
+        """ 发货视图 """
+        instance = self.get_object()
+        instance.status = 3
+        instance.save()
+        return self.retrieve(request, *args, **kwargs)
 
 
 class BaykeShopCartViewSet(mixins.ListModelMixin, 

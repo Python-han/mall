@@ -335,6 +335,13 @@ export default {
 			batch_delete: async function(data){
 				return await http.delete(`${this.url}batch_destroy/`, data)
 			}
+		},
+		sendgoods: {
+			url: `${config.API_URL}/shop/order/`,
+			name: "发货",
+			post: async function(data){
+				return await http.post(`${this.url}${data.id}/sendgoods/`, data)
+			},
 		}
     },
 
