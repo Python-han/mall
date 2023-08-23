@@ -47,11 +47,20 @@
     <div class="columns is-align-items-center is-marginless">
         <div class="column is-2 has-text-grey-light">余额</div>
         <div class="column is-flex is-justify-content-space-between is-align-items-center">
-            <p>¥ {{ request.user.baykeuser.balance }}</p>
+            <p v-if="!editbalance">¥ {$ balance $}</p>
+            <div v-if="editbalance">
+                <b-field>
+                    <b-numberinput v-model="balance" size="is-small" min="1" :controls="false"/>
+                </b-field>
+            </div>
             <p>
-                <button class=" button is-primary is-outlined is-small" disabled>
+                <button class=" button is-primary is-outlined is-small" @click="editbalance=true" v-if="!editbalance">
                     <span class="icon"><i class="mdi mdi-credit-card-settings-outline"></i></span> 
                     <span class="text">充值</span> 
+                </button>
+                <button class=" button is-success is-small" @click="balanceRecharge" v-if="editbalance">
+                    <span class="icon"><i class="mdi mdi-credit-card-settings-outline"></i></span> 
+                    <span class="text">提交</span> 
                 </button>
             </p>
         </div>
@@ -91,9 +100,11 @@
             phone: '{{ phone }}',
             email: '{{ owner.email }}',
             about: '{{ about }}',
+            balance: parseFloat('{{ request.user.baykeuser.balance }}'),
             editphone: false,
             editemail: false,
-            editedesc: false
+            editedesc: false,
+            editbalance:false
         },
         methods:{
             clickUserinfo(name){
@@ -138,6 +149,32 @@
                             this.editemail = true
                         }
                         bayke.toastMessage('is-danger', res.data)
+                    }
+                })
+            },
+            // 创建超链接，不会被拦截    
+            createSuperLabel(url, id) {      
+                let a = document.createElement("a");           
+                a.setAttribute("href", url);      
+                a.setAttribute("target", "_blank");      
+                a.setAttribute("id", id);       
+                // 防止反复添加      
+                if(!document.getElementById(id)) {                               
+                    document.body.appendChild(a);      
+                }      
+                a.click();
+            },  
+
+            // 余额充值
+            balanceRecharge(){
+                request({
+                    url: '{% url "shop_api:user_balance_create" %}',
+                    method: 'post',
+                    data: {total: this.balance}
+                }).then(res => {
+                    if (res.status == 200){
+                        // location.href = res.data.payurl
+                        this.createSuperLabel(res.data.payurl, "balanceRecharge")
                     }
                 })
             }

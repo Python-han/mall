@@ -80,11 +80,14 @@ def breadcrumbcate(category):
 def filtercates(request):
     """ 全部商品及按分类筛选页通用数据 """
     cate = None
+    sub_cates = []
     if request.query_params.get('category'):
         cate = BaykeShopCategory.objects.get(id=int(request.query_params.get('category')))
-    
+        
     cates = BaykeShopCategory.objects.filter(parent__isnull=True)
-    sub_cates = cates.first().baykeshopcategory_set.all()
+    
+    if cates.exists():
+        sub_cates = cates.first().baykeshopcategory_set.all()
 
     if cate and cate.parent:
         sub_cates = cate.parent.baykeshopcategory_set.all()

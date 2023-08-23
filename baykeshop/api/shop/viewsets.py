@@ -1,4 +1,6 @@
 from collections import OrderedDict
+from django.urls import reverse
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -8,6 +10,7 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.utils.serializer_helpers import ReturnDict
 from baykeshop.common import viewsets, pagination, utils, mixins, permission
+from baykeshop.apps.badmin.models import BaykeUser
 from baykeshop.apps.shop.models import (
     BaykeShopCategory, BaykeshopBrand, BaykeShopSPU, BaykeShopSKU,
     BaykeShopSpec, BaykeShopSpecValue, BaykeShopOrder, BaykeShopCart,
@@ -324,3 +327,27 @@ class BaykeShopBannerViewSet(viewsets.ModelViewSet):
     serializer_class = BaykeShopBannerSerializer
     pagination_class = pagination.PageNumberPagination
     permission_classes = [permission.BaykePermissionOrReadOnly]
+
+
+class BalanceRechargeAPIView(APIView):
+    """ 余额充值 """
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication, SessionAuthentication]
+    
+    def get_user(self, request):
+        return request.user
+    
+    def post(self, request, *args, **kwargs):
+        from .serializers import BalanceRechargeSerializer
+        serializer = BalanceRechargeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        from baykeshop.pay.alipay.trade_page_pay import trade_page_pay
+        out_trade_no = utils.generate_order_sn(self.get_user(request))
+        return_url = f"{request.scheme}://{request.get_host()}{reverse('shop:balance_recharge')}"
+        notify_url = f"{request.scheme}://{request.get_host()}{reverse('shop:balance_recharge')}"
+        response = trade_page_pay(
+            out_trade_no=out_trade_no, total_amount=serializer.validated_data['total'].to_eng_string(),
+            subject="个人中心充值", body=f"个人中心充值{serializer.validated_data['total'].to_eng_string()}",
+            return_url=return_url, notify_url=notify_url
+        )
+        return Response({'code':'ok', 'payurl': response})

@@ -23,6 +23,8 @@ urlpatterns = [
     path('address/', views.BaykeAddressView.as_view({'get': 'list'}), name='address'),
     # 支付宝支付后回调
     path('alipay/', views.AliPayCallBackView.as_view(), name='alipay'),
+    # 余额充值后回调
+    path('balance_recharge/', views.BalanceRechargeAliPayCallBackView.as_view(), name='balance_recharge'),
     
     path('login/', views.LoginView.as_view(), name='login'),
     path('logout/', views.LogoutView.as_view(), name='logout'),

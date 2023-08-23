@@ -9,6 +9,7 @@
 @微信    :baywanyun
 '''
 
+from django.db.models import F
 from django.views.generic import TemplateView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
@@ -194,10 +195,11 @@ class BaykeShopOrderViewSerializer(BaykeShopOrderSerializer):
         paymethod = obj.paymethod
         # 支付宝支付
         if paymethod == 1:
-            from baykeshop.pay.alipay.trade_page_pay import trade_page_pay
+            from baykeshop.pay.alipay.trade_page_pay import trade_page_pay, _return_url, _notify_url
             response = trade_page_pay(
                 out_trade_no=obj.order_sn, total_amount=obj.total_price.to_eng_string(),
-                subject=obj.order_sn, body=f"alipay{obj.order_sn}"
+                subject=obj.order_sn, body=f"alipay{obj.order_sn}", 
+                return_url=_return_url, notify_url=_notify_url
             )
             payurl = response
         return payurl
@@ -329,7 +331,7 @@ class BaykeAddressView(BaykeAddressViewSet):
         return response
     
 
-class AliPayCallBackView(APIView):
+class AliPayCallBackView(APIView, mixins.AlipayCallBackVerifySignMixin):
     """ 支付宝支付成功回调 """
     renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
     
@@ -339,8 +341,8 @@ class AliPayCallBackView(APIView):
         if self.has_verify_sign(data):
             from django.utils import timezone
             order_queryset = BaykeShopOrder.objects.filter(order_sn=data['out_trade_no'])
-            order_queryset.update(pay_time=timezone.now(), total_price=data['total_amount'],paymethod=1,status=2)
             instance = order_queryset.first()
+            order_queryset.update(pay_time=timezone.now(), total_price=data['total_amount'], paymethod=1, status=2)
             serializer = BaykeShopOrderSerializer(instance, many=False)
             return Response(serializer.data, template_name="baykeshop/payok.html")
     
@@ -352,14 +354,25 @@ class AliPayCallBackView(APIView):
             order_queryset.update(pay_time=timezone.now(), total_price=data['total_amount'],paymethod=1,status=2)
             return Response("success")
     
-    def has_verify_sign(self, data):
-        """ 验签 """
-        from baykeshop.pay.alipay.client import _alipay_public_key
-        from alipay.aop.api.util.SignatureUtils import verify_with_rsa
-        sign = data.pop('sign')
-        sign_type = data.pop('sign_type')
-        alipay_public_key = _alipay_public_key
-        # 去除sign和sign_type参数之后进行升序排列，拼装请求参数用支付宝公钥进行验签
-        message='&'.join([f"{k}={v}" for k, v in dict(sorted(data.items(), key=lambda d: d[0], reverse=False)).items()])
-        flag = verify_with_rsa(alipay_public_key, message.encode('UTF-8','strict'), sign)
-        return flag
+
+class BalanceRechargeAliPayCallBackView(AliPayCallBackView):
+    """ 余额充值回调 """
+    
+    def get(self, request, *args, **kwargs):
+        data = request.query_params.dict()
+        from django.http.response import HttpResponseRedirect
+        if self.has_verify_sign(data):
+            baykeusers = BaykeUser.objects.filter(owner=request.user)
+            baykeusers.update(balance=F('balance') + float(data['total_amount']))
+            serializer = BaykeUserSerializer(baykeusers.first(), many=False)
+            messages.add_message(request, messages.SUCCESS, "充值成功！")
+            return HttpResponseRedirect('/menmber/')
+            # return Response(serializer.data, template_name="baykeshop/menmber.html")
+    
+    def post(self, request, *args, **kwargs):
+        data = request.data.dict()
+        if self.has_verify_sign(data):
+            BaykeUser.objects.filter(owner=self.get_user(request)).update(
+                balance=F('balance') + float(data['total_amount'])
+            )
+        return Response('success')

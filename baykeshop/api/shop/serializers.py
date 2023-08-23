@@ -2,7 +2,7 @@ from django.db.models import Sum, F
 from django.db.utils import IntegrityError
 
 from rest_framework import serializers
-from baykeshop.common.serializers import ModelSerializer
+from baykeshop.common.serializers import ModelSerializer, Serializer
 from baykeshop.apps.shop.models import (
     BaykeShopCategory, BaykeshopBrand, BaykeShopSPU, BaykeShopSKU,
     BaykeShopSpec, BaykeShopSpecValue, BaykeShopOrder, BaykeShopOrderSKU,
@@ -175,3 +175,10 @@ class BaykeShopBannerSerializer(ModelSerializer):
     class Meta:
         model = BaykeShopBanner
         fields = "__all__"
+        
+        
+class BalanceRechargeSerializer(Serializer):
+    """ 给自己充值余额 """
+    
+    total = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=True, min_value=1)
+    

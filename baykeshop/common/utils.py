@@ -35,20 +35,13 @@ def generate_tree(source, parent):
     return tree
 
 
-def get_all_url(resolver=None, pre='/'):
-    """获取项目全部 url
-    # 获取某个 app 下的全部 url
-    # 假设有一个 app 叫 dashboard
-    # 通过 pre 参数传入相应前缀
-    >> for url, name in get_all_url(get_resolver('dashboard.urls')):
-    >>      print("url='{}'  name='{}'".format(url, name))
-    """
-    if resolver is None:
-        resolver = get_resolver()
-    for r in resolver.url_patterns:
-        if isinstance(r, URLPattern):
-            if '<pk>' in str(r.pattern):
-                continue
-            yield pre + str(r.pattern).replace('^', '').replace('$', ''), r.name
-        if isinstance(r, URLResolver):
-            yield from get_all_url(r, pre + str(r.pattern))
+def generate_order_sn(user):
+    # 当前时间 + userid + 随机数
+    from random import Random
+    from django.utils import timezone
+    random_ins = Random()
+    order_sn = "{time_str}{user_id}{ranstr}".format(
+        time_str=timezone.now().strftime("%Y%m%d%H%M%S"),
+        user_id=user.id,
+        ranstr=random_ins.randint(10, 99))
+    return order_sn

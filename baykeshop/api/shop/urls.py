@@ -27,6 +27,8 @@ router.register('banner', viewsets.BaykeShopBannerViewSet, basename='banner')
 
 urlpatterns = [
     path('spu/create/', viewsets.BaykeShopSPUCreateOrUpdateAPIView.as_view(), name='spu_create'),
+    # 余额充值
+    path('balance/create/', viewsets.BalanceRechargeAPIView.as_view(), name='user_balance_create'),
     
     *router.urls
 ]

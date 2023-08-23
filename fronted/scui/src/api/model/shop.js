@@ -385,4 +385,12 @@ export default {
 			}
 		}
     },
+
+	balance: {
+		url: `${config.API_URL}/shop/balance/create/`,
+		name: "余额充值接口",
+		post: async function(data){
+			return await http.post(this.url, data)
+		},
+	}
 }
