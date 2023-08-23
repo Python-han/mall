@@ -195,11 +195,15 @@ class BaykeShopOrderViewSerializer(BaykeShopOrderSerializer):
         paymethod = obj.paymethod
         # 支付宝支付
         if paymethod == 1:
-            from baykeshop.pay.alipay.trade_page_pay import trade_page_pay, _return_url, _notify_url
+            request = self.context['request']
+            from django.urls import reverse
+            from baykeshop.pay.alipay.trade_page_pay import trade_page_pay
+            return_url = f"{request.scheme}://{request.get_host()}{reverse('shop:alipay')}"
+            notify_url = f"{request.scheme}://{request.get_host()}{reverse('shop:alipay')}"
             response = trade_page_pay(
                 out_trade_no=obj.order_sn, total_amount=obj.total_price.to_eng_string(),
                 subject=obj.order_sn, body=f"alipay{obj.order_sn}", 
-                return_url=_return_url, notify_url=_notify_url
+                return_url=return_url, notify_url=notify_url
             )
             payurl = response
         return payurl
