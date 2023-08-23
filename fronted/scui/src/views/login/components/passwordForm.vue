@@ -2,12 +2,12 @@
 	<el-form ref="loginForm" :model="form" :rules="rules" label-width="0" size="large" @keyup.enter="login">
 		<el-form-item prop="user">
 			<el-input v-model="form.user" prefix-icon="el-icon-user" clearable :placeholder="$t('login.userPlaceholder')">
-				<template #append>
+				<!-- <template #append>
 					<el-select v-model="userType" style="width: 130px;">
 						<el-option :label="$t('login.admin')" value="admin"></el-option>
 						<el-option :label="$t('login.user')" value="user"></el-option>
 					</el-select>
-				</template>
+				</template> -->
 			</el-input>
 		</el-form-item>
 		<el-form-item prop="password">
@@ -17,16 +17,16 @@
 				<el-col :span="12">
 					<el-checkbox :label="$t('login.rememberMe')" v-model="form.autologin"></el-checkbox>
 				</el-col>
-				<el-col :span="12" class="login-forgot">
+				<!-- <el-col :span="12" class="login-forgot">
 					<router-link to="/reset_password">{{ $t('login.forgetPassword') }}？</router-link>
-				</el-col>
+				</el-col> -->
 		</el-form-item>
 		<el-form-item>
 			<el-button type="primary" style="width: 100%;" :loading="islogin" round @click="login">{{ $t('login.signIn') }}</el-button>
 		</el-form-item>
-		<div class="login-reg">
+		<!-- <div class="login-reg">
 			{{$t('login.noAccount')}} <router-link to="/user_register">{{$t('login.createAccount')}}</router-link>
-		</div>
+		</div> -->
 	</el-form>
 </template>
 

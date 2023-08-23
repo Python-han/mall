@@ -20,7 +20,7 @@ class BaykePermission(permissions.BasePermission):
         has_perm = False
         # 循环执行菜单权限比对
         perms = request.user.get_all_permissions()
-        
+        print(current_url_name)
         # 是否开放get权限不受控制    
         if self.authenticated_users_only and is_auth and (request.method in SAFE_METHODS):
             return True
