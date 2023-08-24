@@ -154,3 +154,25 @@ def paymethod(val):
 def comments(baykeshopsku_set):
     """ 商品详情页评价 """
     return skurate(baykeshopsku_set)
+
+
+@register.filter
+def change_status_format(val):
+    status = ""
+    if val == 1:
+        status = "增加"
+    elif val == 2:
+        status = "支出"
+    return status
+
+
+@register.filter
+def change_way_format(val):
+    status = ""
+    if val == 1:
+        status = "线上充值"
+    elif val == 2:
+        status = "管理员手动修改"
+    elif val == 3:
+        status = "余额抵扣商品"
+    return status

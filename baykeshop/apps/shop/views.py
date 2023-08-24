@@ -18,6 +18,8 @@ from django.contrib.auth.views import (
     LoginView as BaseLoginView,
     LogoutView as BaseLogoutView
 )
+from django.urls import reverse
+
 from rest_framework import serializers
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -203,7 +205,6 @@ class BaykeShopOrderViewSerializer(BaykeShopOrderSerializer):
         # 支付宝支付
         if paymethod == 1:
             request = self.context['request']
-            from django.urls import reverse
             from baykeshop.pay.alipay.trade_page_pay import trade_page_pay
             return_url = f"{request.scheme}://{request.get_host()}{reverse('shop:alipay')}"
             notify_url = f"{request.scheme}://{request.get_host()}{reverse('shop:alipay')}"
@@ -213,6 +214,9 @@ class BaykeShopOrderViewSerializer(BaykeShopOrderSerializer):
                 return_url=return_url, notify_url=notify_url
             )
             payurl = response
+        # 余额支付
+        elif paymethod == 3:
+            payurl = reverse('shop:order-banlancepay', args=[obj.id])
         return payurl
 
 
@@ -282,6 +286,30 @@ class BaykeShopOrderView(mixins.CreateModelMixin, BaykeShopOrderViewSet):
             messages.add_message(request, messages.SUCCESS, "评价成功！")   
         return Response(serializer.data, template_name="baykeshop/comment.html")
     
+    @action(methods=['GET'], detail=True)
+    def paybanlance(self, request, *args, **kwargs):
+        """ 余额支付 """
+        instance = self.get_object()
+        baykeuser = request.user.baykeuser
+        if baykeuser.balance < instance.total_price:
+            raise serializers.ValidationError("余额不足，无法支付，请充值！")
+        baykeuser.balance -= instance.total_price
+        baykeuser.save()
+        # 创建余额变动记录
+        BaykeUserBalanceLog.objects.create(
+            owner=request.user, 
+            amount=instance.total_price, 
+            change_status=2,
+            change_way=3
+        )
+        # 修改订单状态
+        instance.status = 2
+        instance.paymethod = 3
+        instance.save()
+        order_detail = reverse('shop:order-confirmok', args=[instance.id])
+        messages.add_message(request, messages.SUCCESS, "支付成功，请耐心等待商家发货！")
+        return redirect(order_detail)
+        
 
 class BaykeUserSerializer(serializers.ModelSerializer):
     owner = UserSerializer(many=False, read_only=True)
@@ -375,8 +403,15 @@ class BalanceRechargeAliPayCallBackView(AliPayCallBackView):
         if self.has_verify_sign(data):
             baykeusers = BaykeUser.objects.filter(owner=request.user)
             baykeusers.update(balance=F('balance') + float(data['total_amount']))
-            serializer = BaykeUserSerializer(baykeusers.first(), many=False)
+            # serializer = BaykeUserSerializer(baykeusers.first(), many=False)
             messages.add_message(request, messages.SUCCESS, "充值成功！")
+            # 创建余额变动记录
+            BaykeUserBalanceLog.objects.create(
+                owner=request.user, 
+                amount=data['total_amount'], 
+                change_status=1,
+                change_way=1
+            )
             return HttpResponseRedirect('/menmber/')
             # return Response(serializer.data, template_name="baykeshop/menmber.html")
     
@@ -385,5 +420,12 @@ class BalanceRechargeAliPayCallBackView(AliPayCallBackView):
         if self.has_verify_sign(data):
             BaykeUser.objects.filter(owner=self.get_user(request)).update(
                 balance=F('balance') + float(data['total_amount'])
+            )
+            # 创建余额变动记录
+            BaykeUserBalanceLog.objects.create(
+                owner=request.user, 
+                amount=data['total_amount'], 
+                change_status=1,
+                change_way=1
             )
         return Response('success')
