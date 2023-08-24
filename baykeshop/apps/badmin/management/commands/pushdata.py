@@ -12,9 +12,11 @@ class Command(BaseCommand):
         baykepermissionaction = settings.BASE_DIR / 'baykeshop/conf/baykepermissionaction.json'
         baykesystem = settings.BASE_DIR / 'baykeshop/conf/baykesystem.json'
         baykeemailconf = settings.BASE_DIR / 'baykeshop/conf/baykeemailconf.json'
+        baykesystemextend = settings.BASE_DIR / 'baykeshop/conf/baykesystemextend.json'
         management.call_command('loaddata', baykefrontedmenus, verbosity=0)
         management.call_command('loaddata', permission, verbosity=0)
         management.call_command('loaddata', baykepermissionaction, verbosity=0)
         management.call_command('loaddata', baykesystem, verbosity=0)
         management.call_command('loaddata', baykeemailconf, verbosity=0)
+        management.call_command('loaddata', baykesystemextend, verbosity=0)
         self.stdout.write(self.style.SUCCESS("数据导入成功！"))
