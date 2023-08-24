@@ -9,6 +9,7 @@
 @微信    :baywanyun
 '''
 
+from django.shortcuts import redirect
 from django.db.models import F
 from django.views.generic import TemplateView
 from django.contrib.messages.views import SuccessMessageMixin
@@ -135,6 +136,12 @@ class BaykeRegisterView(BaykeUserRegisterAPIView):
 class BaykeShopCartView(BaykeShopCartViewSet):
     """ 购物车 """
     renderer_classes = [TemplateHTMLRenderer]
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.add_message(request, messages.INFO, '未登录，请登录后访问！')
+            return redirect('shop:login')
+        return super().dispatch(request, *args, **kwargs)
     
     def list(self, request, *args, **kwargs):
         response = super().list(request, *args, **kwargs)

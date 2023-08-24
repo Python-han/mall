@@ -307,7 +307,6 @@ class BaykeEmailConf(BaseModelMixin):
 
     class Meta:
         """Meta definition for BaykeEmailConf."""
-
         verbose_name = 'BaykeEmailConf'
         verbose_name_plural = 'BaykeEmailConfs'
 
@@ -321,12 +320,19 @@ class BaykeEmailConf(BaseModelMixin):
         if not self.default_from_email:
             self.default_from_email = self.email_host_user
         super().save(*args, **kwargs)
+    
+    @classmethod
+    def get_email_conf(cls):
+        from django.core.cache import cache
+        email_conf = dict(cls.objects.values().first())
+        conf = cache.get_or_set("EMAIL_CONF", email_conf) 
+        return conf
         
 
 class BaykeSystemExtend(BaseModelMixin):
     """Model definition for BaykeSystemExtend."""
-    key = models.SlugField(_("key"), max_length=150)
-    value = models.CharField(_("字符串值"), max_length=200, blank=True, default="")
+    key = models.SlugField(_("key"), max_length=150, unique=True)
+    value = models.TextField(_("字符串值"), blank=True, default="")
     title = models.CharField(_("配置标题"), max_length=80)
 
     # TODO: Define fields here
@@ -340,7 +346,11 @@ class BaykeSystemExtend(BaseModelMixin):
     def __str__(self):
         """Unicode representation of BaykeSystemExtend."""
         return self.key
-
+    
+    @classmethod
+    def get_system_extend(cls, key):
+        queryset = cls.objects.filter(key=key)
+        return queryset.first() if queryset.exists() else None
 
 class BaykeVerifyCode(BaseModelMixin):
     """Model definition for VerifyCode."""
@@ -368,18 +378,27 @@ class BaykeVerifyCode(BaseModelMixin):
             self.save_send_main(self.code)
             super().save(*args, **kwargs)
         except Exception as e:
+            print(e)
             raise ValueError("邮箱账号密码可能有误，请检查！")
     
     def save_send_main(self, code):
-        from django.core.mail import send_mail
-        email_conf = BaykeEmailConf.objects.first()
+        from django.core.mail import send_mail, get_connection
+        from baykeshop.apps.badmin.models import BaykeEmailConf
+        email_conf = BaykeEmailConf.get_email_conf()
+        connection = get_connection(
+            backend="django.core.mail.backends.smtp.EmailBackend", 
+            fail_silently=False,
+            host=email_conf['email_host'],
+            port=email_conf['email_port'],
+            username=email_conf['email_host_user'],
+            password=email_conf['email_host_password'],
+            use_ssl=email_conf['email_use_ssl']
+        )
         send_mail(
             subject="BaykeShop验证码, 请查收！", 
             message=f"您的验证码为：{code}, 请尽快验证，5分钟内有效！",
-            from_email=email_conf.email_host_user,
+            from_email=email_conf['default_from_email'],
             recipient_list=[self.email],
-            fail_silently=False,
-            auth_user=email_conf.email_host_user,
-            auth_password=email_conf.email_host_password
+            connection=connection
         )
         

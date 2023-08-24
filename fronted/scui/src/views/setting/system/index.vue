@@ -85,13 +85,13 @@
 
 					<el-table :data="setting" stripe>
 						<el-table-column label="#" type="index" width="50"></el-table-column>
-						<el-table-column label="KEY" prop="key" width="150">
+						<el-table-column label="KEY" prop="key" width="300">
 							<template #default="scope">
 								<el-input v-if="scope.row.isSet" v-model="scope.row.key" placeholder="请输入内容"></el-input>
 								<span v-else>{{scope.row.key}}</span>
 							</template>
 						</el-table-column>
-						<el-table-column label="VALUE" prop="value" width="350">
+						<el-table-column label="VALUE" prop="value">
 							<template #default="scope">
 								<template v-if="scope.row.isSet">
 									<el-switch v-if="typeof scope.row.value==='boolean'" v-model="scope.row.value"></el-switch>

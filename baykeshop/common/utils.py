@@ -12,8 +12,6 @@
 import random
 import string
 
-from django.urls import get_urlconf, get_resolver
-from django.urls import URLPattern, URLResolver
 from baykeshop.conf import bayke_settings
 
 

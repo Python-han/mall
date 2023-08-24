@@ -299,4 +299,11 @@ class BaykeSystemExtendSerializer(ModelSerializer):
     class Meta:
         model = BaykeSystemExtend
         fields = "__all__"
-        
+
+
+class BaykeSystemExtendUpdateSerializer(BaykeSystemExtendSerializer):
+    """ 系统扩展配置 """
+    class Meta:
+        model = BaykeSystemExtend
+        fields = "__all__"
+        read_only_fields = ('key', )

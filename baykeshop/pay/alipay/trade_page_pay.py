@@ -5,9 +5,6 @@ from alipay.aop.api.domain.AlipayTradePagePayModel import AlipayTradePagePayMode
 from alipay.aop.api.request.AlipayTradePagePayRequest import AlipayTradePagePayRequest
 from baykeshop.pay.alipay.client import client
 
-_return_url = 'http://127.0.0.1:3000/alipay/'
-_notify_url = 'http://127.0.0.1:3000/alipay/'
-
 
 def trade_page_pay(
     out_trade_no='', total_amount=0, subject='', body='', 

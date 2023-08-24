@@ -71,7 +71,7 @@ SIMPLE_JWT = {
 }
 
 # 控制台邮件后端
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # 允许静态文件跨域
 SECURE_CROSS_ORIGIN_OPENER_POLICY = None

@@ -80,6 +80,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
 if DEBUG:
     from .development import *
 else:

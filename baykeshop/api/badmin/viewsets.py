@@ -7,10 +7,7 @@ from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.generics import ListAPIView, RetrieveAPIView
-from rest_framework.views import APIView
-from rest_framework.decorators import action
-from rest_framework.filters import SearchFilter, OrderingFilter
-from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.permissions import IsAdminUser
 
 from baykeshop.common import viewsets, mixins, pagination, utils, permission
 from baykeshop.apps.badmin.models import (
@@ -250,7 +247,13 @@ class BaykeSystemExtendViewset(viewsets.ModelViewSet):
     """ 站点扩展配置 """
     queryset = BaykeSystemExtend.objects.all()
     serializer_class = BaykeSystemExtendSerializer
-    
+    permission_classes = [IsAdminUser]
+        
+    def get_serializer_class(self):
+        if self.action in ['update', 'partial_update']:
+            from .serializers import BaykeSystemExtendUpdateSerializer
+            return BaykeSystemExtendUpdateSerializer
+        return super().get_serializer_class()
     
 class ContentTypeViewset(mixins.ListModelMixin, viewsets.GenericViewSet):
     """ 应用接口视图 """
