@@ -80,8 +80,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# 开发配置
+from .development import *
 
-if DEBUG:
-    from .development import *
-else:
-    from .production import *
+# 生产配置
+# from .production import *

@@ -59,16 +59,10 @@ REST_FRAMEWORK = {
 }
 
 # 配置允许跨域访问的站点列表
-CORS_ALLOWED_ORIGINS = [
-    'http://192.168.31.174',
-    'http://127.0.0.1:2800'
-]
+CORS_ALLOWED_ORIGINS = []
 
 # csrf可信来源
-CSRF_TRUSTED_ORIGINS = [
-    'http://192.168.31.174',
-    'http://127.0.0.1:2800'
-]
+CSRF_TRUSTED_ORIGINS = []
 
 # 配置token的过期时间
 SIMPLE_JWT = {
