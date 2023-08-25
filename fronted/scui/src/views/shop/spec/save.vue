@@ -102,6 +102,8 @@
 							this.$refs.table.deleteRow(index)
 						}	
 					})
+				}else{
+					this.$refs.table.deleteRow(index)
 				}
 				
 			},
