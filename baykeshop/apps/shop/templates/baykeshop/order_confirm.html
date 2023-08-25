@@ -81,9 +81,13 @@
 			<div class="has-text-right" style="width:85%">运费：</div>
 			<div class="has-text-left" style="width:10%;margin-left:5%;">¥{{ payorder.freight }} </div>
 		</div>
+		<div class="is-flex mb-2">
+			<div class="has-text-right" style="width:85%">商品总额：</div>
+			<div class="has-text-left" style="width:10%;margin-left:5%;">¥{{ payorder.total_amount }} </div>
+		</div>
 		<div class="is-flex has-text-danger-dark">
 			<div class=" has-text-right is-size-5" style="width:85%">应付总额：</div>
-			<div class=" has-text-left is-size-5" style="width:10%; margin-left:5%;">¥{{ payorder.total_amount }} </div>
+			<div class=" has-text-left is-size-5" style="width:10%; margin-left:5%;">¥{{ total_price }} </div>
 		</div>
 	</div>
 	<div class="dropdown-divider"></div>
@@ -131,7 +135,7 @@
 		methods: {
 			immediatePayment(){
 				let balance = parseFloat('{{ request.user.baykeuser.balance }}')
-				let total_amount = parseFloat(payData.total_amount)
+				let total_amount = parseFloat('{{ total_price }}')
 				if (payMethod.defaultPay.value == 3 && balance < total_amount) {
 					bayke.toastMessage('is-danger', '余额不足，无法支付！')
 					return

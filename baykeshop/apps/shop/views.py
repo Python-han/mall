@@ -267,12 +267,13 @@ class BaykeShopOrderView(mixins.CreateModelMixin, BaykeShopOrderViewSet):
             content_type = ContentType.objects.get_for_model(BaykeShopSKU)
             data = request.data
             data['content_type'] = content_type.id
-            data['owner'] = request.user.id
+            # data['owner'] = request.user.id
             comment_serializer = BaykeShopCommentSerializer(data=data)
             comment_serializer.is_valid(raise_exception=True)
-            BaykeShopComment.objects.create(**comment_serializer.validated_data)
+            BaykeShopComment.objects.create(owner=request.user, **comment_serializer.validated_data)
             order_skus = BaykeShopOrderSKU.objects.filter(
-                sku__id=comment_serializer.validated_data['object_id']
+                sku__id=comment_serializer.validated_data['object_id'],
+                order=instance
             )
             order_skus.update(is_commented=True)
             # 判断订单商品是否均已评价
@@ -378,19 +379,18 @@ class AliPayCallBackView(APIView, mixins.AlipayCallBackVerifySignMixin):
         # 验签通过处理逻辑
         data = request.query_params.dict()
         if self.has_verify_sign(data):
-            from django.utils import timezone
             order_queryset = BaykeShopOrder.objects.filter(order_sn=data['out_trade_no'])
             instance = order_queryset.first()
-            order_queryset.update(pay_time=timezone.now(), total_price=data['total_amount'], paymethod=1, status=2)
+            order_queryset.update(pay_time=data['timestamp'], total_price=data['total_amount'], paymethod=1, status=2)
             serializer = BaykeShopOrderSerializer(instance, many=False)
             return Response(serializer.data, template_name="baykeshop/payok.html")
     
     def post(self, request, *args, **kwargs):
         data = request.data.dict()
         if self.has_verify_sign(data):
-            from django.utils import timezone
             order_queryset = BaykeShopOrder.objects.filter(order_sn=data['out_trade_no'])
-            order_queryset.update(pay_time=timezone.now(), total_price=data['total_amount'],paymethod=1,status=2)
+            if not order_queryset.first().pay_time:
+                order_queryset.update(pay_time=data['timestamp'], total_price=data['total_amount'],paymethod=1,status=2)
             return Response("success")
     
 
