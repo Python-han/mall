@@ -8,7 +8,7 @@
 				<div class="el-form-item-msg">账号信息用于登录，系统不允许修改</div>
 			</el-form-item>
 			<el-form-item label="头像">
-				<sc-upload v-model="form.avatar" title="avatar" :cropper="true" :compress="1" :aspectRatio="1/1" round icon="el-icon-avatar"></sc-upload>
+				<sc-upload :autoUpload="false" ref="uploadRef" v-model="form.avatar" round icon="el-icon-avatar"></sc-upload>
 			</el-form-item>
 			<el-form-item label="姓名">
 				<el-input v-model="form.name"></el-input>
@@ -79,14 +79,15 @@
 		},
 		methods: {
 			onSubmit(){
-				const data = {
-					name: this.form.name,
-					sex: this.form.sex,
-					about: this.form.about,
-					avatar: this.form.avatar
+				const sendData = new FormData()
+				sendData.append('name', this.form.name)
+				sendData.append('sex', this.form.sex)
+				sendData.append('about', this.form.about)
+				if (this.$refs.uploadRef.file.status == 'ready'){
+					sendData.append('avatar', this.$refs.uploadRef.file.raw)
 				}
 				this.loading = true
-				this.$API.badmin.users.partial_update.patch(this.form.id, data).then(res => {
+				this.$API.badmin.users.partial_update.patch(this.form.id, sendData).then(res => {
 					if (res.status == 200){
 						this.form.id = res.data.id
 						this.form.username = res.data.owner.username
