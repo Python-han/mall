@@ -82,7 +82,7 @@
                     <article class="media">
                         <figure class="media-left">
                             <p class="image is-32x32">
-                                <img class="is-rounded" src="{{ comment.owner.baykeuser.avatar.url }}">
+                                <img class="is-rounded" src="{% if comment.owner.baykeuser.avatar %}{{ comment.owner.baykeuser.avatar.url }}{% endif %}">
                             </p>
                         </figure>
                         <div class="media-content">
