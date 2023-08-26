@@ -3,7 +3,6 @@
 		<el-form :model="form" :rules="rules" :disabled="mode=='show'" ref="dialogForm" label-width="100px" label-position="left">
 			<el-form-item label="头像" prop="avatar">
 				<sc-upload v-model="form.avatar" title="上传头像" ref="uploadRef"></sc-upload>
-				<!-- <sc-upload title="上传头像" :autoUpload="false" ref="uploadRef" v-model="form.avatar" round icon="el-icon-avatar"></sc-upload> -->
 			</el-form-item>
 			<el-form-item label="登录账号" prop="username">
 				<el-input v-model="form.username" placeholder="用于登录系统" :disabled="mode=='edit'" clearable></el-input>
