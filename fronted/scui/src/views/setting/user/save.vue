@@ -2,7 +2,8 @@
 	<el-dialog :title="titleMap[mode]" v-model="visible" :width="500" destroy-on-close @closed="$emit('closed')">
 		<el-form :model="form" :rules="rules" :disabled="mode=='show'" ref="dialogForm" label-width="100px" label-position="left">
 			<el-form-item label="头像" prop="avatar">
-				<sc-upload v-model="form.avatar" title="上传头像"></sc-upload>
+				<sc-upload v-model="form.avatar" title="上传头像" ref="uploadRef"></sc-upload>
+				<!-- <sc-upload title="上传头像" :autoUpload="false" ref="uploadRef" v-model="form.avatar" round icon="el-icon-avatar"></sc-upload> -->
 			</el-form-item>
 			<el-form-item label="登录账号" prop="username">
 				<el-input v-model="form.username" placeholder="用于登录系统" :disabled="mode=='edit'" clearable></el-input>
@@ -53,13 +54,15 @@
 					username: "",
 					avatar: "",
 					name: "",
-					dept: "",
-					group: []
+					dept: 0,
+					group: [],
+					password: "",
+					password1: ""
 				},
 				//验证规则
 				rules: {
 					avatar:[
-						{required: false, message: '请上传头像'}
+						{required: true, message: '请上传头像'}
 					],
 					username: [
 						{required: true, message: '请输入登录账号'}
@@ -87,7 +90,7 @@
 						}}
 					],
 					dept: [
-						{required: true, message: '请选择所属部门'}
+						{required: false, message: '请选择所属部门'}
 					],
 					group: [
 						{required: false, message: '请选择所属角色', trigger: 'change'}
@@ -133,7 +136,7 @@
 			submit(){
 				this.$refs.dialogForm.validate(async (valid) => {
 					if (valid) {
-						this.isSaveing = true;
+						// this.isSaveing = true;
 						this.form['group_ids'] = this.form.group
 						var res = await this.getSubmitApi(this.mode, this.form);
 						this.isSaveing = false;

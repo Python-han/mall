@@ -156,10 +156,11 @@ class UserCreateSerializer(ModelSerializer):
     password1 = serializers.CharField(write_only=True)
     group_ids = serializers.ListField(required=True, write_only=True)
     dept = serializers.IntegerField(required=True, write_only=True)
+    avatar = serializers.CharField(required=True, write_only=True, max_length=300)
     
     class Meta:
         model = get_user_model()
-        fields = ("id", "username", "password", "password1", "dept", "group_ids")
+        fields = ("id", "username", "password", "password1", "dept", "group_ids", "avatar")
     
     def validate(self, attrs):
         attrs['password'] = make_password(attrs['password1'])
@@ -173,12 +174,20 @@ class UserCreateSerializer(ModelSerializer):
         return password
     
     def create(self, validated_data):
+        import re
         group_ids = validated_data.pop('group_ids')
         dept = validated_data.pop('dept')
+        avatar = validated_data.pop('avatar')
         insatnce = super().create(validated_data)
         insatnce.groups.set(group_ids)
         baykeuser = insatnce.baykeuser
-        baykeuser.dept = BaykeDepartment.objects.get(id=dept)
+        reg = re.compile(r'(/media/)(.*)')
+        mo = reg.search(avatar)
+        if mo:
+            prefix, path = mo.groups()
+            baykeuser.avatar = path
+        if dept:
+            baykeuser.dept = BaykeDepartment.objects.get(id=dept)
         baykeuser.save()
         return insatnce
         
@@ -189,6 +198,7 @@ class BaykeUserModelSerializer(ModelSerializer):
     groupName = serializers.SerializerMethodField()
     group = serializers.SerializerMethodField()
     group_ids = serializers.ListField(required=False, write_only=True)
+    avatar = serializers.CharField(required=True, max_length=300)
     
     class Meta:
         model = BaykeUser
@@ -239,8 +249,6 @@ class BaykeRolesSerializer(ModelSerializer):
         
         try:
             actions = validated_data.pop('perm_ids')
-            print(actions)
-            print(instance.group.permissions)
             if actions:
                 permids = [BaykePermissionAction.objects.get(id=action).permission.id for action in actions]
                 instance.group.permissions.set(permids)
