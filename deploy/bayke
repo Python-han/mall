@@ -9,7 +9,7 @@ server {
     client_max_body_size 75M;    # adjust to taste
     
     location /baykeadmin {
-    	alias /home/qbc/DJProject/bayke-shop/fronted/scui/dist/;
+    	alias /home/qbc/DJProject/bayke-shop/web/baykeadmin/;
     }
     # location 配置请求静态文件多媒体文件。
     location /media  {
