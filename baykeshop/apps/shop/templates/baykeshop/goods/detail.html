@@ -168,9 +168,10 @@
                     }).then(res => {
                         if (res.status == 201){
                             location.replace(`/order/${res.data.id}/confirm/`)
+                        }else if (res.status == 403){
+                            bayke.toastMessage('is-danger', '未登录，请登录后操作！')
                         }else{
-                            console.error(res)
-                            bayke.toastMessage('is-error', '订单创建失败，请检查')
+                            bayke.toastMessage('is-danger', '操作失败！')
                         }
                     })
                 }
