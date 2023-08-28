@@ -8,7 +8,7 @@
 				<div class="el-form-item-msg">账号信息用于登录，系统不允许修改</div>
 			</el-form-item>
 			<el-form-item label="头像">
-				<sc-upload :autoUpload="false" ref="uploadRef" v-model="form.avatar" round icon="el-icon-avatar"></sc-upload>
+				<sc-upload ref="uploadRef" v-model="form.avatar" round icon="el-icon-avatar"></sc-upload>
 			</el-form-item>
 			<el-form-item label="姓名">
 				<el-input v-model="form.name"></el-input>
@@ -34,6 +34,7 @@
 </template>
 
 <script>
+	import { useLocalStorage } from "@vueuse/core"
 	export default {
 		data() {
 			return {
@@ -65,7 +66,9 @@
 		created(){
 			// 异步组件刷新后进来需要重新请求一次接口获取数据
 			this.loading = true
-			this.$API.badmin.user.get().then(res => {
+			let userinfo = JSON.parse(useLocalStorage('USERINFO').value)
+			console.log(userinfo)
+			this.$API.badmin.users.read.get(userinfo.id).then(res => {
 				if (res.status == 200){
 					this.form.id = res.data.id
 					this.form.username = res.data.owner.username
@@ -79,22 +82,15 @@
 		},
 		methods: {
 			onSubmit(){
-				const sendData = new FormData()
-				sendData.append('name', this.form.name)
-				sendData.append('sex', this.form.sex)
-				sendData.append('about', this.form.about)
-				if (this.$refs.uploadRef.file.status == 'ready'){
-					sendData.append('avatar', this.$refs.uploadRef.file.raw)
-				}
 				this.loading = true
-				this.$API.badmin.users.partial_update.patch(this.form.id, sendData).then(res => {
+				this.$API.badmin.users.update.put(this.form.id, this.form).then(res => {
 					if (res.status == 200){
 						this.form.id = res.data.id
 						this.form.username = res.data.owner.username
 						this.form.name = res.data.name
 						this.form.sex = res.data.sex
 						this.form.about = res.data.about
-						this.form.avatar = res.data.avatar
+						// this.form.avatar = res.data.avatar
 						this.loading = false
 						this.$message.success("修改成功")
 					}
