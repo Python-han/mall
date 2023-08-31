@@ -14,10 +14,10 @@ class Command(BaseCommand):
         baykesystemextend = settings.BASE_DIR / 'baykeshop/conf/baykesystemextend.json'
         # baykesystem = settings.BASE_DIR / 'baykeshop/conf/baykesystem.json'
         # baykeemailconf = settings.BASE_DIR / 'baykeshop/conf/baykeemailconf.json'
-        management.call_command('dumpdata', 'badmin.baykefrontedmenus', output=baykefrontedmenus)
-        management.call_command('dumpdata', 'auth.permission', output=permission)
-        management.call_command('dumpdata', 'badmin.baykepermissionaction', output=baykepermissionaction)
-        management.call_command('dumpdata', 'badmin.baykesystemextend', output=baykesystemextend)
+        management.call_command('dumpdata', 'badmin.baykefrontedmenus', output=baykefrontedmenus, indent=2)
+        management.call_command('dumpdata', 'auth.permission', output=permission, indent=2)
+        management.call_command('dumpdata', 'badmin.baykepermissionaction', output=baykepermissionaction, indent=2)
+        management.call_command('dumpdata', 'badmin.baykesystemextend', output=baykesystemextend, indent=2)
         # management.call_command('dumpdata', 'badmin.baykesystem', output=baykesystem)
         # management.call_command('dumpdata', 'badmin.baykeemailconf', output=baykeemailconf)
         self.stdout.write(self.style.SUCCESS(f"数据导出成功，导出数据路径在{settings.BASE_DIR / 'baykeshop/conf'}文件夹下"))
