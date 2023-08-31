@@ -8,7 +8,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # debug的值控制加载指定配置文件
-DEBUG = False
+DEBUG = True
 
 # Application definition
 INSTALLED_APPS = [
