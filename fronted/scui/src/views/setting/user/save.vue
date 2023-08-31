@@ -2,7 +2,8 @@
 	<el-dialog :title="titleMap[mode]" v-model="visible" :width="500" destroy-on-close @closed="$emit('closed')">
 		<el-form :model="form" :rules="rules" :disabled="mode=='show'" ref="dialogForm" label-width="100px" label-position="left">
 			<el-form-item label="头像" prop="avatar">
-				<sc-upload v-model="form.avatar" title="上传头像" ref="uploadRef"></sc-upload>
+				<!-- <sc-upload v-model="form.avatar" title="上传头像" ref="uploadRef"></sc-upload> -->
+				<sc-upload v-model="form.avatar" title="上传头像" ref="uploadRef" :autoUpload="false"></sc-upload>
 			</el-form-item>
 			<el-form-item label="登录账号" prop="username">
 				<el-input v-model="form.username" placeholder="用于登录系统" :disabled="mode=='edit'" clearable></el-input>
@@ -53,7 +54,7 @@
 					username: "",
 					avatar: "",
 					name: "",
-					dept: 0,
+					dept: "",
 					group: [],
 					password: "",
 					password1: ""
@@ -61,7 +62,7 @@
 				//验证规则
 				rules: {
 					avatar:[
-						{required: true, message: '请上传头像'}
+						{required: false, message: '请上传头像'}
 					],
 					username: [
 						{required: true, message: '请输入登录账号'}
@@ -136,8 +137,25 @@
 				this.$refs.dialogForm.validate(async (valid) => {
 					if (valid) {
 						// this.isSaveing = true;
-						this.form['group_ids'] = this.form.group
-						var res = await this.getSubmitApi(this.mode, this.form);
+						const sendData = new FormData()
+						let avatarFile = this.$refs.uploadRef.file
+						if (avatarFile && avatarFile.status == 'ready'){
+							let avatarRaw = avatarFile.raw
+							sendData.append('avatar', avatarRaw)
+						}
+						sendData.append('username', this.form.username)
+						sendData.append('name', this.form.name)
+						if (this.form.dept) {
+							sendData.append('dept', this.form.dept)
+						}
+						if (this.form.group.length){
+							sendData.append('group_ids', this.form.group)
+						}
+						if (this.mode == 'add'){
+							sendData.append('password', this.form.password)
+							sendData.append('password1', this.form.password1)
+						}
+						var res = await this.getSubmitApi(this.mode, sendData);
 						this.isSaveing = false;
 						if(res.status == 200 || res.status == 201){
 							this.$emit('success', res.data, this.mode)
@@ -165,7 +183,7 @@
 			},
 			getSubmitApi(model, data){
 				if (model == 'edit'){
-					return this.$API.badmin.users.update.put(data.id, data)
+					return this.$API.badmin.users.update.put(this.form.id, data)
 				}else if (model == 'add'){
 					return this.$API.badmin.user.post(data)
 				}

@@ -81,10 +81,10 @@ AUTH_PASSWORD_VALIDATORS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # 开发配置
-from .development import *
+# from .development import *
 
 # 生产配置
-# from .production import *
+from .production import *
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # 始终跳转到https服务，我们用了nginx的反向代理，就不能再配置这一项，否则会跳转死循环

@@ -154,13 +154,10 @@ class BaykeUserSerializer(ModelSerializer):
 class UserCreateSerializer(ModelSerializer):
     """ 创建用户 """
     password1 = serializers.CharField(write_only=True)
-    group_ids = serializers.ListField(required=True, write_only=True)
-    dept = serializers.IntegerField(required=True, write_only=True)
-    avatar = serializers.CharField(required=True, write_only=True, max_length=300)
-    
+
     class Meta:
         model = get_user_model()
-        fields = ("id", "username", "password", "password1", "dept", "group_ids", "avatar")
+        fields = ("id", "username", "password", "password1")
     
     def validate(self, attrs):
         attrs['password'] = make_password(attrs['password1'])
@@ -172,24 +169,6 @@ class UserCreateSerializer(ModelSerializer):
         if password != self.context['request'].data['password1']:
             raise serializers.ValidationError("两次密码输入不一致")
         return password
-    
-    def create(self, validated_data):
-        import re
-        group_ids = validated_data.pop('group_ids')
-        dept = validated_data.pop('dept')
-        avatar = validated_data.pop('avatar')
-        insatnce = super().create(validated_data)
-        insatnce.groups.set(group_ids)
-        baykeuser = insatnce.baykeuser
-        reg = re.compile(r'(/media/)(.*)')
-        mo = reg.search(avatar)
-        if mo:
-            prefix, path = mo.groups()
-            baykeuser.avatar = path
-        if dept:
-            baykeuser.dept = BaykeDepartment.objects.get(id=dept)
-        baykeuser.save()
-        return insatnce
         
 
 class BaykeUserModelSerializer(ModelSerializer):
@@ -198,7 +177,6 @@ class BaykeUserModelSerializer(ModelSerializer):
     groupName = serializers.SerializerMethodField()
     group = serializers.SerializerMethodField()
     group_ids = serializers.ListField(required=False, write_only=True)
-    avatar = serializers.CharField(required=True, max_length=300)
     
     class Meta:
         model = BaykeUser

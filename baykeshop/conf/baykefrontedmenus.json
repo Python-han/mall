@@ -42,27 +42,6 @@
 },
 {
   "model": "badmin.baykefrontedmenus",
-  "pk": 3,
-  "fields": {
-    "add_date": "2023-08-15T03:29:36.644Z",
-    "pub_date": "2023-08-22T12:11:05.161Z",
-    "is_delete": false,
-    "name": "userCenter",
-    "parent": 1,
-    "path": "/usercenter",
-    "component": "userCenter",
-    "meta": {
-      "tag": "NEW",
-      "icon": "el-icon-user",
-      "type": "menu",
-      "title": "帐号信息"
-    },
-    "redirect": "",
-    "sort": 2
-  }
-},
-{
-  "model": "badmin.baykefrontedmenus",
   "pk": 4,
   "fields": {
     "add_date": "2023-08-15T03:29:36.648Z",
