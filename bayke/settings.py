@@ -8,7 +8,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # debug的值控制加载指定配置文件
-DEBUG = True
+DEBUG = False
 
 # Application definition
 INSTALLED_APPS = [
@@ -85,3 +85,11 @@ from .development import *
 
 # 生产配置
 # from .production import *
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+# 始终跳转到https服务，我们用了nginx的反向代理，就不能再配置这一项，否则会跳转死循环
+# SECURE_SSL_REDIRECT = True  
+CSRF_COOKIE_SECURE = True
+# 由于django服务和静态站点其实是跨域的两个站点，csrf会阻止跨站请求，尤其是POST，
+# 这个配置项可以放行允许跨站的域名
+CSRF_TRUSTED_ORIGINS = ["https://s.bayke.shop"]

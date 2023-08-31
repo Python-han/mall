@@ -161,3 +161,8 @@ CSRF_TRUSTED_ORIGINS = [
 
 3. 转换应用私钥格式
 ![](web/docs/img/zh-35.png)
+
+### 部署
+- [宝塔面板辅助部署baykeshop商城系统](https://gitee.com/bayke/bayke-shop/blob/main/web/docs/6.%E9%83%A8%E7%BD%B2/2.%E6%90%AD%E9%85%8D%E5%AE%9D%E5%A1%94%E9%9D%A2%E6%9D%BF%E9%83%A8%E7%BD%B2.md)
+
+
