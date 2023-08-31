@@ -170,6 +170,9 @@ class UserCreateSerializer(ModelSerializer):
             raise serializers.ValidationError("两次密码输入不一致")
         return password
         
+    def create(self, validated_data):
+        print(validated_data)
+        return super().create(validated_data)
 
 class BaykeUserModelSerializer(ModelSerializer):
     """ 用户增删改查 """

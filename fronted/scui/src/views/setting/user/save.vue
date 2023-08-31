@@ -1,14 +1,13 @@
 <template>
 	<el-dialog :title="titleMap[mode]" v-model="visible" :width="500" destroy-on-close @closed="$emit('closed')">
 		<el-form :model="form" :rules="rules" :disabled="mode=='show'" ref="dialogForm" label-width="100px" label-position="left">
-			<el-form-item label="头像" prop="avatar">
-				<!-- <sc-upload v-model="form.avatar" title="上传头像" ref="uploadRef"></sc-upload> -->
+			<el-form-item label="头像" prop="avatar" v-show="mode == 'edit'">
 				<sc-upload v-model="form.avatar" title="上传头像" ref="uploadRef" :autoUpload="false"></sc-upload>
 			</el-form-item>
 			<el-form-item label="登录账号" prop="username">
 				<el-input v-model="form.username" placeholder="用于登录系统" :disabled="mode=='edit'" clearable></el-input>
 			</el-form-item>
-			<el-form-item label="姓名" prop="name">
+			<el-form-item label="姓名" prop="name" v-if="mode == 'edit'">
 				<el-input v-model="form.name" placeholder="请输入完整的真实姓名" clearable></el-input>
 			</el-form-item>
 			<template v-if="mode=='add'">
@@ -19,10 +18,10 @@
 					<el-input type="password" v-model="form.password1" clearable show-password></el-input>
 				</el-form-item>
 			</template>
-			<el-form-item label="所属部门" prop="dept">
+			<el-form-item label="所属部门" prop="dept" v-if="mode == 'edit'">
 				<el-cascader v-model="form.dept" :options="depts" :props="deptsProps" ref="deptRef" clearable style="width: 100%;" @change="deptChange"></el-cascader>
 			</el-form-item>
-			<el-form-item label="所属角色" prop="group">
+			<el-form-item label="所属角色" prop="group" v-if="mode == 'edit'">
 				<el-select v-model="form.group" multiple filterable style="width: 100%">
 					<el-option v-for="item in groups" :key="item.group.id" :label="item.group.name" :value="item.group.id"/>
 				</el-select>
