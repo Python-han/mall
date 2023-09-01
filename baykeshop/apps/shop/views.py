@@ -104,6 +104,18 @@ class BaykeShopSPUView(BaykeShopSPUViewSet):
     def retrieve(self, request, *args, **kwargs):
         response = super().retrieve(request, *args, **kwargs)
         response.template_name = "baykeshop/goods/detail.html"
+        from django.contrib.contenttypes.models import ContentType
+        from baykeshop.apps.stats.models import BaykeDataStats
+        content_type = ContentType.objects.get_for_model(BaykeShopSPU)
+        stats = BaykeDataStats.save_count(
+            request,
+            content_type=content_type, 
+            object_id=kwargs.get('pk'),
+            tag=request.path
+        )
+        stats_obj = BaykeDataStats.objects.filter(id=stats.id)
+        response.data['pv'] = stats_obj.first().pv
+        response.data['uv'] = stats_obj.first().uv
         return response
 
 

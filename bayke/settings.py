@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     'baykeshop.apps.shop',
     'baykeshop.apps.badmin',
     'baykeshop.apps.comment',
+    'baykeshop.apps.stats',
     'rest_framework',
     'django_filters',
 ]
@@ -86,10 +87,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # 生产配置
 from .production import *
 
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+# SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # 始终跳转到https服务，我们用了nginx的反向代理，就不能再配置这一项，否则会跳转死循环
 # SECURE_SSL_REDIRECT = True  
-CSRF_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
 # 由于django服务和静态站点其实是跨域的两个站点，csrf会阻止跨站请求，尤其是POST，
 # 这个配置项可以放行允许跨站的域名
-CSRF_TRUSTED_ORIGINS = ["https://s.bayke.shop"]
+# CSRF_TRUSTED_ORIGINS = ["https://s.bayke.shop"]

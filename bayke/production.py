@@ -38,7 +38,7 @@ TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
@@ -59,10 +59,14 @@ REST_FRAMEWORK = {
 }
 
 # 配置允许跨域访问的站点列表
-CORS_ALLOWED_ORIGINS = []
+CORS_ALLOWED_ORIGINS = [
+    'http://127.0.0.1:2800'
+]
 
 # csrf可信来源
-CSRF_TRUSTED_ORIGINS = []
+CSRF_TRUSTED_ORIGINS = [
+    'http://127.0.0.1:2800'
+]
 
 # 配置token的过期时间
 SIMPLE_JWT = {
