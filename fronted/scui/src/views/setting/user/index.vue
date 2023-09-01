@@ -6,202 +6,208 @@
 					<el-input placeholder="输入关键字进行过滤" v-model="groupFilterText" clearable></el-input>
 				</el-header>
 				<el-main class="nopadding">
-					<el-tree ref="group" class="menu" node-key="id" :data="group" :current-node-key="''" :highlight-current="true" :expand-on-click-node="false" :filter-node-method="groupFilterNode" @node-click="groupClick" :props="defaultProps"></el-tree>
+					<el-tree ref="group" class="menu" node-key="id" :data="group" :current-node-key="''"
+						:highlight-current="true" :expand-on-click-node="false" :filter-node-method="groupFilterNode"
+						@node-click="groupClick" :props="defaultProps"></el-tree>
 				</el-main>
 			</el-container>
 		</el-aside>
 		<el-container>
-				<el-header>
-					<div class="left-panel">
-						<el-button type="primary" icon="el-icon-plus" @click="add">新增</el-button>
-						<el-button type="danger" plain icon="el-icon-delete" :disabled="selection.length==0" @click="batch_del">批量删除</el-button>
-						<el-button type="primary" plain :disabled="selection.length==0 || selection.length>1" @click="table_edit(selection[0])">分配角色</el-button>
-						<el-button type="primary" plain :disabled="selection.length==0 || selection.length>1">密码重置</el-button>
+			<el-header>
+				<div class="left-panel">
+					<el-button type="primary" icon="el-icon-plus" @click="add">新增</el-button>
+					<el-button type="danger" plain icon="el-icon-delete" :disabled="selection.length == 0"
+						@click="batch_del">批量删除</el-button>
+					<el-button type="primary" plain :disabled="selection.length == 0 || selection.length > 1"
+						@click="table_edit(selection[0])">分配角色</el-button>
+				</div>
+				<div class="right-panel">
+					<div class="right-panel-search">
+						<el-input v-model="search.name" placeholder="登录账号 / 姓名" clearable></el-input>
+						<el-button type="primary" icon="el-icon-search" @click="upsearch"></el-button>
 					</div>
-					<div class="right-panel">
-						<div class="right-panel-search">
-							<el-input v-model="search.name" placeholder="登录账号 / 姓名" clearable></el-input>
-							<el-button type="primary" icon="el-icon-search" @click="upsearch"></el-button>
-						</div>
-					</div>
-				</el-header>
-				<el-main class="nopadding">
-					<scTable ref="table" :apiObj="apiObj" @selection-change="selectionChange" stripe remoteSort remoteFilter>
-						<el-table-column type="selection" width="50"></el-table-column>
-						<el-table-column label="ID" prop="id" width="80" sortable='custom'></el-table-column>
-						<el-table-column label="头像" width="80" column-key="filterAvatar" :filters="[{text: '已上传', value: '1'}, {text: '未上传', value: '0'}]">
-							<template #default="scope">
-								<el-avatar :src="scope.row.avatar" size="small"></el-avatar>
-							</template>
-						</el-table-column>
-						<el-table-column label="登录账号" prop="owner.username" width="150" sortable='custom' column-key="user_type" :filters="[{text: '系统账号', value: 'SYSTEM'}, {text: '普通账号', value: 'FRONTED'}]"></el-table-column>
-						<el-table-column label="姓名" prop="name" width="150" sortable='custom'></el-table-column>
-						<el-table-column label="所属角色" prop="groupName" width="200" sortable='custom'></el-table-column>
-						<el-table-column label="加入时间" prop="add_date" width="170" sortable='custom'></el-table-column>
-						<el-table-column label="操作" fixed="right" align="right" width="160">
-							<template #default="scope">
-								<el-button-group>
-									<el-button text type="primary" size="small" @click="table_show(scope.row, scope.$index)">查看</el-button>
-									<el-button text type="primary" size="small" @click="table_edit(scope.row, scope.$index)">编辑</el-button>
-									<el-popconfirm title="确定删除吗？" @confirm="table_del(scope.row, scope.$index)">
-										<template #reference>
-											<el-button text type="primary" size="small">删除</el-button>
-										</template>
-									</el-popconfirm>
-								</el-button-group>
-							</template>
-						</el-table-column>
+				</div>
+			</el-header>
+			<el-main class="nopadding">
+				<scTable ref="table" :apiObj="apiObj" @selection-change="selectionChange" stripe remoteSort remoteFilter>
+					<el-table-column type="selection" width="50"></el-table-column>
+					<el-table-column label="ID" prop="id" width="80" sortable='custom'></el-table-column>
+					<el-table-column label="头像" width="80" column-key="filterAvatar"
+						:filters="[{ text: '已上传', value: '1' }, { text: '未上传', value: '0' }]">
+						<template #default="scope">
+							<el-avatar :src="scope.row.avatar" size="small"></el-avatar>
+						</template>
+					</el-table-column>
+					<el-table-column label="登录账号" prop="owner.username" width="150" sortable='custom' column-key="user_type"
+						:filters="[{ text: '系统账号', value: 'SYSTEM' }, { text: '普通账号', value: 'FRONTED' }]"></el-table-column>
+					<el-table-column label="姓名" prop="name" width="150" sortable='custom'></el-table-column>
+					<el-table-column label="所属角色" prop="groupName" width="200" sortable='custom'></el-table-column>
+					<el-table-column label="加入时间" prop="add_date" width="170" sortable='custom'></el-table-column>
+					<el-table-column label="操作" fixed="right" align="right" width="160">
+						<template #default="scope">
+							<el-button-group>
+								<el-button text type="primary" size="small"
+									@click="table_show(scope.row, scope.$index)">查看</el-button>
+								<el-button text type="primary" size="small"
+									@click="table_edit(scope.row, scope.$index)">编辑</el-button>
+								<el-popconfirm title="确定删除吗？" @confirm="table_del(scope.row, scope.$index)">
+									<template #reference>
+										<el-button text type="primary" size="small">删除</el-button>
+									</template>
+								</el-popconfirm>
+							</el-button-group>
+						</template>
+					</el-table-column>
 
-					</scTable>
-				</el-main>
+				</scTable>
+			</el-main>
 		</el-container>
 	</el-container>
 
-	<save-dialog v-if="dialog.save" ref="saveDialog" @success="handleSuccess" @closed="dialog.save=false"></save-dialog>
+	<save-dialog v-if="dialog.save" ref="saveDialog" @success="handleSuccess" @closed="dialog.save = false"></save-dialog>
 
 </template>
 
 <script>
-	import saveDialog from './save'
+import saveDialog from './save'
 
-	export default {
-		name: 'user',
-		components: {
-			saveDialog
-		},
-		data() {
-			return {
-				dialog: {
-					save: false
-				},
-				showGrouploading: false,
-				groupFilterText: '',
-				group: [],
-				apiObj: this.$API.badmin.users.list,
-				selection: [],
-				search: {
-					name: null
-				},
-				defaultProps: {
-					label: 'name',
-					children: 'children'
-				},
-				ids: []
-			}
-		},
-		watch: {
-			groupFilterText(val) {
-				this.$refs.group.filter(val);
-			}
-		},
-		mounted() {
-			this.getGroup()
-		},
-		methods: {
-			//添加
-			add(){
-				this.dialog.save = true
-				this.$nextTick(() => {
-					this.$refs.saveDialog.open()
-				})
+export default {
+	name: 'user',
+	components: {
+		saveDialog,
+	},
+	data() {
+		return {
+			dialog: {
+				save: false
 			},
-			//编辑
-			table_edit(row){
-				this.dialog.save = true
-				this.$nextTick(() => {
-					this.$refs.saveDialog.open('edit').setData(row)
-				})
+			showGrouploading: false,
+			groupFilterText: '',
+			group: [],
+			apiObj: this.$API.badmin.users.list,
+			selection: [],
+			search: {
+				name: null
 			},
-			//查看
-			table_show(row){
-				this.dialog.save = true
-				this.$nextTick(() => {
-					this.$refs.saveDialog.open('show').setData(row)
-				})
+			defaultProps: {
+				label: 'name',
+				children: 'children'
 			},
-			//删除
-			async table_del(row, index){
-				// var reqData = {id: row.id}
-				var res = await this.$API.badmin.users.remove.delete(row.id);
-				if(res.status == 204){
-					//这里选择刷新整个表格 OR 插入/编辑现有表格数据
-					this.$refs.table.tableData.splice(index, 1);
-					this.$message.success("删除成功")
-				}else{
-					this.$alert(res.message, "提示", {type: 'error'})
-				}
-			},
-			//批量删除
-			async batch_del(){
-				this.$confirm(`确定删除选中的 ${this.selection.length} 项吗？`, '提示', {
-					type: 'warning'
-				}).then(() => {
-					const loading = this.$loading();
-					this.$API.badmin.users.remove.batch_delete({ids: this.ids}).then(res => {
-						if (res.status == 204){
-							this.selection.forEach(item => {
-								this.$refs.table.tableData.forEach((itemI, indexI) => {
-									if (item.id === itemI.id) {
-										this.$refs.table.tableData.splice(indexI, 1)
-									}
-								})
-							})
-							loading.close();
-							this.$message.success("操作成功")
-						}
-					})
-				}).catch(() => {
-					console.log('删除失败')
-				})
-			},
-			//表格选择后回调事件
-			selectionChange(selection){
-				this.selection = selection;
-				this.selection.forEach(el => {
-					this.ids.push(el.id)
-				})
-			},
-			//加载树数据
-			async getGroup(){
-				this.showGrouploading = true;
-				var res = await this.$API.badmin.dept.list.get();
-				this.showGrouploading = false;
-				var allNode ={id: '', name: '所有'}
-				res.data.results.unshift(allNode);
-				this.group = res.data.results;
-			},
-			//树过滤
-			groupFilterNode(value, data){
-				if (!value) return true;
-				return data.name.indexOf(value) !== -1;
-			},
-			//树点击事件
-			groupClick(data){
-				var params = {
-					dept: data.id
-				}
-				this.$refs.table.reload(params)
-			},
-			//搜索
-			upsearch(){
-				this.$refs.table.upData({search: this.search.name})
-				// this.$refs.table.upData(this.search)
-			},
-			//本地更新数据
-			handleSuccess(data, mode){
-				if(mode=='add'){
-					// data.id = data.id
-					this.$refs.table.tableData.unshift(data)
-					this.$refs.table.refresh()
-				}else if(mode=='edit'){
-					this.$refs.table.tableData.filter(item => item.id===data.id ).forEach(item => {
-						Object.assign(item, data)
-					})
-				}
-			}
+			ids: []
 		}
+	},
+	watch: {
+		groupFilterText(val) {
+			this.$refs.group.filter(val);
+		}
+	},
+	mounted() {
+		this.getGroup()
+	},
+	methods: {
+		//添加
+		add() {
+			this.dialog.save = true
+			this.$nextTick(() => {
+				this.$refs.saveDialog.open()
+			})
+		},
+		//编辑
+		table_edit(row) {
+			this.dialog.save = true
+			this.$nextTick(() => {
+				this.$refs.saveDialog.open('edit').setData(row)
+			})
+		},
+		//查看
+		table_show(row) {
+			this.dialog.save = true
+			this.$nextTick(() => {
+				this.$refs.saveDialog.open('show').setData(row)
+			})
+		},
+		//删除
+		async table_del(row, index) {
+			// var reqData = {id: row.id}
+			var res = await this.$API.badmin.users.remove.delete(row.id);
+			if (res.status == 204) {
+				//这里选择刷新整个表格 OR 插入/编辑现有表格数据
+				this.$refs.table.tableData.splice(index, 1);
+				this.$message.success("删除成功")
+			} else {
+				this.$alert(res.message, "提示", { type: 'error' })
+			}
+		},
+		//批量删除
+		async batch_del() {
+			this.$confirm(`确定删除选中的 ${this.selection.length} 项吗？`, '提示', {
+				type: 'warning'
+			}).then(() => {
+				const loading = this.$loading();
+				this.$API.badmin.users.remove.batch_delete({ ids: this.ids }).then(res => {
+					if (res.status == 204) {
+						this.selection.forEach(item => {
+							this.$refs.table.tableData.forEach((itemI, indexI) => {
+								if (item.id === itemI.id) {
+									this.$refs.table.tableData.splice(indexI, 1)
+								}
+							})
+						})
+						loading.close();
+						this.$message.success("操作成功")
+					}
+				})
+			}).catch(() => {
+				console.log('删除失败')
+			})
+		},
+		//表格选择后回调事件
+		selectionChange(selection) {
+			this.selection = selection;
+			this.selection.forEach(el => {
+				this.ids.push(el.id)
+			})
+		},
+		//加载树数据
+		async getGroup() {
+			this.showGrouploading = true;
+			var res = await this.$API.badmin.dept.list.get();
+			this.showGrouploading = false;
+			var allNode = { id: '', name: '所有' }
+			res.data.results.unshift(allNode);
+			this.group = res.data.results;
+		},
+		//树过滤
+		groupFilterNode(value, data) {
+			if (!value) return true;
+			return data.name.indexOf(value) !== -1;
+		},
+		//树点击事件
+		groupClick(data) {
+			var params = {
+				dept: data.id
+			}
+			this.$refs.table.reload(params)
+		},
+		//搜索
+		upsearch() {
+			this.$refs.table.upData({ search: this.search.name })
+			// this.$refs.table.upData(this.search)
+		},
+		//本地更新数据
+		handleSuccess(data, mode) {
+			if (mode == 'add') {
+				// data.id = data.id
+				this.$refs.table.tableData.unshift(data)
+				this.$refs.table.refresh()
+			} else if (mode == 'edit') {
+				this.$refs.table.tableData.filter(item => item.id === data.id).forEach(item => {
+					Object.assign(item, data)
+				})
+			}
+		},
 	}
+}
 </script>
 
-<style>
-</style>
+<style></style>

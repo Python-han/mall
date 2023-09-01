@@ -1,4 +1,38 @@
+<style>
+    .editAvatar{
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        /* line-height: 64px; */
+        width: 64px;
+        text-align: center;
+        /* color: brown; */
+        /* font-size: small; */
+    }
+</style>
 <div class="column" id="userinfo">
+    <div class="columns is-align-items-center is-marginless">
+        <div class="column is-2 has-text-grey-light">头像</div>
+        <div class="column">
+            <div class="is-flex is-justify-content-space-between is-align-items-center">
+                <b-upload v-model="file" class="file-label" rounded accept=".jpg,.png,gif" @input="avatarInput">
+                    <figure class="image is-64x64 is-relative" @mouseover="editAvatar=true" @mouseout="editAvatar=false">
+                        <img class="is-rounded" :src="avatarSrc">
+                        <div class="editAvatar has-background-primary-light">
+                            <b-tag type="is-primary is-light" v-show="editAvatar">修改</b-tag>
+                        </div>
+                    </figure>
+                </b-upload>
+                
+                <button class="button is-success is-outlined is-small" v-if="file.name" @click="saveAvatar">
+                    <span class="icon"><i class="mdi mdi-image-edit"></i></span> 
+                    <span class="text">保存</span>
+                </button>
+            </div>
+            
+        </div>
+    </div>
+    <div class="dropdown-divider is-marginless"></div>
     <div class="columns is-align-items-center is-marginless">
         <div class="column is-2 has-text-grey-light">用户名</div>
         <div class="column">{{ request.user.username }}</div>
@@ -104,8 +138,11 @@
             editphone: false,
             editemail: false,
             editedesc: false,
-            editbalance:false
-        },
+            editbalance:false,
+            editAvatar: false,
+            file: {},
+            avatarSrc: "{% if request.user.baykeuser.avatar %}{{ request.user.baykeuser.avatar.url }}{% endif %}"
+        },  
         methods:{
             clickUserinfo(name){
                 if (name == 'phone'){
@@ -175,6 +212,29 @@
                     if (res.status == 200){
                         // location.href = res.data.payurl
                         this.createSuperLabel(res.data.payurl, "balanceRecharge")
+                    }
+                })
+            },
+
+            // 修改头像
+            avatarInput(){
+                let avatarUrl = URL.createObjectURL(new Blob([this.file], { type: "image/png" }))
+                this.avatarSrc = avatarUrl
+            },
+            // 保存头像
+            saveAvatar(){
+                let sendData = new FormData();
+                sendData.append('avatar', this.file)
+                request({
+                    url: '{% url "shop:user-update" id %}',
+                    method: 'patch',
+                    data: sendData
+                }).then(res => {
+                    if (res.status == 200){
+                        bayke.toastMessage('is-success', '上传成功！')
+                        setTimeout(function(){
+                            location.reload()
+                        }, 1000) 
                     }
                 })
             }
